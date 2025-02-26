@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#1a1a2e" />
+  
+  <!-- Fire gradient background -->
+  <defs>
+    <linearGradient id="fireGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff3366" />
+      <stop offset="50%" stop-color="#ff9500" />
+      <stop offset="100%" stop-color="#ffcc00" />
+    </linearGradient>
+    
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Flame icon -->
+  <path d="M16 6c0 0 3.6 4.6 3.6 8.6c0 2.8-1.6 5.1-3.6 5.1s-3.6-2.3-3.6-5.1C12.4 10.6 16 6 16 6" 
+        fill="url(#fireGradient)" filter="url(#glow)" />
+  
+  <!-- Simplified circle for small size -->
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#8957ff" stroke-width="1" />
+  
+  <!-- "3000" simplified text -->
+  <text x="16" y="26" font-family="Arial, sans-serif" font-size="6" text-anchor="middle" fill="#ffffff" font-weight="bold">3000</text>
+</svg> 

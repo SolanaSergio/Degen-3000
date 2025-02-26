@@ -1,0 +1,757 @@
+/**
+ * DEGEN ROAST 3000 - Enhanced UI
+ * Professional styling with humorous elements
+ */
+
+/* Modernized UI Elements */
+:root {
+  /* Enhanced color palette */
+  --pro-accent: #8957ff;
+  --pro-accent-hover: #9e75ff;
+  --pro-highlight: #ffcc00;
+  --pro-bg-gradient-start: #1a1a2e;
+  --pro-bg-gradient-end: #16213e;
+  
+  /* Meme-themed accents */
+  --stonks-green: #00ff88;
+  --hodl-red: #ff3366;
+  --degen-purple: #a742ff;
+  --moon-yellow: #ffd60a;
+  
+  /* Layout variables */
+  --card-elevation: 0 10px 20px rgba(0, 0, 0, 0.3);
+  --glass-effect: rgba(25, 25, 35, 0.7);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Animation speeds - SLOWED DOWN */
+  --animation-speed-fast: 0.5s;
+  --animation-speed-normal: 1s;
+  --animation-speed-slow: 2s;
+  --animation-speed-very-slow: 4s;
+}
+
+/* Enhanced body background */
+body.enhanced-ui {
+  background: linear-gradient(135deg, var(--pro-bg-gradient-start) 0%, var(--pro-bg-gradient-end) 100%);
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+/* Animated background elements */
+body.enhanced-ui::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../images/stonks-bg.svg');
+  background-size: cover;
+  background-position: center center;
+  opacity: 0.15;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Stonks mode background - SLOWED DOWN */
+body.stonks-mode::before {
+  animation: pulse-bg 5s infinite alternate; /* Slowed from 3s to 5s */
+  opacity: 0.3;
+}
+
+@keyframes pulse-bg {
+  0% { opacity: 0.2; }
+  100% { opacity: 0.4; }
+}
+
+/* Main container styling */
+.container.enhanced-ui {
+  background: rgba(26, 28, 41, 0.7);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  
+  /* Create grid layout to fix component positioning */
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "dashboard chat"
+    "meme-gallery chat" 
+    "message-input message-input"
+    "soundboard soundboard"
+    "footer footer";
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: auto auto 1fr auto auto auto;
+  gap: 20px;
+  min-height: 700px;
+}
+
+/* Header area styling */
+.header-area {
+  grid-area: header;
+  text-align: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+/* Dashboard positioning */
+.dashboard-wrapper {
+  grid-area: dashboard;
+  width: 100%;
+  min-height: 200px;
+}
+
+/* Chat container positioning */
+.chat-container-wrapper {
+  grid-area: chat;
+  width: 100%;
+  min-height: 500px;
+}
+
+/* MemeGallery container positioning */
+.meme-gallery-wrapper {
+  grid-area: meme-gallery;
+  width: 100%;
+  min-height: 200px;
+}
+
+/* Message input container positioning */
+.message-input-wrapper {
+  grid-area: message-input;
+  width: 100%;
+}
+
+/* Soundboard container positioning */
+.soundboard-wrapper {
+  grid-area: soundboard;
+  width: 100%;
+}
+
+/* Disclaimer section positioning */
+.disclaimer.enhanced-ui {
+  grid-area: footer;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 992px) {
+  .container.enhanced-ui {
+    grid-template-areas:
+      "header"
+      "dashboard"
+      "chat"
+      "meme-gallery"
+      "message-input"
+      "soundboard"
+      "footer";
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container.enhanced-ui {
+    margin: 15px auto;
+    padding: 15px;
+    border-radius: 15px;
+    gap: 10px;
+  }
+}
+
+/* Title styling */
+.title.enhanced-ui {
+  font-size: 2.5rem; /* Smaller from 3rem */
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--theme-primary), var(--pro-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  position: relative;
+  margin-bottom: 1rem;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.title.enhanced-ui::after {
+  content: "3000";
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1.5rem;
+  background: var(--pro-highlight);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #000;
+  transform: rotate(5deg) translateY(-5px);
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  animation: wiggle 4s infinite; /* Slowed from 2s to 4s */
+}
+
+.subtitle.enhanced-ui {
+  font-size: 1rem; /* Smaller from 1.2rem */
+  opacity: 0.8;
+  position: relative;
+  padding-bottom: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.subtitle.enhanced-ui .meme-text {
+  font-style: italic;
+  color: var(--pro-highlight);
+  position: relative;
+}
+
+/* Meme Ticker - New element */
+.meme-ticker {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  width: 200px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #ff3366;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.8rem;
+  z-index: 10;
+  animation: float-in 0.5s ease-out;
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+}
+
+@keyframes float-in {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.meme-ticker .ticker-title {
+  font-weight: bold;
+  color: #ff3366;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.meme-ticker .ticker-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0;
+  padding: 3px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.meme-ticker .ticker-name {
+  color: #ffffff;
+}
+
+.meme-ticker .ticker-price {
+  font-weight: bold;
+}
+
+.meme-ticker .ticker-up {
+  color: #00ff88;
+}
+
+.meme-ticker .ticker-down {
+  color: #ff3366;
+}
+
+/* Meme badges for messages */
+.message .meme-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, #8A2BE2, #FF69B4);
+  color: white;
+  font-size: 0.6rem;
+  padding: 3px 6px;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  transform: rotate(5deg);
+}
+
+/* Rare NFT badge with animation */
+.message .nft-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 30px;
+  height: 30px;
+  background: url('../images/degen-badge.svg') no-repeat center center;
+  background-size: contain;
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Diamond hands cursor effect */
+.theme-crypto .chat-container:hover {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0L8 9l4 4 4-4z" fill="%23f7931a"/></svg>') 12 12, auto;
+}
+
+/* Additional meme UI element - "DEGEN CERTIFIED" ribbon */
+.degen-certified {
+  position: absolute;
+  top: 20px;
+  right: -30px;
+  background: #8957ff;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 5px 30px;
+  transform: rotate(45deg);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+/* Stonks mode button enhancement */
+.stonks-mode-toggle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, #ff3366, #ff9500);
+  color: white;
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 10px rgba(255, 51, 102, 0.4);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.stonks-mode-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 51, 102, 0.5);
+}
+
+.stonks-mode-toggle .stonks-emoji {
+  font-size: 1.2rem;
+}
+
+/* Disclaimer styling */
+.disclaimer.enhanced-ui {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  position: relative;
+  padding-left: 3.5rem;
+  background-image: url('../images/degen-badge.svg');
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 150px;
+  background-blend-mode: screen;
+}
+
+.disclaimer.enhanced-ui::before {
+  content: "🤖";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+}
+
+.meme-disclaimer {
+  display: block !important;
+  margin-top: 10px;
+  font-style: italic;
+  color: var(--moon-yellow);
+}
+
+/* Animations - SLOWED DOWN */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(5deg) translateY(-5px); }
+  50% { transform: rotate(3deg) translateY(-7px); }
+}
+
+@keyframes subtle-bounce {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(-2deg) translateY(-3px); }
+}
+
+/* Easter egg hover effects */
+.title.enhanced-ui:hover::after {
+  content: "OVER 9000";
+  animation: rainbow-text 4s infinite; /* Slowed from 2s to 4s */
+}
+
+@keyframes rainbow-text {
+  0% { color: #ff0000; }
+  20% { color: #ffff00; }
+  40% { color: #00ff00; }
+  60% { color: #00ffff; }
+  80% { color: #0000ff; }
+  100% { color: #ff00ff; }
+}
+
+/* Meme icon badges on messages */
+.bot-message.enhanced-ui .message-icon {
+  background: var(--pro-accent);
+  box-shadow: 0 0 10px var(--pro-accent);
+}
+
+.user-message.enhanced-ui .message-icon {
+  background: var(--moon-yellow);
+  box-shadow: 0 0 10px var(--moon-yellow);
+}
+
+/* Meme badge */
+.meme-badge {
+  display: inline-block;
+  background: var(--pro-highlight);
+  color: black;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  transform: rotate(-2deg);
+  margin-left: 0.5rem;
+  animation: subtle-bounce 4s infinite; /* Slowed from 2s to 4s */
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Quick phrase buttons enhancements */
+.quick-phrases.enhanced-ui {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.quick-phrases.enhanced-ui button {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  transition: all var(--animation-speed-fast) ease; /* Slowed down */
+  transform-origin: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.quick-phrases.enhanced-ui button:hover {
+  background: var(--pro-accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Level-specific text styling */
+.ai-message .roast-text.level-1 {
+  font-weight: normal;
+}
+
+.ai-message .roast-text.level-2 {
+  font-weight: 500;
+}
+
+.ai-message .roast-text.level-3 {
+  font-weight: 600;
+}
+
+.ai-message .roast-text.level-4 {
+  font-weight: 700;
+  text-shadow: 0 0 2px rgba(255, 51, 102, 0.5);
+}
+
+.ai-message .roast-text.level-5 {
+  font-weight: 800;
+  text-shadow: 0 0 4px rgba(255, 51, 102, 0.7);
+  animation: text-flicker 2s infinite alternate;
+}
+
+@keyframes text-flicker {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 51, 102, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(255, 51, 102, 0.9);
+  }
+}
+
+/* Special styled spans for emphasizing parts of roasts */
+.roast-highlight {
+  color: var(--pro-accent);
+  font-weight: 700;
+  position: relative;
+}
+
+.roast-brutal {
+  color: var(--hodl-red);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.roast-meme {
+  font-style: italic;
+  position: relative;
+  display: inline-block;
+}
+
+.roast-meme::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--moon-yellow);
+  transform: scaleX(1);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease;
+}
+
+.roast-meme:hover::after {
+  transform: scaleX(0);
+  transform-origin: bottom left;
+}
+
+/* Stonks down animation for particularly brutal roasts */
+.stonks-down {
+  display: inline-block;
+  position: relative;
+  font-size: 1.2em;
+  color: var(--hodl-red);
+  padding-right: 5px;
+  animation: stonks-movement 1s ease-in-out infinite;
+}
+
+@keyframes stonks-movement {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/* Floating emoji styling */
+.floating-emoji {
+  position: absolute;
+  opacity: 0;
+  animation: float-up 2s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+  font-size: 24px;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* Enhanced chat container with stonks background for meme theme */
+.meme-theme .chat-container {
+  position: relative;
+}
+
+.meme-theme .chat-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../images/stonks-bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.03;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Enhanced roast level indicators */
+.roast-level-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.roast-level-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, 
+    rgba(137, 87, 255, 0.2),
+    rgba(255, 204, 0, 0.2),
+    rgba(255, 51, 102, 0.2),
+    rgba(0, 255, 136, 0.2),
+    rgba(137, 87, 255, 0.2)
+  );
+  animation: gradient-shift 3s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Inline meme icons in messages */
+.inline-meme-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  margin: 0 3px;
+  display: inline-block;
+  position: relative;
+  top: -2px;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Meme-themed message styling */
+.meme-theme .message.enhanced-ui {
+  border-color: var(--pro-highlight);
+}
+
+.meme-theme .bot-message.enhanced-ui {
+  background-image: linear-gradient(135deg, rgba(25, 25, 35, 0.8), rgba(35, 35, 45, 0.8)), url('../images/stonks-bg.svg');
+  background-size: cover;
+  background-blend-mode: overlay;
+  background-position: center;
+}
+
+/* Meme card container moved to sidebar bottom */
+.meme-card-container {
+  grid-area: sidebar;
+  align-self: flex-end;
+  margin-top: auto;
+  width: 100%;
+}
+
+/* Soundboard styling update */
+#soundboard-container {
+  grid-area: main;
+  align-self: flex-end;
+  width: 100%;
+  margin-top: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Meme ticker inside chat container */
+.chat-container .meme-ticker {
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Make the text inside messages more readable */
+.message-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+/* Make message sender name stand out */
+.message-sender {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+/* Meme card styling for sidebar */
+.meme-card {
+  background: rgba(20, 20, 30, 0.7);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--card-elevation);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 1rem;
+}
+
+.meme-card-header {
+  background: rgba(30, 30, 40, 0.8);
+  padding: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meme-card-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.meme-card-content {
+  padding: 0.8rem;
+}
+
+.meme-icons {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 0.8rem;
+}
+
+.meme-icon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.meme-icon:hover {
+  transform: scale(1.2);
+}
+
+.meme-card-text {
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0;
+}
+
+/* Fix for the dark mode toggle position */
+.dark-mode-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+} 

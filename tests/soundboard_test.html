@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard Component Test</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Base styling for test page -->
+    <style>
+        :root {
+            --pro-accent: #8957ff;
+            --pro-accent-rgb: 137, 87, 255;
+            --hodl-red: #ff3366;
+            --gamer-primary: #ff00d4;
+            --gamer-primary-rgb: 255, 0, 212;
+            --crypto-primary: #f7931a;
+            --crypto-primary-rgb: 247, 147, 26;
+            --hacker-primary: #00ff66;
+            --hacker-primary-rgb: 0, 255, 102;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121218;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1a1a24;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--pro-accent);
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        h2 {
+            color: var(--pro-accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        button {
+            background-color: var(--pro-accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+        
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .theme-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-btn.crypto {
+            background-color: var(--crypto-primary);
+        }
+        
+        .theme-btn.hacker {
+            background-color: var(--hacker-primary);
+            color: #000;
+        }
+        
+        .theme-btn.gamer {
+            background-color: var(--gamer-primary);
+        }
+        
+        .theme-btn.meme {
+            background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+        }
+        
+        pre {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        .event-log {
+            background-color: #0a0a0f;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin-top: 20px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        #component-container {
+            margin-top: 30px;
+            min-height: 400px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+        }
+    </style>
+    
+    <!-- Load the component system -->
+    <script src="../public/components/common/EventBus.js"></script>
+    <script src="../public/components/common/ComponentBase.js"></script>
+    <script src="../public/components/common/ThemeManager.js"></script>
+    
+    <!-- Load the Soundboard component -->
+    <script src="../public/components/Soundboard/Soundboard.js"></script>
+    <link rel="stylesheet" href="../public/components/Soundboard/Soundboard.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>Soundboard Component Test</h1>
+        
+        <div class="test-section">
+            <h2>Theme Selection</h2>
+            <p>Test how the Soundboard component responds to different themes:</p>
+            <div class="theme-selector">
+                <button class="theme-btn crypto" onclick="changeTheme('crypto')">Crypto Theme</button>
+                <button class="theme-btn hacker" onclick="changeTheme('hacker')">Hacker Theme</button>
+                <button class="theme-btn gamer" onclick="changeTheme('gamer')">Gamer Theme</button>
+                <button class="theme-btn meme" onclick="changeTheme('meme')">Meme Theme</button>
+                <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Component Testing</h2>
+            <div class="test-grid">
+                <div>
+                    <h3>Volume Control</h3>
+                    <button onclick="adjustVolume(0.2)">Volume 20%</button>
+                    <button onclick="adjustVolume(0.5)">Volume 50%</button>
+                    <button onclick="adjustVolume(1.0)">Volume 100%</button>
+                    <button onclick="toggleMute()">Toggle Mute</button>
+                </div>
+                
+                <div>
+                    <h3>UI Sounds</h3>
+                    <button onclick="playUISound('init')">Init Sound</button>
+                    <button onclick="playUISound('send')">Send Sound</button>
+                    <button onclick="playUISound('click')">Click Sound</button>
+                    <button onclick="playUISound('reset')">Reset Sound</button>
+                </div>
+                
+                <div>
+                    <h3>Level Sounds</h3>
+                    <button onclick="playLevelSound('levelUp2')">Level 2</button>
+                    <button onclick="playLevelSound('levelUp3')">Level 3</button>
+                    <button onclick="playLevelSound('levelUp4')">Level 4</button>
+                    <button onclick="playLevelSound('levelUp5')">Level 5</button>
+                </div>
+                
+                <div>
+                    <h3>Roast Sounds</h3>
+                    <button onclick="playRoastSound('roast1')">Roast 1</button>
+                    <button onclick="playRoastSound('roast2')">Roast 2</button>
+                    <button onclick="playRoastSound('roast3')">Roast 3</button>
+                    <button onclick="playRoastSound('roast4')">Roast 4</button>
+                    <button onclick="playRoastSound('roast5')">Roast 5</button>
+                </div>
+                
+                <div>
+                    <h3>Meme Sounds</h3>
+                    <button onclick="playMemeSound('doge')">Doge</button>
+                    <button onclick="playMemeSound('wojak')">Wojak</button>
+                    <button onclick="playMemeSound('pepe')">Pepe</button>
+                </div>
+                
+                <div>
+                    <h3>EventBus Tests</h3>
+                    <button onclick="simulateVolumeChange(0.7)">Emit volumeChanged</button>
+                    <button onclick="simulateMuteToggle()">Emit muteToggled</button>
+                    <button onclick="emitBotResponse()">Emit botResponse</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Event Log</h2>
+            <div class="event-log" id="event-log"></div>
+        </div>
+        
+        <div id="component-container">
+            <!-- Soundboard component will be mounted here -->
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let soundboard = null;
+        let currentTheme = 'crypto';
+        let isMuted = false;
+        
+        // Initialize EventBus debug mode
+        EventBus.setDebugMode(true);
+        
+        // Function to log events
+        function logEvent(message) {
+            const logElement = document.getElementById('event-log');
+            const logItem = document.createElement('div');
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(logItem);
+            // Auto scroll to bottom
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // Initialize the component when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Soundboard component
+            soundboard = new Soundboard('component-container', {
+                initialVolume: 0.7,
+                initialMuted: false,
+                showControls: true
+            });
+            
+            logEvent('Soundboard component initialized');
+            
+            // Subscribe to events to log them
+            EventBus.subscribe('soundPlayed', function(data) {
+                logEvent(`Sound played: ${data.category} - ${data.sound}`);
+            });
+            
+            EventBus.subscribe('volumeChanged', function(data) {
+                logEvent(`Volume changed to: ${data.volume * 100}%`);
+            });
+            
+            EventBus.subscribe('muteToggled', function(data) {
+                logEvent(`Mute toggled: ${data.muted ? 'Muted' : 'Unmuted'}`);
+            });
+            
+            // Set initial theme
+            changeTheme(currentTheme);
+        });
+        
+        // Theme control functions
+        function changeTheme(theme) {
+            currentTheme = theme;
+            document.body.dataset.theme = theme;
+            EventBus.publish('themeChanged', { theme });
+            logEvent(`Theme changed to: ${theme}`);
+        }
+        
+        function toggleDarkMode() {
+            const isDarkMode = document.body.classList.toggle('dark-mode');
+            ThemeManager.setDarkMode(isDarkMode);
+            logEvent(`Dark mode: ${isDarkMode ? 'On' : 'Off'}`);
+        }
+        
+        // Sound control functions
+        function playUISound(sound) {
+            if (soundboard) {
+                soundboard.playSound('ui', sound);
+                logEvent(`Manual trigger UI sound: ${sound}`);
+            }
+        }
+        
+        function playLevelSound(sound) {
+            if (soundboard) {
+                soundboard.playSound('level', sound);
+                logEvent(`Manual trigger level sound: ${sound}`);
+            }
+        }
+        
+        function playRoastSound(sound) {
+            if (soundboard) {
+                soundboard.playSound('roast', sound);
+                logEvent(`Manual trigger roast sound: ${sound}`);
+            }
+        }
+        
+        function playMemeSound(sound) {
+            if (soundboard) {
+                soundboard.playSound('meme', sound);
+                logEvent(`Manual trigger meme sound: ${sound}`);
+            }
+        }
+        
+        function adjustVolume(volume) {
+            if (soundboard) {
+                soundboard.setVolume(volume);
+                logEvent(`Set volume to: ${volume * 100}%`);
+            }
+        }
+        
+        function toggleMute() {
+            if (soundboard) {
+                isMuted = !isMuted;
+                soundboard.setMuted(isMuted);
+                logEvent(`Set mute to: ${isMuted}`);
+            }
+        }
+        
+        // EventBus simulation functions
+        function simulateVolumeChange(volume) {
+            EventBus.publish('volumeChanged', { volume });
+            logEvent(`Emitted volumeChanged event: ${volume * 100}%`);
+        }
+        
+        function simulateMuteToggle() {
+            isMuted = !isMuted;
+            EventBus.publish('muteToggled', { muted: isMuted });
+            logEvent(`Emitted muteToggled event: ${isMuted}`);
+        }
+        
+        function emitBotResponse() {
+            EventBus.publish('botResponse', {
+                text: "This is a test roast message",
+                sender: "DEGEN ROAST 3000",
+                type: "bot"
+            });
+            logEvent('Emitted botResponse event');
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="0 0 120 100">
+  <!-- Doge head outline -->
+  <path d="M30,30 Q25,10 45,10 Q65,5 85,20 Q100,30 100,50 Q105,70 90,80 Q75,90 55,90 Q35,85 25,70 Q15,50 30,30" 
+        fill="#e9bc62" />
+  
+  <!-- Left ear -->
+  <path d="M30,30 Q20,25 15,15 Q15,10 25,15 Q30,20 30,30" fill="#e9bc62" />
+  
+  <!-- Right ear -->
+  <path d="M85,20 Q90,10 100,10 Q105,15 100,20 Q95,20 85,20" fill="#e9bc62" />
+  
+  <!-- Eyes -->
+  <ellipse cx="45" cy="40" rx="6" ry="8" fill="white" />
+  <ellipse cx="75" cy="40" rx="6" ry="8" fill="white" />
+  <ellipse cx="45" cy="40" rx="2" ry="4" fill="black" />
+  <ellipse cx="75" cy="40" rx="2" ry="4" fill="black" />
+  
+  <!-- Snout -->
+  <ellipse cx="60" cy="60" rx="15" ry="10" fill="#d6a954" />
+  
+  <!-- Nose -->
+  <ellipse cx="60" cy="55" rx="5" ry="3" fill="#222222" />
+  
+  <!-- Mouth -->
+  <path d="M50,65 Q60,70 70,65" stroke="#222222" stroke-width="1.5" fill="none" />
+  
+  <!-- Cheeks -->
+  <ellipse cx="40" cy="55" rx="7" ry="5" fill="#d6a954" opacity="0.6" />
+  <ellipse cx="80" cy="55" rx="7" ry="5" fill="#d6a954" opacity="0.6" />
+</svg> 

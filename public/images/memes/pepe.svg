@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="0 0 120 100">
+  <!-- Body shape (simplified) -->
+  <path d="M30,60 Q20,70 20,85 Q20,95 30,95 H90 Q100,95 100,85 Q100,70 90,60 Z" fill="#7bc142" />
+  
+  <!-- Face shape -->
+  <ellipse cx="60" cy="40" rx="40" ry="30" fill="#7bc142" />
+  
+  <!-- Eyes -->
+  <ellipse cx="45" cy="35" rx="15" ry="15" fill="white" />
+  <ellipse cx="75" cy="35" rx="15" ry="15" fill="white" />
+  <ellipse cx="45" cy="35" rx="5" ry="8" fill="black" />
+  <ellipse cx="75" cy="35" rx="5" ry="8" fill="black" />
+  
+  <!-- Mouth - sad expression -->
+  <path d="M40,65 Q60,55 80,65" stroke="#D50000" stroke-width="3" fill="none" />
+  
+  <!-- Nostrils -->
+  <ellipse cx="55" cy="50" rx="3" ry="2" fill="#4E8A29" />
+  <ellipse cx="65" cy="50" rx="3" ry="2" fill="#4E8A29" />
+</svg> 

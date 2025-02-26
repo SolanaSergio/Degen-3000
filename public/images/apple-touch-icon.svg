@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <!-- Background -->
+  <rect width="180" height="180" rx="45" fill="#1a1a2e" />
+  
+  <!-- Fire gradient background -->
+  <defs>
+    <linearGradient id="fireGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff3366" />
+      <stop offset="50%" stop-color="#ff9500" />
+      <stop offset="100%" stop-color="#ffcc00" />
+    </linearGradient>
+    
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Flame icon -->
+  <path d="M90 30c0 0 18 25.7 18 48c0 15.7-7.5 28.4-18 28.4S72 93.7 72 78c0-22.3 18-48 18-48" 
+        fill="url(#fireGradient)" filter="url(#glow)" />
+        
+  <!-- Text Circle -->
+  <circle cx="90" cy="90" r="70" fill="none" stroke="#8957ff" stroke-width="2" />
+  
+  <!-- "DEGEN ROAST" Text -->
+  <text x="90" y="135" font-family="Impact, sans-serif" font-size="24" text-anchor="middle" fill="#ffffff">DEGEN ROAST</text>
+  
+  <!-- "3000" Text -->
+  <text x="90" y="75" font-family="Impact, sans-serif" font-size="32" text-anchor="middle" fill="#ffffff">3000</text>
+  
+  <!-- Flame emoji -->
+  <text x="90" y="155" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#ffffff">🔥</text>
+</svg> 

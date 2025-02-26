@@ -1,0 +1,367 @@
+/**
+ * Soundboard.css
+ * Component-specific styles for the Soundboard
+ */
+
+/* Main soundboard container */
+.soundboard-component {
+  width: 100%;
+  background: rgba(15, 15, 25, 0.7);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.soundboard-component:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Soundboard header */
+.soundboard-component .soundboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(20, 20, 30, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.soundboard-component .soundboard-title {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pro-accent, #8957ff);
+  gap: 0.5rem;
+}
+
+.soundboard-component .soundboard-icon {
+  font-size: 1.2rem;
+}
+
+.soundboard-component .soundboard-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+  line-height: 1;
+}
+
+.soundboard-component .soundboard-toggle:hover {
+  color: var(--pro-accent, #8957ff);
+  transform: translateY(-2px);
+}
+
+/* Soundboard content */
+.soundboard-component .soundboard-content {
+  padding: 1rem;
+  transition: max-height 0.5s ease, padding 0.5s ease;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.soundboard-component .soundboard-content.collapsed {
+  max-height: 0;
+  padding: 0 1rem;
+}
+
+/* Soundboard grid of buttons */
+.soundboard-component .soundboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Sound buttons */
+.soundboard-component .sound-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 40, 0.6);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem 0.5rem;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 80px;
+}
+
+.soundboard-component .sound-button:hover {
+  background: rgba(40, 40, 50, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.soundboard-component .sound-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.soundboard-component .sound-button.playing {
+  background: rgba(var(--pro-accent-rgb, 137, 87, 255), 0.3);
+  animation: button-pulse 0.5s ease;
+}
+
+.soundboard-component .sound-icon {
+  font-size: 1.5rem;
+  opacity: 0.9;
+  transition: transform 0.3s ease;
+}
+
+.soundboard-component .sound-button:hover .sound-icon {
+  transform: scale(1.1);
+}
+
+.soundboard-component .sound-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Volume controls */
+.soundboard-component .soundboard-controls {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1rem;
+}
+
+.soundboard-component .volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.soundboard-component .volume-control label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 60px;
+}
+
+.soundboard-component .volume-control input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(30, 30, 40, 0.7);
+  border-radius: 3px;
+  outline: none;
+}
+
+.soundboard-component .volume-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pro-accent, #8957ff);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.soundboard-component .volume-control input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--pro-accent, #8957ff);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.soundboard-component .mute-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.soundboard-component .mute-toggle:hover {
+  color: white;
+}
+
+.soundboard-component .mute-toggle.muted {
+  color: var(--hodl-red, #ff3366);
+}
+
+/* Theme variations */
+
+/* Crypto theme */
+.soundboard-component.theme-crypto .soundboard-title {
+  color: var(--crypto-primary, #f7931a);
+}
+
+.soundboard-component.theme-crypto .soundboard-toggle:hover {
+  color: var(--crypto-primary, #f7931a);
+}
+
+.soundboard-component.theme-crypto .sound-button.playing {
+  background: rgba(var(--crypto-primary-rgb, 247, 147, 26), 0.3);
+}
+
+.soundboard-component.theme-crypto .volume-control input[type="range"]::-webkit-slider-thumb {
+  background: var(--crypto-primary, #f7931a);
+}
+
+.soundboard-component.theme-crypto .volume-control input[type="range"]::-moz-range-thumb {
+  background: var(--crypto-primary, #f7931a);
+}
+
+/* Hacker theme */
+.soundboard-component.theme-hacker .soundboard-title {
+  color: var(--hacker-primary, #00ff66);
+}
+
+.soundboard-component.theme-hacker .soundboard-toggle:hover {
+  color: var(--hacker-primary, #00ff66);
+}
+
+.soundboard-component.theme-hacker .sound-button.playing {
+  background: rgba(var(--hacker-primary-rgb, 0, 255, 102), 0.3);
+}
+
+.soundboard-component.theme-hacker .volume-control input[type="range"]::-webkit-slider-thumb {
+  background: var(--hacker-primary, #00ff66);
+}
+
+.soundboard-component.theme-hacker .volume-control input[type="range"]::-moz-range-thumb {
+  background: var(--hacker-primary, #00ff66);
+}
+
+/* Gamer theme */
+.soundboard-component.theme-gamer .soundboard-title {
+  color: var(--gamer-primary, #ff00d4);
+}
+
+.soundboard-component.theme-gamer .soundboard-toggle:hover {
+  color: var(--gamer-primary, #ff00d4);
+}
+
+.soundboard-component.theme-gamer .sound-button.playing {
+  background: rgba(var(--gamer-primary-rgb, 255, 0, 212), 0.3);
+}
+
+.soundboard-component.theme-gamer .volume-control input[type="range"]::-webkit-slider-thumb {
+  background: var(--gamer-primary, #ff00d4);
+}
+
+.soundboard-component.theme-gamer .volume-control input[type="range"]::-moz-range-thumb {
+  background: var(--gamer-primary, #ff00d4);
+}
+
+/* Meme theme */
+.soundboard-component.theme-meme .soundboard-title {
+  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.soundboard-component.theme-meme .soundboard-toggle:hover {
+  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.soundboard-component.theme-meme .sound-button:hover {
+  background: rgba(20, 20, 30, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.soundboard-component.theme-meme .sound-button:hover::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  transform: rotate(30deg);
+  transition: 0.5s;
+  opacity: 0.5;
+}
+
+.soundboard-component.theme-meme .sound-button.playing {
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(255, 105, 180, 0.3));
+}
+
+.soundboard-component.theme-meme .volume-control input[type="range"]::-webkit-slider-thumb {
+  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+}
+
+.soundboard-component.theme-meme .volume-control input[type="range"]::-moz-range-thumb {
+  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+}
+
+/* Animations */
+@keyframes button-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .soundboard-component .soundboard-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .soundboard-component .sound-button {
+    padding: 0.5rem;
+    min-height: 70px;
+  }
+  
+  .soundboard-component .sound-icon {
+    font-size: 1.2rem;
+  }
+  
+  .soundboard-component .sound-name {
+    font-size: 0.7rem;
+  }
+  
+  .soundboard-component .volume-control {
+    flex-wrap: wrap;
+  }
+  
+  .soundboard-component .volume-control label {
+    min-width: auto;
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .soundboard-component .soundboard-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .soundboard-component .sound-button {
+    min-height: 60px;
+  }
+  
+  .soundboard-component .sound-icon {
+    font-size: 1rem;
+  }
+} 

@@ -1,0 +1,258 @@
+/**
+ * MessageInput.css
+ * Component-specific styles for the MessageInput
+ */
+
+/* Main message input container */
+.message-input {
+  width: 100%;
+  background: rgba(10, 10, 20, 0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+/* Form structure */
+.message-input .message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Input container - holds textarea and button */
+.message-input .input-container {
+  display: flex;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Textarea styling */
+.message-input textarea {
+  flex: 1;
+  min-height: 60px;
+  max-height: 150px;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.message-input textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.message-input textarea:focus,
+.message-input textarea.focused {
+  border-color: var(--pro-accent, #8957ff);
+  box-shadow: 0 0 0 2px rgba(137, 87, 255, 0.2);
+}
+
+/* Submit button */
+.message-input .submit-button {
+  padding: 0.8rem 1.2rem;
+  background: var(--pro-accent, #8957ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-input .submit-button:hover {
+  background: var(--pro-accent-hover, #9e75ff);
+  transform: translateY(-2px);
+}
+
+.message-input .submit-button:active {
+  transform: translateY(1px);
+}
+
+.message-input .submit-button:disabled {
+  background: rgba(137, 87, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Character counter */
+.message-input .char-counter {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: right;
+  padding: 0 0.2rem;
+  transition: color 0.3s ease;
+}
+
+.message-input .char-counter.near-limit {
+  color: var(--warning-yellow, #FFD60A);
+}
+
+.message-input .char-counter.at-limit {
+  color: var(--danger-red, #FF5533);
+}
+
+/* Quick phrases section */
+.message-input .quick-phrases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.message-input .quick-phrase-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.message-input .quick-phrase-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.message-input .quick-phrase-button:active {
+  transform: translateY(1px);
+}
+
+/* Animations for quick phrases */
+.message-input .quick-phrase-button.meme-bounce {
+  animation: button-bounce 1s ease;
+}
+
+@keyframes button-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  75% {
+    transform: scale(0.95);
+  }
+}
+
+/* Theme-specific styling */
+.message-input.theme-crypto .submit-button {
+  background: var(--crypto-primary, #f7931a);
+}
+
+.message-input.theme-crypto .submit-button:hover {
+  background: var(--crypto-primary-hover, #f9a94a);
+}
+
+.message-input.theme-hacker .submit-button {
+  background: var(--hacker-primary, #00ff66);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.message-input.theme-hacker .submit-button:hover {
+  background: var(--hacker-primary-hover, #33ff88);
+}
+
+.message-input.theme-gamer .submit-button {
+  background: var(--gamer-primary, #ff00d4);
+}
+
+.message-input.theme-gamer .submit-button:hover {
+  background: var(--gamer-primary-hover, #ff33dd);
+}
+
+.message-input.theme-meme .submit-button {
+  background: linear-gradient(135deg, #8A2BE2, #FF69B4);
+}
+
+.message-input.theme-meme .submit-button:hover {
+  background: linear-gradient(135deg, #9B4DF7, #FF85C2);
+}
+
+.message-input.theme-meme .quick-phrase-button {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--meme-primary, #8A2BE2);
+}
+
+.message-input.theme-meme .quick-phrase-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  transform: rotate(30deg);
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.message-input.theme-meme .quick-phrase-button:hover::after {
+  opacity: 1;
+  transform: rotate(30deg) translate(10%, 10%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .message-input {
+    padding: 0.8rem;
+  }
+  
+  .message-input textarea {
+    min-height: 50px;
+    padding: 0.6rem;
+  }
+  
+  .message-input .submit-button {
+    padding: 0.6rem 1rem;
+  }
+  
+  .message-input .quick-phrase-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-input .quick-phrases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+  
+  .message-input .quick-phrase-button {
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+} 

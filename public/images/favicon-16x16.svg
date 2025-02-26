@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Background -->
+  <rect width="16" height="16" rx="3" fill="#1a1a2e" />
+  
+  <!-- Fire gradient background -->
+  <defs>
+    <linearGradient id="fireGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff3366" />
+      <stop offset="50%" stop-color="#ff9500" />
+      <stop offset="100%" stop-color="#ffcc00" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Flame icon -->
+  <path d="M8 3c0 0 1.8 2.3 1.8 4.3c0 1.4-0.8 2.6-1.8 2.6S6.2 8.7 6.2 7.3C6.2 5.3 8 3 8 3" 
+        fill="url(#fireGradient)" />
+  
+  <!-- "3000" indicator - simplified for small size -->
+  <path d="M5 12h6" stroke="#8957ff" stroke-width="1" />
+</svg> 

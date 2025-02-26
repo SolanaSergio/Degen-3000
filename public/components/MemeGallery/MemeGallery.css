@@ -1,0 +1,403 @@
+/**
+ * MemeGallery.css
+ * Component-specific styles for the MemeGallery
+ */
+
+/* Main container */
+.meme-gallery-component {
+  width: 100%;
+  background: rgba(15, 15, 25, 0.7);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* "New" badge for the meme gallery */
+.meme-gallery-component::before {
+  content: "NEW";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #ff3366, #ff9500);
+  color: white;
+  font-size: 0.6rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transform: rotate(5deg);
+  letter-spacing: 0.5px;
+}
+
+/* Gallery header */
+.meme-gallery-component .gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(25, 25, 35, 0.8);
+}
+
+.meme-gallery-component .gallery-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meme-gallery-component .gallery-title::before {
+  content: "🔥";
+  font-size: 1.2rem;
+}
+
+.meme-gallery-component .toggle-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.meme-gallery-component .toggle-button:hover {
+  color: white;
+}
+
+.meme-gallery-component .toggle-button::after {
+  content: "↕️";
+  font-size: 0.9rem;
+}
+
+/* Gallery content */
+.meme-gallery-component .gallery-content {
+  padding: 1rem;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.meme-gallery-component .gallery-content.collapsed {
+  max-height: 0;
+  padding: 0 1rem;
+}
+
+.meme-gallery-component .gallery-help-text {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin: 0.5rem 0 0;
+  font-style: italic;
+}
+
+/* Meme grid */
+.meme-gallery-component .meme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+}
+
+.meme-gallery-component .meme-grid.layout-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
+}
+
+.meme-gallery-component .meme-grid.layout-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.meme-gallery-component .meme-grid.layout-carousel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.meme-gallery-component .meme-grid.layout-carousel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+/* Meme item */
+.meme-gallery-component .meme-item {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.5rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.meme-gallery-component .meme-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px) rotate(1deg);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.meme-gallery-component .meme-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.meme-gallery-component .meme-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.meme-gallery-component .meme-item:hover .meme-image {
+  transform: scale(1.1);
+}
+
+.meme-gallery-component .meme-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* Popular badge for certain memes */
+.meme-gallery-component .meme-item.popular::after {
+  content: "🔥";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Rare badge for certain memes */
+.meme-gallery-component .meme-item.rare::after {
+  content: "💎";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Selected meme styling */
+.meme-gallery-component .meme-item.selected {
+  border-color: #ff3366;
+  background: rgba(255, 51, 102, 0.15);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+}
+
+.meme-gallery-component .meme-item.selected .meme-label {
+  color: #ff3366;
+  font-weight: 600;
+}
+
+/* Animation for selection */
+.meme-gallery-component .meme-item.animate-selection {
+  animation: meme-selected 0.5s ease;
+}
+
+@keyframes meme-selected {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Meme item hover glow effects */
+.meme-gallery-component .meme-item:hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+/* Empty state */
+.meme-gallery-component .empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Search bar */
+.meme-gallery-component .meme-search {
+  margin-bottom: 0.8rem;
+  position: relative;
+}
+
+.meme-gallery-component .meme-search-input {
+  width: 100%;
+  padding: 0.5rem 0.8rem 0.5rem 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.meme-gallery-component .meme-search-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+.meme-gallery-component .meme-search-icon {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+/* Category tabs */
+.meme-gallery-component .meme-categories {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scrollbar-width: none;
+}
+
+.meme-gallery-component .meme-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.meme-gallery-component .category-tab {
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.meme-gallery-component .category-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.meme-gallery-component .category-tab.active {
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.8), rgba(255, 149, 0, 0.8));
+  color: white;
+  border-color: transparent;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .meme-gallery-component .meme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.6rem;
+  }
+  
+  .meme-gallery-component .gallery-header {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .meme-gallery-component .gallery-content {
+    padding: 0.8rem;
+  }
+  
+  .meme-gallery-component .meme-item {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .meme-gallery-component .meme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 0.4rem;
+  }
+  
+  .meme-gallery-component .meme-item {
+    padding: 0.3rem;
+  }
+  
+  .meme-gallery-component .meme-label {
+    font-size: 0.65rem;
+  }
+}
+
+/* Theme-specific styling - Crypto Theme */
+.meme-gallery-component.theme-crypto .gallery-title {
+  color: var(--crypto-primary, #f7931a);
+}
+
+.meme-gallery-component.theme-crypto .meme-item.selected {
+  border-color: var(--crypto-primary, #f7931a);
+  box-shadow: 0 0 8px rgba(247, 147, 26, 0.5);
+}
+
+/* Theme-specific styling - Hacker Theme */
+.meme-gallery-component.theme-hacker .gallery-title {
+  color: var(--hacker-primary, #00ff66);
+}
+
+.meme-gallery-component.theme-hacker .meme-item.selected {
+  border-color: var(--hacker-primary, #00ff66);
+  box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+}
+
+/* Theme-specific styling - Gamer Theme */
+.meme-gallery-component.theme-gamer .gallery-title {
+  color: var(--gamer-primary, #ff00d4);
+}
+
+.meme-gallery-component.theme-gamer .meme-item.selected {
+  border-color: var(--gamer-primary, #ff00d4);
+  box-shadow: 0 0 8px rgba(255, 0, 212, 0.5);
+}
+
+/* Theme-specific styling - Meme Theme */
+.meme-gallery-component.theme-meme .gallery-title {
+  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.meme-gallery-component.theme-meme .meme-item.selected {
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(255, 105, 180, 0.2));
+  border-image: linear-gradient(135deg, #8A2BE2, #FF69B4) 1;
+} 
