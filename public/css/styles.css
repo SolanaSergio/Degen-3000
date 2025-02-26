@@ -85,8 +85,10 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url(../images/noise.png);
-  opacity: 0.08;
+  /* Use a data URI for the noise texture instead of an external file */
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIrLAAAFVklEQVR4AWzBWQojMQxEM0NPQvVqM7bvf9Mf4rG6o+HBEZYe8vjGXMl8CZsZugsxSVhFQ3OqVu2BD5D5enhhEL5tH2jkfDCOY4hVHEKe/mMECMM5a7UN52VbINIwkqKQpdFEd/ycvlTAz3wMkSgZlSxdXfmFMIVTvVvyUtfVa0AmJDFGVCJrWAVbP1aIxWx+t3IEzCnkNOQRSqVkZMvw+cG6qRAsDIqU1fgiGvWAwG68ZT7tE6wv+bF9C9MQsujPQqe8c+NJt10M6fMlsUcn3xk/GCWfOQsR1wP3+0+yPRKBSFs/K8Dpx/SYdJ12BlRNwOODspQHPo/NJiG2JvgQNy5q+LWD58uBv7uPMCRt/MImdBc8D5Ol0UKMkxAnTjWkTnMYOSkV7E/KJvP5C8EfFZQvk7bD8dMQpuDvfPabbiZleH/4yJaJ4ftz0DXHtdkgPV59/GQJTeeFoSKmNYiUKD3MN4mCkBXfdRk+q7hI2McXrjhFg20X/iYw+RUdJuO9ySAKbbCuCaZ4XQdxFV+UoNl2GyDmPwTbxoUE5v8LgOYzpIYB+N2BNIiJR0W0/JsDYv7zGM/g2+TBfUxgOEzbbQNtUeDiRyfEP0bVEL5RNxJdPGe6INluQ4iHn3WMKSGR3XSKjyqG4eI4V0N0sEqbCSGIVgZk9D+6L5I96kZIIadtLEeEmGn15dLRq8nMLfP8QTdCg9iP5uJyqxvlR4XwVQGfZ2PTzcIlJEEx47nZMq2Ul8+Ucnuo3UgLaZEK8TiB5FOgN/F7NGwNQ4h1GyIBvgjq8FzXviBEVULcJp9kTqxC06Us5wIkRbdNMQb+LGO9NpCuw55up5knsuPQdVM3YhjKjTdRFaIqKPPzWgWKc8UdYU2/I2Rxx0vthnCtKGvxJCGhGEPJbvP5LXl7yM7yNqRI3XB/KdufK5xSKcT2+rD+UNx+j5BXdIGyDyF/Gkrs+pPQC2HiM4TdFdJCUEyWUH+elP0nQt0Q+BGx2+L3aKATvq/XTeuGlLgQTk9E2X7HiXY4uBDi5O7ywIXgJYT4S0N24Sg+fQkn4mMCeV6ahxC0EFTraHJAXkKKSJi/NVxC4EuIoXgIQ9nB+OGJmL8R4j3EqUKaEZKXvmW5Nbri/xnSJt75QfK8QxYfmv1NYRyuE1P2AxcCcyGE590V1G6EKtRuEF5Cak7Up8BMHgLzEhK2IhRQQwgmjzlCViHcDswYL0kWQoXNj8HHVL6jyXZbNIT4+NQxZN8eS+7YbUjZe85C/gGkrBB1E8T2/ZBbcciF8NGR5q/dWBfS76B2I3mGdQunR72IU5LttvT5fGv+NRCbP0FaRLuByLVjP1A/YuyG7TdJPAMi2W5TQNJ+CBV/WpxtI1qJDxtmFT8p6Hbb7B+WlXM+n/PRwRCf8WN+1mj6S0S7DRpkxnqHzP+1z8VFGzZhGIy+TQ5lGTc06bru/9+0jR/LgXKYfpBYL57XGMDu9WVTg3DyXEZB2BDwQKcDxBxuBtuDU3A7cGZYdqvhVlhjSR4n0bGvdxLuA7cRCrHTzz0rFHvfcL9PsZ67aM/RcEGw+zJ8vz8z//d8P6ZtFLaL/NjCGdWC+xzTtgBY8BtNcRuecf6brpUzPvseJxfnFMT9O42LxYx5ZUv7YVBV2M3XE2Hl3GXvz+7GZU4P1uFyQrPxTDtp+EY3T7sbeXj4p5v7i+63ovY+zPrT6XQcbxGnYPRV/QMW9y9BUh+FcwAAAABJRU5ErkJggg==");
+  background-repeat: repeat;
+  opacity: 0.10;
   pointer-events: none;
   z-index: -1;
 }
@@ -150,6 +152,26 @@ a:hover {
   font-weight: bold;
   letter-spacing: 0.5px;
   font-size: 0.9rem;
+  width: 100%;
+  margin: 0 0 20px 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+#warning-banner.enhanced-ui {
+  background-color: #d32f2f;
+  color: white;
+  text-align: center; 
+  padding: 0.75rem;
+  position: relative;
+  z-index: 1000;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  width: 100%;
+  margin: 0 0 20px 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
 }
 
 /* Gradient Text Effect */
@@ -159,7 +181,7 @@ a:hover {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-fill-color: transparent;
+  color: transparent;
   animation: gradientShift 10s ease infinite;
 }
 

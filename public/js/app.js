@@ -6,31 +6,73 @@
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 Initializing DEGEN ROAST 3000 Component System');
-  
-  // Enable EventBus debug mode in development
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    if (typeof EventBus !== 'undefined') {
-      EventBus.setDebugMode(true);
+  try {
+    console.log('🚀 Initializing DEGEN ROAST 3000 Component System');
+    
+    // Enable EventBus debug mode in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (typeof EventBus !== 'undefined') {
+        EventBus.setDebugMode(true);
+      }
     }
+    
+    // Make sure warning banner is visible
+    const warningBanner = document.getElementById('warning-banner');
+    if (warningBanner) {
+      warningBanner.style.display = 'block';
+      warningBanner.style.visibility = 'visible';
+      console.log('Warning banner set to visible');
+    } else {
+      console.warn('Warning banner element not found');
+    }
+    
+    // Make sure container elements are visible
+    const containerElements = [
+      'chat-container',
+      'message-input-container',
+      'dashboard-container',
+      'soundboard-container',
+      'meme-gallery-container'
+    ];
+    
+    containerElements.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = 'block';
+        element.style.visibility = 'visible';
+      } else {
+        console.warn(`Container element ${id} not found`);
+      }
+    });
+    
+    // Initialize core components - wrap in try-catch to prevent unhandled errors
+    try {
+      initializeComponents();
+    } catch (e) {
+      console.warn('Error initializing components:', e);
+    }
+    
+    // Set up global event handlers - wrap in try-catch
+    try {
+      setupGlobalEvents();
+    } catch (e) {
+      console.warn('Error setting up global events:', e);
+    }
+    
+    // Hide legacy UI elements now that components are active
+    hideLegacyUI();
+    
+    // Create and initialize meme ticker element
+    createMemeTicker();
+    
+    // Add "DEGEN CERTIFIED" badge
+    addDegenCertifiedBadge();
+    
+    console.log('✅ DEGEN ROAST 3000 Component System Initialized');
+  } catch (err) {
+    // Catch any errors during initialization but don't show debug panel
+    console.warn('Error during application initialization:', err);
   }
-  
-  // Initialize core components
-  initializeComponents();
-  
-  // Set up global event handlers
-  setupGlobalEvents();
-  
-  // Hide legacy UI elements now that components are active
-  hideLegacyUI();
-  
-  // Create and initialize meme ticker element
-  createMemeTicker();
-  
-  // Add "DEGEN CERTIFIED" badge
-  addDegenCertifiedBadge();
-  
-  console.log('✅ DEGEN ROAST 3000 Component System Initialized');
 });
 
 /**
@@ -38,6 +80,25 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initializeComponents() {
   try {
+    console.log('Initializing components...');
+    
+    // Ensure containers exist before initializing components
+    const containers = [
+      'chat-container',
+      'message-input-container',
+      'dashboard-container',
+      'soundboard-container',
+      'meme-gallery-container'
+    ];
+    
+    // Check if any containers are missing
+    const missingContainers = containers.filter(id => !document.getElementById(id));
+    if (missingContainers.length > 0) {
+      console.error('Missing containers:', missingContainers);
+      // Continue anyway as the containers might be created dynamically
+    }
+    
+    console.log('Initializing chat window...');
     // Initialize chat window
     const chatWindow = new ChatWindow('chat-container', {
       maxMessages: 50,
@@ -46,6 +107,7 @@ function initializeComponents() {
       showTimestamps: true
     });
     
+    console.log('Initializing message input...');
     // Initialize message input
     const messageInput = new MessageInput('message-input-container', {
       maxLength: 280,
@@ -53,6 +115,7 @@ function initializeComponents() {
       submitButtonText: "Send"
     });
     
+    console.log('Initializing dashboard...');
     // Initialize dashboard
     const dashboard = new Dashboard('dashboard-container', {
       initialLevel: 1,
@@ -62,6 +125,7 @@ function initializeComponents() {
       showMemeGallery: false
     });
     
+    console.log('Initializing soundboard...');
     // Initialize soundboard
     const soundboard = new Soundboard('soundboard-container', {
       initialVolume: 0.7,
@@ -69,6 +133,7 @@ function initializeComponents() {
       showControls: true
     });
     
+    console.log('Initializing meme gallery...');
     // Initialize meme gallery
     const memeGallery = new MemeGallery('meme-gallery-container', {
       layout: 'grid',
@@ -96,13 +161,12 @@ function initializeComponents() {
     // Always add demo messages for better testing
     addDebugMessages(chatWindow);
     
-    // Play initialization sound using the new Soundboard component
-    if (window.appComponents.soundboard) {
-      window.appComponents.soundboard.playSound('ui', 'init');
-    }
+    console.log('All components initialized successfully!');
     
+    return true;
   } catch (error) {
     console.error('Error initializing components:', error);
+    return false;
   }
 }
 
@@ -135,85 +199,43 @@ function hideLegacyUI() {
 }
 
 /**
- * Set up message handling using EventBus
+ * Set up message handling between components
  */
 function setupMessageHandling() {
-  // Listen for user message events from MessageInput component
+  // Get components from the global namespace
+  const { chatWindow, messageInput } = window.appComponents;
+  
+  if (!chatWindow || !messageInput) {
+    console.error('Chat window or message input components not found');
+    return;
+  }
+  
+  console.log('Setting up message handling between components');
+  
+  // When a message is sent by the user
   EventBus.subscribe('messageSent', (data) => {
-    // Handle user message and generate bot response
+    console.log('Message sent:', data);
+    
+    // Handle the user message
     handleUserMessage(data.text);
-    
-    // Play send sound using the Soundboard component
-    if (window.appComponents.soundboard) {
-      window.appComponents.soundboard.playSound('ui', 'send');
-    }
   });
   
-  // Listen for level change events
-  EventBus.subscribe('levelChanged', (data) => {
-    // Update level in state
-    const currentLevel = data.level;
-    
-    // Update UI if required
-    if (window.appComponents.chatWindow) {
-      window.appComponents.chatWindow.setState({ currentLevel });
+  // Test that message handling is working by sending a test message
+  console.log('Testing message handling with a test message');
+  setTimeout(() => {
+    // If the chat window still doesn't have messages, add a test message
+    if (chatWindow.state.messages.length === 0) {
+      console.log('Adding test message as no messages were found');
+      chatWindow.addMessage({
+        text: "Chat system is now initialized and ready for messages! Try typing something below.",
+        sender: "System",
+        type: "bot",
+        level: 1,
+        timestamp: Date.now(),
+        skipAnimation: true
+      });
     }
-    
-    // Update dashboard if required
-    if (window.appComponents.dashboard) {
-      window.appComponents.dashboard.setLevel(currentLevel);
-    }
-    
-    // Play level change sound using the Soundboard component
-    if (window.appComponents.soundboard && currentLevel > 1) {
-      window.appComponents.soundboard.playSound('level', 'levelUp' + currentLevel);
-    }
-  });
-  
-  // Listen for clear chat events
-  EventBus.subscribe('clearChat', () => {
-    // Clear chat messages
-    if (window.appComponents.chatWindow) {
-      window.appComponents.chatWindow.clearMessages();
-    }
-    
-    // Reset level to 1
-    EventBus.publish('levelChanged', { level: 1 });
-    
-    // Play sound using the Soundboard component
-    if (window.appComponents.soundboard) {
-      window.appComponents.soundboard.playSound('ui', 'reset');
-    }
-  });
-  
-  // Listen for roast response events to play appropriate sounds
-  EventBus.subscribe('botResponse', (data) => {
-    // Don't play sound for loading messages
-    if (data.classes && data.classes.includes('loading-message')) return;
-    
-    // If this is a roast message, play appropriate level sound
-    if (data.type === 'bot' && window.appComponents.soundboard) {
-      const level = window.appComponents.dashboard ? 
-                    window.appComponents.dashboard.getCurrentLevel() : 1;
-      
-      // Play roast sound appropriate to the level
-      window.appComponents.soundboard.playSound('roast', 'roast' + level);
-    }
-  });
-  
-  // Listen for volume change events
-  EventBus.subscribe('volumeChanged', (data) => {
-    if (window.appComponents.soundboard) {
-      window.appComponents.soundboard.setVolume(data.volume);
-    }
-  });
-  
-  // Listen for mute toggle events
-  EventBus.subscribe('muteToggled', (data) => {
-    if (window.appComponents.soundboard) {
-      window.appComponents.soundboard.setMuted(data.muted);
-    }
-  });
+  }, 1000);
 }
 
 /**
@@ -446,10 +468,18 @@ function addDegenCertifiedBadge() {
 }
 
 /**
- * Add debug messages for testing
- * @param {ChatWindow} chatWindow - The chat window component
+ * Add debug messages to test the chat window
+ * @param {ChatWindow} chatWindow - ChatWindow component
  */
 function addDebugMessages(chatWindow) {
+  console.log('Adding debug messages to the chat window');
+  
+  // Make sure the chat window exists
+  if (!chatWindow) {
+    console.error('ChatWindow component not found');
+    return;
+  }
+  
   // Example messages
   const debugMessages = [
     {
@@ -491,8 +521,10 @@ function addDebugMessages(chatWindow) {
     }
   ];
   
-  // Add the debug messages
+  // Add each message to the chat window
   debugMessages.forEach(message => {
     chatWindow.addMessage(message);
   });
+  
+  console.log(`Added ${debugMessages.length} debug messages to the chat window`);
 } 

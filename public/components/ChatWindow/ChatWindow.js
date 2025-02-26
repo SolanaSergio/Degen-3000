@@ -127,7 +127,12 @@ class ChatWindow extends ComponentBase {
    * @returns {HTMLElement} - Message element
    */
   renderMessage(message) {
-    if (!this.messagesElement) return null;
+    if (!this.messagesElement) {
+      console.error('Messages container element not found');
+      return null;
+    }
+    
+    console.log('Rendering message:', message);
     
     // Create message element
     const messageElement = document.createElement('div');
@@ -166,6 +171,14 @@ class ChatWindow extends ComponentBase {
     
     // Add to container
     this.messagesElement.appendChild(messageElement);
+    
+    // Ensure the message is visible (avoiding CSS issues)
+    messageElement.style.display = 'flex';
+    messageElement.style.opacity = '1';
+    messageElement.style.visibility = 'visible';
+    
+    // Log successful rendering
+    console.log(`Message rendered: ${message.type} from ${message.sender}`);
     
     // Apply typing animation for bot messages
     if (message.type === 'bot' && this.state.options.animateMessages && !message.skipAnimation) {

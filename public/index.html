@@ -84,19 +84,19 @@
         </button>
         
         <!-- Dashboard container -->
-        <div id="dashboard-container" class="dashboard-wrapper"></div>
+        <div id="dashboard-container" class="dashboard-wrapper" style="display: block !important;"></div>
         
         <!-- Chat container (main content) -->
-        <div id="chat-container" class="chat-container-wrapper"></div>
+        <div id="chat-container" class="chat-container-wrapper" style="display: block !important; min-height: 500px;"></div>
         
         <!-- MemeGallery container -->
-        <div id="meme-gallery-container" class="meme-gallery-wrapper"></div>
+        <div id="meme-gallery-container" class="meme-gallery-wrapper" style="display: block !important;"></div>
         
         <!-- Message input component -->
-        <div id="message-input-container" class="message-input-wrapper"></div>
+        <div id="message-input-container" class="message-input-wrapper" style="display: block !important;"></div>
         
         <!-- Soundboard component -->
-        <div id="soundboard-container" class="soundboard-wrapper"></div>
+        <div id="soundboard-container" class="soundboard-wrapper" style="display: block !important;"></div>
         
         <!-- Disclaimer section -->
         <div class="disclaimer enhanced-ui">
@@ -107,5 +107,73 @@
     
     <!-- Toast container for notifications -->
     <div id="toast-container"></div>
+    
+    <!-- Debug output for troubleshooting - hidden by default and only accessible via Ctrl+D -->
+    <div id="debug-output" style="display: none; padding: 10px; background: rgba(0,0,0,0.8); color: #00ff00; font-family: monospace; position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow: auto; z-index: 9999;">
+        <div class="debug-title">Debug Output <button id="debug-close-btn" onclick="document.getElementById('debug-output').style.display='none'">Close</button></div>
+        <pre id="debug-log"></pre>
+    </div>
+
+    <!-- Add a script to show debug info only when explicitly requested -->
+    <script>
+        // Show debug info only when pressing Ctrl+D
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'd') {
+                event.preventDefault();
+                const debugOutput = document.getElementById('debug-output');
+                debugOutput.style.display = debugOutput.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+        
+        // Ensure close button works
+        document.getElementById('debug-close-btn').addEventListener('click', function() {
+            document.getElementById('debug-output').style.display = 'none';
+        });
+        
+        // Override console.log/error to add to debug panel BUT NEVER show automatically
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function() {
+            // Call original console.log
+            originalLog.apply(console, arguments);
+            
+            // Add to debug panel
+            const debugLog = document.getElementById('debug-log');
+            if (debugLog) {
+                const args = Array.from(arguments).join(' ');
+                debugLog.innerHTML += `[LOG] ${args}\n`;
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+        };
+        
+        console.error = function() {
+            // Call original console.error
+            originalError.apply(console, arguments);
+            
+            // Add to debug panel
+            const debugLog = document.getElementById('debug-log');
+            if (debugLog) {
+                const args = Array.from(arguments).join(' ');
+                debugLog.innerHTML += `[ERROR] ${args}\n`;
+                debugLog.scrollTop = debugLog.scrollHeight;
+                // Never show debug panel automatically
+            }
+        };
+        
+        console.warn = function() {
+            // Call original console.warn
+            originalWarn.apply(console, arguments);
+            
+            // Add to debug panel
+            const debugLog = document.getElementById('debug-log');
+            if (debugLog) {
+                const args = Array.from(arguments).join(' ');
+                debugLog.innerHTML += `[WARN] ${args}\n`;
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+        };
+    </script>
 </body>
 </html>
