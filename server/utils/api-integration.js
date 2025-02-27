@@ -1012,82 +1012,29 @@ function extractRoastOnly(text) {
     /Here's the roast\s*:\s*(.+)$/is,
   ];
   
-  for (const marker of roastMarkers) {
-    const match = text.match(marker);
+  for (const pattern of roastMarkers) {
+    const match = text.match(pattern);
     if (match && match[1] && match[1].length > 5) {
       return match[1].trim();
     }
   }
   
-  // Step 4: Remove common planning/thinking segments
-  let cleanedText = text
-    // Remove any meta discussion about the task
-    .replace(/^(I'll|I will|Let me|I'm going to|I should|I need to|Here's|Here is|This is|For this roast|Based on|As requested)[^.!?]*[.!?]/gi, '')
-    // Remove statements about the roast
-    .replace(/^(This|It|The following|That|My)[^.!?]*roast[^.!?]*[.!?]/gi, '')
-    // Remove lines about user's message
-    .replace(/^(You|They|The user|Your message|The message)[^.!?]*[.!?]/gi, '')
-    // Remove planning language
-    .replace(/^(Let's|I can|I could|I think|I'll start|I'll try|I'll focus|Since|Given|Considering)[^.!?]*[.!?]/gi, '')
-    // Remove any remaining planning indicators
-    .replace(/^(Alright|Okay|Sure|Well|Now|To start|First|Looking at|Analyzing)[^.!?]*[.!?]/gi, '');
-  
-  // Step 5: Remove any "I'll be using" or "I'll include" statements
-  cleanedText = cleanedText.replace(/I('ll| will) (be )?(using|making|crafting|including|focusing|targeting|creating)[^.!?]*[.!?]/gi, '');
-  
-  // Step 6: Remove any leetspeak section
-  cleanedText = cleanedText.replace(/H3r3's wh4t y0u n33d 70 h34r[\s\S]+/gi, '');
-  
-  // Step 7: If we've completely stripped it or it's still too long, find the shortest, most offensive sentence
-  if (!cleanedText.trim() || cleanedText.length > 300) {
-    // Try to extract just the most offensive sentence
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    
-    // Find the sentence with the most profanity or offensive terms
-    const profanityRegex = /fuck|shit|ass|damn|bitch|crap|stupid|idiot|moron|dick|cock|pussy|useless|pathetic|waste|garbage/gi;
-    
-    let shortestOffensiveSentence = "";
-    let highestScore = -1;
-    
-    for (const sentence of sentences) {
-      if (sentence.length < 10 || sentence.length > 200) continue; // Skip very short fragments or too long sentences
-      
-      const profanityCount = (sentence.match(profanityRegex) || []).length;
-      // Score favors shorter sentences with more profanity
-      const score = profanityCount * 10 - sentence.length/10;
-      
-      if (score > highestScore) {
-        highestScore = score;
-        shortestOffensiveSentence = sentence;
-      }
-    }
-    
-    if (shortestOffensiveSentence) {
-      return shortestOffensiveSentence.trim();
-    }
-    
-    // If we couldn't find a good offensive sentence, just return the shortest sentence
-    return sentences
-      .filter(s => s.length > 10 && s.length < 200)
-      .sort((a, b) => a.length - b.length)[0]?.trim() || text.substring(0, 150) + "...";
+  // Step 4: If no markers found, try to extract the first 1-3 meaningful sentences
+  const cleanedSentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  if (cleanedSentences.length > 0) {
+    return cleanedSentences.slice(0, 3).join(". ").trim() + ".";
   }
   
-  // Limit to a reasonable length
-  const maxLength = 300;
-  if (cleanedText.length > maxLength) {
-    const sentences = cleanedText.split(/[.!?]+/);
-    let result = '';
-    for (const sentence of sentences) {
-      if ((result + sentence).length < maxLength) {
-        result += sentence + '. ';
-      } else {
-        break;
-      }
-    }
-    return result.trim();
-  }
-  
-  return cleanedText.trim();
+  // Step 5: If all else fails, return the cleaned original text
+  return text.replace(/^[\s\n]*/, '')
+             .replace(/[\s\n]*$/, '')
+             .replace(/^(Here's|Let me|I will|ROAST-3000:|AI:|Response:|Let's|Okay|Well|Alright|Sure|First)/i, '')
+             .replace(/^[\s\n]*/, '')
+             .replace(/^[,.!?-\s]+/, '')
+             .replace(/^(a |an |the |your |you're |you are |you |this |that )/i, '')
+             .replace(/\[(.*?)\]/g, '')
+             .replace(/ROAST:|OUTPUT:|RESPONSE:/gi, '')
+             .trim();
 }
 
 /**
