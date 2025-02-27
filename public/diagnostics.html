@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEGEN ROAST 3000 - Diagnostics</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #fff;
+            background-color: #121212;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #3772ff;
+            text-align: center;
+        }
+        
+        .card {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            font-size: 1.4rem;
+            color: #ff3366;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        
+        th {
+            background-color: #2a2a2a;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        .success {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff3366;
+        }
+        
+        .warning {
+            background-color: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+        
+        pre {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 0;
+            color: #f8f8f8;
+        }
+        
+        .code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        .btn {
+            background-color: #3772ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            background-color: #4a85ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .timestamp {
+            color: #999;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DEGEN ROAST 3000 - Diagnostics</h1>
+        
+        <div class="btn-group">
+            <button class="btn" id="run-tests">Run Component Tests</button>
+            <button class="btn" id="check-scripts">Check Script Loading</button>
+            <button class="btn" id="view-app">View Application</button>
+        </div>
+        
+        <div class="card">
+            <h2>Environment Information</h2>
+            <table id="environment-table">
+                <tr>
+                    <th>Item</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>User Agent</td>
+                    <td id="user-agent"></td>
+                </tr>
+                <tr>
+                    <td>URL</td>
+                    <td id="current-url"></td>
+                </tr>
+                <tr>
+                    <td>Page Load Time</td>
+                    <td id="page-load-time"></td>
+                </tr>
+                <tr>
+                    <td>Window Size</td>
+                    <td id="window-size"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Core Component Status</h2>
+            <table id="core-components-table">
+                <tr>
+                    <th>Component</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>EventBus</td>
+                    <td id="eventbus-status"></td>
+                </tr>
+                <tr>
+                    <td>ComponentBase</td>
+                    <td id="componentbase-status"></td>
+                </tr>
+                <tr>
+                    <td>ThemeManager</td>
+                    <td id="thememanager-status"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>UI Component Status</h2>
+            <table id="ui-components-table">
+                <tr>
+                    <th>Component</th>
+                    <th>Status</th>
+                </tr>
+                <!-- Will be filled dynamically -->
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Script Loading</h2>
+            <table id="script-loading-table">
+                <tr>
+                    <th>Script Path</th>
+                    <th>Status</th>
+                </tr>
+                <!-- Will be filled dynamically -->
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Debug Log</h2>
+            <div class="log-container" id="log-container">
+                <!-- Will be filled dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load core scripts -->
+    <script>
+        // Performance measurement
+        const startTime = performance.now();
+        
+        // Component names to check
+        const uiComponents = [
+            'Header',
+            'StonksTicker',
+            'ControlPanel',
+            'ChatWindow',
+            'MessageInput',
+            'Soundboard',
+            'MemeGallery',
+            'Disclaimer'
+        ];
+        
+        // Script paths to check
+        const scriptPaths = [
+            'js/utils.js',
+            'components/common/EventBus.js',
+            'components/common/ComponentBase.js',
+            'components/common/ThemeManager.js',
+            ...uiComponents.map(comp => `components/${comp}/${comp}.js`)
+        ];
+        
+        // Logging function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            
+            const timestamp = document.createElement('span');
+            timestamp.className = 'timestamp';
+            timestamp.textContent = new Date().toLocaleTimeString();
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            logEntry.appendChild(timestamp);
+            logEntry.appendChild(messageSpan);
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // Initialize environment info
+        function initEnvironmentInfo() {
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+            document.getElementById('current-url').textContent = window.location.href;
+            document.getElementById('window-size').textContent = `${window.innerWidth}x${window.innerHeight}`;
+            
+            const loadTime = Math.round(performance.now() - startTime);
+            document.getElementById('page-load-time').textContent = `${loadTime}ms`;
+        }
+        
+        // Check core components
+        function checkCoreComponents() {
+            const components = {
+                'eventbus': { global: 'EventBus' },
+                'componentbase': { global: 'ComponentBase' },
+                'thememanager': { global: 'ThemeManager' }
+            };
+            
+            for (const [id, component] of Object.entries(components)) {
+                const statusElement = document.getElementById(`${id}-status`);
+                
+                if (window[component.global]) {
+                    statusElement.innerHTML = '<span class="status success">Loaded</span>';
+                    log(`Core component ${component.global} successfully loaded`);
+                } else {
+                    statusElement.innerHTML = '<span class="status error">Not Loaded</span>';
+                    log(`Failed to load core component ${component.global}`, 'error');
+                }
+            }
+        }
+        
+        // Check UI components
+        function checkUIComponents() {
+            const tableBody = document.getElementById('ui-components-table');
+            
+            // Clear existing rows except header
+            while (tableBody.rows.length > 1) {
+                tableBody.deleteRow(1);
+            }
+            
+            // Check each component
+            uiComponents.forEach(componentName => {
+                const row = tableBody.insertRow();
+                const nameCell = row.insertCell();
+                const statusCell = row.insertCell();
+                
+                nameCell.textContent = componentName;
+                
+                if (window[componentName]) {
+                    statusCell.innerHTML = '<span class="status success">Loaded</span>';
+                    log(`UI component ${componentName} successfully loaded`);
+                } else {
+                    statusCell.innerHTML = '<span class="status error">Not Loaded</span>';
+                    log(`Failed to load UI component ${componentName}`, 'error');
+                }
+            });
+        }
+        
+        // Check script loading
+        function checkScriptLoading() {
+            return new Promise((resolve) => {
+                const tableBody = document.getElementById('script-loading-table');
+                
+                // Clear existing rows except header
+                while (tableBody.rows.length > 1) {
+                    tableBody.deleteRow(1);
+                }
+                
+                let completedChecks = 0;
+                
+                // Check each script
+                scriptPaths.forEach(path => {
+                    const row = tableBody.insertRow();
+                    const pathCell = row.insertCell();
+                    const statusCell = row.insertCell();
+                    
+                    pathCell.textContent = path;
+                    statusCell.innerHTML = '<span class="status warning">Checking...</span>';
+                    
+                    // Create a test script element
+                    const script = document.createElement('script');
+                    script.src = path;
+                    
+                    script.onload = () => {
+                        statusCell.innerHTML = '<span class="status success">Loaded</span>';
+                        log(`Script ${path} loaded successfully`);
+                        completedChecks++;
+                        if (completedChecks === scriptPaths.length) resolve();
+                    };
+                    
+                    script.onerror = () => {
+                        statusCell.innerHTML = '<span class="status error">Failed</span>';
+                        log(`Failed to load script ${path}`, 'error');
+                        completedChecks++;
+                        if (completedChecks === scriptPaths.length) resolve();
+                    };
+                    
+                    // Add to head
+                    document.head.appendChild(script);
+                });
+            });
+        }
+        
+        // Run all tests
+        function runAllTests() {
+            log('Starting component tests...');
+            checkCoreComponents();
+            checkUIComponents();
+            log('Component tests completed');
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            initEnvironmentInfo();
+            log('Diagnostics page loaded');
+            
+            // Set up button event handlers
+            document.getElementById('run-tests').addEventListener('click', runAllTests);
+            
+            document.getElementById('check-scripts').addEventListener('click', () => {
+                log('Starting script loading checks...');
+                checkScriptLoading().then(() => {
+                    log('Script loading checks completed');
+                });
+            });
+            
+            document.getElementById('view-app').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html> 

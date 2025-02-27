@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Component Test</title>
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="../css/enhanced-ui.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Test page styles */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-controls {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            margin-top: 2rem;
+            color: white;
+        }
+        
+        button {
+            background: #3772FF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        button:hover {
+            background: #2055DD;
+        }
+        
+        .theme-btn {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .theme-crypto {
+            background: #f7931a;
+        }
+        
+        .theme-hacker {
+            background: #00ff66;
+            color: black;
+        }
+        
+        .theme-gamer {
+            background: #ff0080;
+        }
+        
+        .theme-meme {
+            background: #ffce00;
+            color: black;
+        }
+        
+        #event-log {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff66;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="enhanced-ui">
+    <div class="test-container">
+        <h1>Header Component Test</h1>
+        
+        <div id="test-header"></div>
+        
+        <div class="test-controls">
+            <h2>Theme Controls</h2>
+            <button class="theme-btn theme-crypto" data-theme="crypto">Crypto Theme</button>
+            <button class="theme-btn theme-hacker" data-theme="hacker">Hacker Theme</button>
+            <button class="theme-btn theme-gamer" data-theme="gamer">Gamer Theme</button>
+            <button class="theme-btn theme-meme" data-theme="meme">Meme Theme</button>
+            
+            <h2>Banner Controls</h2>
+            <button id="show-banner">Show Banner</button>
+            <button id="hide-banner">Hide Banner</button>
+            
+            <h2>Text Controls</h2>
+            <button id="change-title">Change Title</button>
+            <button id="change-subtitle">Change Subtitle</button>
+            <button id="reset-text">Reset Text</button>
+        </div>
+        
+        <h2>Event Log</h2>
+        <div id="event-log"></div>
+    </div>
+    
+    <!-- Component System -->
+    <script src="../components/common/EventBus.js"></script>
+    <script src="../components/common/ComponentBase.js"></script>
+    <script src="../components/common/ThemeManager.js"></script>
+    <script src="../components/Header/Header.js"></script>
+    
+    <script>
+        // Initialize event log
+        const eventLog = document.getElementById('event-log');
+        
+        function logEvent(eventName, data) {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const message = document.createElement('div');
+            message.innerHTML = `<strong>${timestamp}</strong> - <span style="color: #ff9900">${eventName}</span>: ${JSON.stringify(data)}`;
+            eventLog.appendChild(message);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        // Subscribe to all relevant events
+        EventBus.subscribe('themeChanged', data => logEvent('themeChanged', data));
+        EventBus.subscribe('warningBannerHidden', data => logEvent('warningBannerHidden', data));
+        EventBus.subscribe('warningBannerShown', data => logEvent('warningBannerShown', data));
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize ThemeManager
+            if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.init();
+            }
+            
+            // Initialize Header component
+            const header = new Header('test-header', {
+                title: "DEGEN ROAST",
+                titleBadge: "3000",
+                subtitle: "The most savage AI roast generator on the internet",
+                warningText: "⚠️ WARNING: BRUTAL ROASTS AHEAD - NOT FOR THE EASILY OFFENDED ⚠️",
+                showWarningBanner: true,
+                animateTitle: true,
+                titleAnimation: "wiggle"
+            });
+            window.testHeader = header;
+            
+            // Theme button event listeners
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    ThemeManager.applyTheme(theme);
+                });
+            });
+            
+            // Banner control event listeners
+            document.getElementById('show-banner').addEventListener('click', function() {
+                testHeader.showWarningBanner();
+            });
+            
+            document.getElementById('hide-banner').addEventListener('click', function() {
+                testHeader.hideWarningBanner();
+            });
+            
+            // Text control event listeners
+            document.getElementById('change-title').addEventListener('click', function() {
+                testHeader.setTitle("SAVAGE ROASTER");
+            });
+            
+            document.getElementById('change-subtitle').addEventListener('click', function() {
+                testHeader.setSubtitle("Get absolutely destroyed by AI insults");
+            });
+            
+            document.getElementById('reset-text').addEventListener('click', function() {
+                testHeader.setTitle("DEGEN ROAST");
+                testHeader.setSubtitle("The most savage AI roast generator on the internet");
+            });
+            
+            // Log initialization
+            logEvent('componentInitialized', { component: 'Header' });
+        });
+    </script>
+</body>
+</html> 

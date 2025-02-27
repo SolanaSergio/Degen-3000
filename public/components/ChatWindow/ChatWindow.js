@@ -1,10 +1,9 @@
 /**
  * ChatWindow.js
  * 
- * Main chat display component for DEGEN ROAST 3000
- * Handles rendering messages and chat-related functionality
+ * Chat window component for DEGEN ROAST 3000
+ * Manages the display of chat messages and interactions
  */
-
 class ChatWindow extends ComponentBase {
   /**
    * Create a new ChatWindow component
@@ -14,23 +13,24 @@ class ChatWindow extends ComponentBase {
   constructor(containerId, options = {}) {
     // Default options
     const defaultOptions = {
-      maxMessages: 50,             // Maximum number of messages to display
-      animateMessages: true,       // Whether to animate message appearance
-      typingSpeed: 20,             // Typing animation speed (ms per character)
-      showTimestamps: true,        // Whether to show message timestamps
-      autoScroll: true             // Auto-scroll to bottom on new messages
+      messages: [],                // Initial messages to display
+      maxMessages: 50,             // Maximum number of messages to show
+      typingSpeed: 30,             // Typing animation speed (ms per character)
+      enableTypingAnimation: true, // Enable typing animation for bot messages
+      autoScroll: true,            // Auto-scroll to new messages
+      showSenderLabels: true,      // Show sender name labels
+      showTimestamps: false,       // Show message timestamps
+      botName: "ROAST BOT"         // Name to display for bot messages
     };
     
-    // Merge default options with provided options
-    const mergedOptions = { ...defaultOptions, ...options };
-    
-    // Initialize base component
+    // Initialize base component with merged options
     super(containerId, {
-      messages: [],                // Message history
-      isTyping: false,             // Whether a typing animation is in progress
-      currentTheme: typeof ThemeManager !== 'undefined' ? ThemeManager.getCurrentTheme() : 'crypto',
-      currentLevel: 1,             // Current roast level
-      options: mergedOptions       // Component options
+      options: { ...defaultOptions, ...options },
+      messages: options.messages || defaultOptions.messages,
+      currentTheme: typeof ThemeManager !== 'undefined' ? 
+        ThemeManager.getCurrentTheme() : 'crypto',
+      isStonksModeActive: false,
+      isTyping: false
     });
     
     // Initialize component
@@ -46,6 +46,9 @@ class ChatWindow extends ComponentBase {
     
     // Render the component
     this.render();
+    
+    // Initialize scroll observer
+    this.setupScrollObserver();
   }
   
   /**
@@ -58,24 +61,33 @@ class ChatWindow extends ComponentBase {
         this.setState({ currentTheme: data.theme });
       });
       
+      // Listen for stonks mode changes
+      this.on('stonksModeToggled', (data) => {
+        this.setState({ isStonksModeActive: data.enabled });
+      });
+      
       // Listen for new messages
       this.on('messageSent', (data) => {
-        this.addMessage(data);
+        this.addMessage({
+          text: data.text,
+          sender: 'user',
+          timestamp: data.timestamp || Date.now()
+        });
       });
       
       // Listen for bot responses
       this.on('botResponse', (data) => {
-        this.addMessage(data);
+        this.addMessage({
+          text: data.text,
+          sender: 'bot',
+          level: data.level || 1,
+          timestamp: data.timestamp || Date.now()
+        }, this.state.options.enableTypingAnimation);
       });
       
-      // Listen for level changes
-      this.on('levelChanged', (data) => {
-        this.setState({ currentLevel: data.level });
-      });
-      
-      // Listen for clear chat
+      // Listen for clear chat requests
       this.on('clearChat', () => {
-        this.clearMessages();
+        this.clearChat();
       });
     }
   }
@@ -84,200 +96,176 @@ class ChatWindow extends ComponentBase {
    * Render the component
    */
   render() {
-    // Create the chat window HTML
+    const { currentTheme, isStonksModeActive } = this.state;
+    
+    // Generate HTML
     this.container.innerHTML = `
-      <div class="chat-window theme-${this.state.currentTheme}">
-        <div class="messages" id="${this.id}-messages"></div>
+      <div class="chat-window-component theme-${currentTheme} ${isStonksModeActive ? 'stonks-mode' : ''}">
+        <div class="messages-container" id="messages-container">
+          ${this.renderMessages()}
+          <div class="typing-indicator hidden">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
       </div>
     `;
     
-    // Get the messages container
-    this.messagesElement = document.getElementById(`${this.id}-messages`);
+    // Get references to key elements
+    this.chatElement = this.container.querySelector('.chat-window-component');
+    this.messagesContainer = this.container.querySelector('.messages-container');
+    this.typingIndicator = this.container.querySelector('.typing-indicator');
     
-    // Render existing messages
-    this.renderMessages();
+    // Apply Stonks Mode if active
+    if (isStonksModeActive) {
+      this.applyStonksMode();
+    }
     
     // Mark as rendered
     this.rendered = true;
   }
   
   /**
-   * Render all messages
+   * Render the messages
+   * @returns {string} HTML for messages
    */
   renderMessages() {
-    if (!this.messagesElement) return;
+    const { messages } = this.state;
+    const { showSenderLabels, showTimestamps, botName } = this.state.options;
     
-    // Clear existing messages
-    this.messagesElement.innerHTML = '';
+    if (messages.length === 0) {
+      return '';
+    }
     
-    // Render each message
-    this.state.messages.forEach(message => {
-      this.renderMessage(message);
+    return messages.map(message => {
+      const timestamp = showTimestamps ? new Date(message.timestamp).toLocaleTimeString() : '';
+      const level = message.level || 1;
+      const sender = message.sender === 'bot' ? botName : 'YOU';
+      const messageClass = message.sender === 'bot' ? 'bot-message' : 'user-message';
+      
+      return `
+        <div class="message ${messageClass}" data-timestamp="${message.timestamp}">
+          <div class="message-content">
+            ${showSenderLabels ? `<span class="message-sender">${sender}:</span>` : ''}
+            <div class="message-text ${message.sender === 'bot' ? `level-${level}` : ''}">
+              ${message.text}
+            </div>
+            ${showTimestamps ? `<div class="message-timestamp">${timestamp}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  /**
+   * Set up the scroll observer for auto-scrolling
+   */
+  setupScrollObserver() {
+    // Create an observer for new messages
+    this.messageObserver = new MutationObserver((mutations) => {
+      if (this.state.options.autoScroll) {
+        this.scrollToBottom();
+      }
     });
     
-    // Scroll to bottom if auto-scroll is enabled
-    if (this.state.options.autoScroll) {
-      this.scrollToBottom();
-    }
-  }
-  
-  /**
-   * Render a single message
-   * @param {Object} message - Message object
-   * @returns {HTMLElement} - Message element
-   */
-  renderMessage(message) {
-    if (!this.messagesElement) {
-      console.error('Messages container element not found');
-      return null;
-    }
-    
-    console.log('Rendering message:', message);
-    
-    // Create message element
-    const messageElement = document.createElement('div');
-    
-    // Set classes
-    messageElement.className = `message ${message.type}-message`;
-    if (message.level) {
-      messageElement.dataset.level = message.level;
-      messageElement.classList.add(`level-${message.level}`);
-    }
-    
-    // Add custom classes
-    if (message.classes) {
-      message.classes.forEach(cls => {
-        messageElement.classList.add(cls);
+    // Start observing
+    if (this.messagesContainer) {
+      this.messageObserver.observe(this.messagesContainer, {
+        childList: true,
+        subtree: true
       });
     }
-    
-    // Generate timestamp
-    const timestamp = message.timestamp 
-      ? new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-      : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    // Select icon based on message type
-    const iconEmoji = message.type === 'user' ? '👤' : '🔥';
-    
-    // Create message structure
-    messageElement.innerHTML = `
-      <div class="message-icon">${message.icon || iconEmoji}</div>
-      <div class="message-content">
-        <div class="message-sender">${message.sender}</div>
-        <div class="message-text">${message.text}</div>
-        ${this.state.options.showTimestamps ? `<div class="message-timestamp">${timestamp}</div>` : ''}
-      </div>
-    `;
-    
-    // Add to container
-    this.messagesElement.appendChild(messageElement);
-    
-    // Ensure the message is visible (avoiding CSS issues)
-    messageElement.style.display = 'flex';
-    messageElement.style.opacity = '1';
-    messageElement.style.visibility = 'visible';
-    
-    // Log successful rendering
-    console.log(`Message rendered: ${message.type} from ${message.sender}`);
-    
-    // Apply typing animation for bot messages
-    if (message.type === 'bot' && this.state.options.animateMessages && !message.skipAnimation) {
-      const textElement = messageElement.querySelector('.message-text');
-      if (textElement) {
-        // Store original text
-        const originalText = textElement.textContent;
-        
-        // Set to empty to start animation
-        textElement.textContent = '';
-        
-        // Mark as typing
-        this.setState({ isTyping: true }, false);
-        
-        // Animate typing
-        this.typeMessage(textElement, originalText, () => {
-          // Done typing
-          this.setState({ isTyping: false }, false);
-          
-          // Emit event when typing completes
-          this.emit('typingComplete', { message });
-        });
-      }
-    }
-    
-    // Scroll to the newly added message if auto-scroll is enabled
-    if (this.state.options.autoScroll) {
-      this.scrollToBottom();
-    }
-    
-    return messageElement;
   }
   
   /**
-   * Animate typing text into an element
-   * @param {HTMLElement} element - Element to type text into
-   * @param {string} text - Text to type
-   * @param {Function} callback - Called when typing is complete
-   */
-  typeMessage(element, text, callback) {
-    let index = 0;
-    const speed = this.state.options.typingSpeed;
-    
-    // Clear any existing content
-    element.textContent = '';
-    
-    // Typing function
-    const type = () => {
-      if (index < text.length) {
-        element.textContent += text.charAt(index);
-        index++;
-        setTimeout(type, speed);
-      } else {
-        if (typeof callback === 'function') {
-          callback();
-        }
-      }
-    };
-    
-    // Start typing
-    type();
-  }
-  
-  /**
-   * Add a message to the chat
+   * Add a new message to the chat
    * @param {Object} message - Message object
+   * @param {boolean} animate - Whether to use typing animation for bot messages
    */
-  addMessage(message) {
-    // Create consistent message object
-    const newMessage = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-      timestamp: Date.now(),
-      level: this.state.currentLevel,
-      ...message
-    };
+  addMessage(message, animate = false) {
+    // Clone current messages
+    const updatedMessages = [...this.state.messages];
     
-    // Add to messages array
-    const updatedMessages = [...this.state.messages, newMessage];
+    // Add new message
+    updatedMessages.push(message);
     
-    // Limit the number of messages if needed
-    if (this.state.options.maxMessages > 0 && updatedMessages.length > this.state.options.maxMessages) {
-      updatedMessages.splice(0, updatedMessages.length - this.state.options.maxMessages);
+    // Trim messages if over limit
+    if (updatedMessages.length > this.state.options.maxMessages) {
+      updatedMessages.shift();
     }
     
     // Update state
-    this.setState({ messages: updatedMessages }, false);
+    this.setState({ messages: updatedMessages });
     
-    // Render just this message instead of all messages
-    this.renderMessage(newMessage);
+    // If bot message and animation enabled, show typing animation
+    if (message.sender === 'bot' && animate) {
+      this.showTypingAnimation(message.text);
+    }
     
     // Emit event
-    this.emit('messageAdded', { message: newMessage });
+    this.emit('messageAdded', { message });
   }
   
   /**
-   * Clear all messages
+   * Show typing animation for bot messages
+   * @param {string} text - Text to display with animation
    */
-  clearMessages() {
-    // Update state
+  showTypingAnimation(text) {
+    // Get most recent message element
+    const messageElements = this.container.querySelectorAll('.message');
+    if (messageElements.length === 0) return;
+    
+    const lastMessage = messageElements[messageElements.length - 1];
+    const textElement = lastMessage.querySelector('.message-text');
+    if (!textElement) return;
+    
+    // Show typing indicator
+    this.setState({ isTyping: true });
+    if (this.typingIndicator) {
+      this.typingIndicator.classList.remove('hidden');
+    }
+    
+    // Store original text and clear it
+    const fullText = text;
+    textElement.textContent = '';
+    
+    // Type out text
+    let charIndex = 0;
+    const typeNextChar = () => {
+      if (charIndex < fullText.length) {
+        textElement.textContent += fullText.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeNextChar, this.state.options.typingSpeed);
+      } else {
+        // Typing complete
+        this.setState({ isTyping: false });
+        if (this.typingIndicator) {
+          this.typingIndicator.classList.add('hidden');
+        }
+        
+        // Emit typing complete event
+        this.emit('typingComplete', { message: fullText });
+      }
+    };
+    
+    // Start typing animation
+    setTimeout(typeNextChar, this.state.options.typingSpeed);
+  }
+  
+  /**
+   * Scroll to bottom of messages
+   */
+  scrollToBottom() {
+    if (this.messagesContainer) {
+      this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+  }
+  
+  /**
+   * Clear all messages from chat
+   */
+  clearChat() {
     this.setState({ messages: [] });
     
     // Emit event
@@ -285,11 +273,11 @@ class ChatWindow extends ComponentBase {
   }
   
   /**
-   * Scroll to the bottom of the chat
+   * Apply Stonks Mode styling
    */
-  scrollToBottom() {
-    if (this.messagesElement) {
-      this.messagesElement.scrollTop = this.messagesElement.scrollHeight;
+  applyStonksMode() {
+    if (this.chatElement) {
+      this.chatElement.classList.add('stonks-mode');
     }
   }
   
@@ -297,9 +285,56 @@ class ChatWindow extends ComponentBase {
    * Update component after state changes
    */
   update() {
-    // Re-render all messages
-    this.renderMessages();
+    if (this.chatElement) {
+      // Update theme class
+      this.chatElement.className = `chat-window-component theme-${this.state.currentTheme}`;
+      
+      // Update stonks mode class
+      if (this.state.isStonksModeActive) {
+        this.chatElement.classList.add('stonks-mode');
+      } else {
+        this.chatElement.classList.remove('stonks-mode');
+      }
+      
+      // Re-render messages
+      if (this.messagesContainer) {
+        this.messagesContainer.innerHTML = this.renderMessages();
+        
+        // Add back typing indicator
+        if (this.typingIndicator) {
+          this.messagesContainer.appendChild(this.typingIndicator);
+          
+          // Show/hide typing indicator
+          if (this.state.isTyping) {
+            this.typingIndicator.classList.remove('hidden');
+          } else {
+            this.typingIndicator.classList.add('hidden');
+          }
+        }
+      }
+    } else {
+      // If critical elements don't exist, re-render
+      this.render();
+    }
   }
+  
+  /**
+   * Clean up when component is destroyed
+   */
+  destroy() {
+    // Disconnect observer
+    if (this.messageObserver) {
+      this.messageObserver.disconnect();
+    }
+    
+    // Call parent destroy
+    super.destroy();
+  }
+}
+
+// Make sure the component is available globally
+if (typeof window !== 'undefined') {
+  window.ChatWindow = ChatWindow;
 }
 
 // Export for module systems

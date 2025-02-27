@@ -1,0 +1,218 @@
+/**
+ * Header.css
+ * Component-specific styles for Header
+ */
+
+/* Header component container */
+.header-component {
+  width: 100%;
+}
+
+/* Warning banner */
+.warning-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(255, 0, 0, 0.2), rgba(255, 150, 0, 0.2));
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 0.5rem;
+  font-weight: bold;
+  position: relative;
+  font-size: 0.9rem;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 150, 0, 0.4);
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.warning-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.2) 10px,
+    rgba(0, 0, 0, 0.2) 20px
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.warning-banner.hidden {
+  display: none;
+}
+
+.warning-banner .close-warning {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.warning-banner .close-warning:hover {
+  opacity: 1;
+}
+
+/* Header area */
+.header-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* Title styling */
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  letter-spacing: 1px;
+  color: white;
+  text-shadow: 
+    0 0 10px rgba(55, 114, 255, 0.7),
+    0 0 20px rgba(55, 114, 255, 0.5);
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.title.animated:hover {
+  transform: scale(1.05);
+}
+
+.title-badge {
+  background: linear-gradient(135deg, #3772FF, #6499FF);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 1.8rem;
+  margin-left: 0.5rem;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(55, 114, 255, 0.7);
+}
+
+/* Subtitle styling */
+.subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  opacity: 0.8;
+  max-width: 80%;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation keyframes */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(3deg); }
+  75% { transform: rotate(-3deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.title.animated[data-animation="wiggle"]:hover {
+  animation: wiggle 0.5s ease infinite;
+}
+
+.title.animated[data-animation="pulse"]:hover {
+  animation: pulse 1s ease infinite;
+}
+
+.title.animated[data-animation="shake"]:hover {
+  animation: shake 0.5s ease infinite;
+}
+
+/* Theme variations */
+.header-component.theme-crypto .title {
+  text-shadow: 
+    0 0 10px rgba(247, 147, 26, 0.7),
+    0 0 20px rgba(247, 147, 26, 0.5);
+}
+
+.header-component.theme-crypto .title-badge {
+  background: linear-gradient(135deg, #f7931a, #ffb74d);
+  box-shadow: 0 0 10px rgba(247, 147, 26, 0.7);
+}
+
+.header-component.theme-hacker .title {
+  text-shadow: 
+    0 0 10px rgba(0, 255, 102, 0.7),
+    0 0 20px rgba(0, 255, 102, 0.5);
+}
+
+.header-component.theme-hacker .title-badge {
+  background: linear-gradient(135deg, #00ff66, #33ff99);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.7);
+}
+
+.header-component.theme-gamer .title {
+  text-shadow: 
+    0 0 10px rgba(255, 0, 128, 0.7),
+    0 0 20px rgba(255, 0, 128, 0.5);
+}
+
+.header-component.theme-gamer .title-badge {
+  background: linear-gradient(135deg, #ff0080, #ff66b2);
+  box-shadow: 0 0 10px rgba(255, 0, 128, 0.7);
+}
+
+.header-component.theme-meme .title {
+  text-shadow: 
+    0 0 10px rgba(255, 206, 0, 0.7),
+    0 0 20px rgba(255, 206, 0, 0.5);
+}
+
+.header-component.theme-meme .title-badge {
+  background: linear-gradient(135deg, #ffce00, #ffdf5d);
+  box-shadow: 0 0 10px rgba(255, 206, 0, 0.7);
+}
+
+/* Responsive design */
+@media (max-width: 576px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .title-badge {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+    max-width: 95%;
+  }
+  
+  .warning-banner {
+    font-size: 0.8rem;
+    padding: 0.4rem;
+  }
+} 

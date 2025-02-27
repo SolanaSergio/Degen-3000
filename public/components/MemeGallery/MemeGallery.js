@@ -324,6 +324,11 @@ class MemeGallery extends ComponentBase {
   }
 }
 
+// Make sure the component is available globally
+if (typeof window !== 'undefined') {
+  window.MemeGallery = MemeGallery;
+}
+
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MemeGallery;

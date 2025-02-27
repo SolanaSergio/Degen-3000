@@ -1,258 +1,307 @@
 /**
  * MessageInput.css
- * Component-specific styles for the MessageInput
+ * Component-specific styles for MessageInput
  */
 
-/* Main message input container */
-.message-input {
-  width: 100%;
-  background: rgba(10, 10, 20, 0.5);
-  backdrop-filter: blur(5px);
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  margin-bottom: 1rem;
-}
-
-/* Form structure */
-.message-input .message-form {
+/* Message input component container */
+.message-input-component {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  width: 100%;
+  background: rgba(20, 26, 40, 0.8);
+  border-radius: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  padding: 1.2rem;
 }
 
-/* Input container - holds textarea and button */
-.message-input .input-container {
+/* Message form */
+.message-form {
   display: flex;
-  gap: 0.5rem;
-  position: relative;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
 }
 
-/* Textarea styling */
-.message-input textarea {
-  flex: 1;
-  min-height: 60px;
-  max-height: 150px;
-  padding: 0.8rem;
-  border-radius: 8px;
-  background: rgba(20, 20, 30, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Input container */
+.input-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Input field */
+.input-field {
+  width: 100%;
+  background: rgba(10, 15, 25, 0.5);
   color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.5rem;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-size: 1.1rem;
   resize: none;
   outline: none;
-  font-family: inherit;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-.message-input textarea::placeholder {
+.input-field:focus {
+  border-color: #3772FF;
+  box-shadow: 0 0 0 2px rgba(55, 114, 255, 0.25);
+}
+
+.input-field::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.message-input textarea:focus,
-.message-input textarea.focused {
-  border-color: var(--pro-accent, #8957ff);
-  box-shadow: 0 0 0 2px rgba(137, 87, 255, 0.2);
-}
-
-/* Submit button */
-.message-input .submit-button {
-  padding: 0.8rem 1.2rem;
-  background: var(--pro-accent, #8957ff);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.message-input .submit-button:hover {
-  background: var(--pro-accent-hover, #9e75ff);
-  transform: translateY(-2px);
-}
-
-.message-input .submit-button:active {
-  transform: translateY(1px);
-}
-
-.message-input .submit-button:disabled {
-  background: rgba(137, 87, 255, 0.3);
-  cursor: not-allowed;
-  transform: none;
-}
-
 /* Character counter */
-.message-input .char-counter {
-  font-size: 0.75rem;
+.char-counter {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.8rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.6);
-  text-align: right;
-  padding: 0 0.2rem;
-  transition: color 0.3s ease;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
 }
 
-.message-input .char-counter.near-limit {
-  color: var(--warning-yellow, #FFD60A);
+.char-counter.near-limit {
+  color: #FFD600;
+  font-weight: 600;
 }
 
-.message-input .char-counter.at-limit {
-  color: var(--danger-red, #FF5533);
-}
-
-/* Quick phrases section */
-.message-input .quick-phrases {
+/* Quick phrases */
+.quick-phrases {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.message-input .quick-phrase-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.quick-phrase-button {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 15, 25, 0.5);
   color: rgba(255, 255, 255, 0.8);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
   padding: 0.5rem 0.8rem;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  flex: 1;
-  min-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.quick-phrase-button:hover {
+  background: rgba(55, 114, 255, 0.15);
+  border-color: rgba(55, 114, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.quick-phrase-button:active {
+  transform: translateY(0);
+}
+
+.quick-phrase-button.active {
+  background: rgba(55, 114, 255, 0.25);
+  transform: scale(0.95);
+}
+
+.phrase-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Button row */
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+/* Action buttons */
+.action-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 0.4rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
 }
 
-.message-input .quick-phrase-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+.action-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.message-input .quick-phrase-button:active {
-  transform: translateY(1px);
+.action-button:active {
+  transform: translateY(0);
 }
 
-/* Animations for quick phrases */
-.message-input .quick-phrase-button.meme-bounce {
-  animation: button-bounce 1s ease;
+.send-button {
+  background: #3772FF;
+  color: white;
+  box-shadow: 0 4px 8px rgba(55, 114, 255, 0.3);
 }
 
-@keyframes button-bounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  75% {
-    transform: scale(0.95);
-  }
+.send-button:hover {
+  background: #4A85FF;
+  box-shadow: 0 6px 12px rgba(55, 114, 255, 0.4);
 }
 
-/* Theme-specific styling */
-.message-input.theme-crypto .submit-button {
-  background: var(--crypto-primary, #f7931a);
+.send-button:disabled {
+  background: rgba(55, 114, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.message-input.theme-crypto .submit-button:hover {
-  background: var(--crypto-primary-hover, #f9a94a);
+.clear-button {
+  background: rgba(10, 15, 25, 0.5);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.message-input.theme-hacker .submit-button {
-  background: var(--hacker-primary, #00ff66);
-  color: rgba(0, 0, 0, 0.8);
+.clear-button:hover {
+  background: rgba(239, 70, 111, 0.2);
+  color: #EF466F;
+  border-color: rgba(239, 70, 111, 0.3);
 }
 
-.message-input.theme-hacker .submit-button:hover {
-  background: var(--hacker-primary-hover, #33ff88);
+.button-icon {
+  font-size: 1.2rem;
 }
 
-.message-input.theme-gamer .submit-button {
-  background: var(--gamer-primary, #ff00d4);
+/* Stonks mode effects */
+.message-input-component.stonks-mode .input-field {
+  border-color: rgba(0, 255, 102, 0.3);
 }
 
-.message-input.theme-gamer .submit-button:hover {
-  background: var(--gamer-primary-hover, #ff33dd);
+.message-input-component.stonks-mode .input-field:focus {
+  border-color: #00ff66;
+  box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.25);
 }
 
-.message-input.theme-meme .submit-button {
-  background: linear-gradient(135deg, #8A2BE2, #FF69B4);
+.message-input-component.stonks-mode .send-button {
+  background: linear-gradient(to right, #00ff66, #33cc99);
+  box-shadow: 0 4px 8px rgba(0, 255, 102, 0.3);
 }
 
-.message-input.theme-meme .submit-button:hover {
-  background: linear-gradient(135deg, #9B4DF7, #FF85C2);
+.message-input-component.stonks-mode .send-button:hover {
+  box-shadow: 0 6px 12px rgba(0, 255, 102, 0.4);
 }
 
-.message-input.theme-meme .quick-phrase-button {
-  position: relative;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--meme-primary, #8A2BE2);
+/* Theme variations */
+.message-input-component.theme-crypto .input-field:focus {
+  border-color: #f7931a;
+  box-shadow: 0 0 0 2px rgba(247, 147, 26, 0.25);
 }
 
-.message-input.theme-meme .quick-phrase-button::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0)
-  );
-  transform: rotate(30deg);
-  opacity: 0;
-  transition: 0.5s;
+.message-input-component.theme-crypto .send-button {
+  background: #f7931a;
+  box-shadow: 0 4px 8px rgba(247, 147, 26, 0.3);
 }
 
-.message-input.theme-meme .quick-phrase-button:hover::after {
-  opacity: 1;
-  transform: rotate(30deg) translate(10%, 10%);
+.message-input-component.theme-crypto .send-button:hover {
+  background: #f9a942;
+  box-shadow: 0 6px 12px rgba(247, 147, 26, 0.4);
 }
 
-/* Responsive adjustments */
+.message-input-component.theme-hacker .input-field:focus {
+  border-color: #00ff66;
+  box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.25);
+}
+
+.message-input-component.theme-hacker .send-button {
+  background: #00ff66;
+  box-shadow: 0 4px 8px rgba(0, 255, 102, 0.3);
+}
+
+.message-input-component.theme-hacker .send-button:hover {
+  background: #33ff88;
+  box-shadow: 0 6px 12px rgba(0, 255, 102, 0.4);
+}
+
+.message-input-component.theme-gamer .input-field:focus {
+  border-color: #ff0080;
+  box-shadow: 0 0 0 2px rgba(255, 0, 128, 0.25);
+}
+
+.message-input-component.theme-gamer .send-button {
+  background: #ff0080;
+  box-shadow: 0 4px 8px rgba(255, 0, 128, 0.3);
+}
+
+.message-input-component.theme-gamer .send-button:hover {
+  background: #ff3399;
+  box-shadow: 0 6px 12px rgba(255, 0, 128, 0.4);
+}
+
+.message-input-component.theme-meme .input-field:focus {
+  border-color: #ffce00;
+  box-shadow: 0 0 0 2px rgba(255, 206, 0, 0.25);
+}
+
+.message-input-component.theme-meme .send-button {
+  background: #ffce00;
+  color: #000;
+  box-shadow: 0 4px 8px rgba(255, 206, 0, 0.3);
+}
+
+.message-input-component.theme-meme .send-button:hover {
+  background: #ffd633;
+  box-shadow: 0 6px 12px rgba(255, 206, 0, 0.4);
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
-  .message-input {
+  .message-input-component {
+    padding: 1rem;
+  }
+  
+  .input-field {
+    font-size: 1rem;
+    padding: 0.7rem 0.9rem;
+  }
+  
+  .action-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+  
+  .quick-phrase-button {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .message-input-component {
     padding: 0.8rem;
   }
   
-  .message-input textarea {
-    min-height: 50px;
-    padding: 0.6rem;
+  .button-row {
+    flex-direction: column;
+    gap: 0.5rem;
   }
   
-  .message-input .submit-button {
-    padding: 0.6rem 1rem;
+  .action-button {
+    width: 100%;
   }
   
-  .message-input .quick-phrase-button {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.8rem;
-    min-width: 100px;
-  }
-}
-
-@media (max-width: 480px) {
-  .message-input .quick-phrases {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
-  }
-  
-  .message-input .quick-phrase-button {
-    min-width: 0;
-    padding: 0.3rem 0.5rem;
-    font-size: 0.75rem;
+  .char-counter {
+    font-size: 0.7rem;
+    bottom: 0.4rem;
+    right: 0.6rem;
   }
 } 

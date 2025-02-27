@@ -6,511 +6,522 @@
  */
 
 class Soundboard extends ComponentBase {
-  /**
-   * Create a new Soundboard component
-   * @param {string} containerId - ID of the container element
-   * @param {Object} options - Component options
-   */
-  constructor(containerId, options = {}) {
-    // Default options
-    const defaultOptions = {
-      initialVolume: 0.5,          // Initial volume (0-1)
-      initialMuted: false,         // Initial muted state
-      showControls: true,          // Show soundboard controls
-      collapsible: true,           // Allow collapsing the soundboard
-      autoPreload: ['click', 'send', 'receive', 'notification'] // Sounds to preload automatically
-    };
-    
-    // Merge default options with provided options
-    const mergedOptions = { ...defaultOptions, ...options };
-    
-    // Get stored volume and muted state
-    const storedVolume = localStorage.getItem('soundVolume');
-    const storedMuted = localStorage.getItem('soundMuted');
-    
-    // Initialize base component
-    super(containerId, {
-      volume: storedVolume ? parseFloat(storedVolume) : mergedOptions.initialVolume,
-      muted: storedMuted ? storedMuted === 'true' : mergedOptions.initialMuted,
-      collapsed: false,            // Whether the soundboard is collapsed
-      currentTheme: typeof ThemeManager !== 'undefined' ? ThemeManager.getCurrentTheme() : 'crypto',
-      options: mergedOptions,
-      playingSound: null           // Currently playing sound effect
-    });
-    
-    // Sound effects library
-    this.sounds = {
-      // UI sounds
-      click: 'audio/click.mp3',
-      notification: 'audio/notification.mp3',
-      error: 'audio/error.mp3',
-      send: 'audio/send.mp3',
-      receive: 'audio/receive.mp3',
-      themeChange: 'audio/themeChange.mp3',
-      reset: 'audio/reset.mp3',
-      
-      // Level-up sounds
-      levelup: 'audio/levelup.mp3',
-      levelUp2: 'audio/levelup2.mp3',
-      levelUp3: 'audio/levelup3.mp3',
-      
-      // Roast sounds
-      roast: 'audio/roast.mp3',
-      ouch: 'audio/ouch.mp3',
-      damn: 'audio/damn.mp3',
-      laugh: 'audio/laugh.mp3',
-      
-      // Meme soundboard (with suggested free sources)
-      oof: 'audio/memes/oof.mp3',                     // Free from Freesound.org
-      stonks: 'audio/memes/stonks.mp3',               // Free from Pixabay
-      airhorn: 'audio/memes/airhorn.mp3',             // Free from Zapsplat
-      sadviolin: 'audio/memes/sadviolin.mp3',         // Free from Freesound.org
-      emotionalDamage: 'audio/memes/emotional_damage.mp3',  // Free from Pixabay
-      helloDarkness: 'audio/memes/hello_darkness.mp3',      // Free from Freesound.org
-      toBeContinued: 'audio/memes/to_be_continued.mp3',     // Free from Pixabay
-      nope: 'audio/memes/nope.mp3'                    // Free from Zapsplat
-    };
-    
-    // Audio cache for preloaded sounds
-    this.audioCache = {};
-    
-    // Initialize component
-    this.init();
-    
-    // Expose global play method
-    window.playSound = this.play.bind(this);
-  }
-  
-  /**
-   * Initialize the component
-   */
-  init() {
-    // Preload common sounds
-    if (this.state.options.autoPreload && this.state.options.autoPreload.length > 0) {
-      this.preloadSounds(this.state.options.autoPreload);
+    /**
+     * Create a new Soundboard component
+     * @param {string} containerId - ID of the container element
+     * @param {Object} options - Component options
+     */
+    constructor(containerId, options = {}) {
+        // Default options
+        const defaultOptions = {
+            defaultVolume: 0.5,
+            initialMuted: false,
+            showCategories: true,
+            categories: ['ui', 'message', 'level', 'meme'],
+            categoriesLabels: {
+                ui: 'UI Sounds',
+                message: 'Messages',
+                level: 'Level Up',
+                meme: 'Meme Sounds'
+            }
+        };
+        
+        // Define available sounds
+        const sounds = {
+            ui: {
+                hover: { src: 'audio/hover.mp3', volume: 0.2, icon: '🖱️' },
+                select: { src: 'audio/select.mp3', volume: 0.3, icon: '👆' },
+                clear: { src: 'audio/clear.mp3', volume: 0.4, icon: '🧹' }
+            },
+            message: {
+                send: { src: 'audio/send.mp3', volume: 0.4, icon: '📤' },
+                receive: { src: 'audio/receive.mp3', volume: 0.4, icon: '📥' }
+            },
+            level: {
+                levelUp: { src: 'audio/level-up.mp3', volume: 0.5, icon: '⬆️' }
+            },
+            meme: {
+                stonks: { src: 'audio/stonks.mp3', volume: 0.5, icon: '📈' },
+                notStonks: { src: 'audio/not-stonks.mp3', volume: 0.5, icon: '📉' },
+                meme: { src: 'audio/meme.mp3', volume: 0.5, icon: '🤣' }
+            }
+        };
+        
+        // Initialize base component with merged options and initial state
+        super(containerId, {
+            options: { ...defaultOptions, ...options },
+            currentTheme: typeof ThemeManager !== 'undefined' ? 
+                ThemeManager.getCurrentTheme() : 'crypto',
+            isStonksModeActive: false,
+            volume: options.defaultVolume || defaultOptions.defaultVolume,
+            muted: options.initialMuted || defaultOptions.initialMuted,
+            activeCategory: 'ui',
+            sounds: sounds,
+            audioElements: {}
+        });
+        
+        // Initialize component
+        this.init();
     }
     
-    // Set up event listeners
-    this.setupEventListeners();
-    
-    // Render the component
-    this.render();
-    
-    console.log('🔊 Soundboard component initialized');
-  }
-  
-  /**
-   * Set up event listeners
-   */
-  setupEventListeners() {
-    // Listen for theme changes
-    if (typeof EventBus !== 'undefined') {
-      this.on('themeChanged', (data) => {
-        this.setState({ currentTheme: data.theme });
-        this.play('themeChange');
-      });
-      
-      // Listen for level changes
-      this.on('levelChanged', (data) => {
-        const newLevel = data.level;
-        const oldLevel = data.oldLevel || 0;
+    /**
+     * Initialize the component
+     */
+    init() {
+        // Preload sounds
+        this.preloadSounds();
         
-        if (newLevel > oldLevel) {
-          this.play('levelUp');
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Render the component
+        this.render();
+        
+        // Load saved volume from localStorage
+        this.loadSavedPreferences();
+    }
+    
+    /**
+     * Preload sound files
+     */
+    preloadSounds() {
+        const sounds = this.state.sounds;
+        
+        // Create audio elements for each sound
+        Object.keys(sounds).forEach(category => {
+            Object.keys(sounds[category]).forEach(id => {
+                const sound = sounds[category][id];
+                const audio = new Audio(sound.src);
+                audio.preload = 'auto';
+                audio.volume = sound.volume * this.state.volume;
+                
+                // Store audio element
+                if (!this.state.audioElements[category]) {
+                    this.state.audioElements[category] = {};
+                }
+                this.state.audioElements[category][id] = audio;
+            });
+        });
+    }
+    
+    /**
+     * Load saved preferences from localStorage
+     */
+    loadSavedPreferences() {
+        if (localStorage.getItem('soundboardVolume')) {
+            const savedVolume = parseFloat(localStorage.getItem('soundboardVolume'));
+            this.setVolume(savedVolume);
         }
-      });
-      
-      // Listen for message events
-      this.on('messageSent', () => {
-        this.play('send');
-      });
-      
-      this.on('botResponse', () => {
-        this.play('receive');
-      });
-      
-      // Listen for meme selection
-      this.on('memeSelected', () => {
-        this.play('click');
-      });
-      
-      // Listen for clear chat
-      this.on('clearChat', () => {
-        this.play('reset');
-      });
-    }
-  }
-  
-  /**
-   * Render the component
-   */
-  render() {
-    // Create the soundboard HTML
-    this.container.innerHTML = `
-      <div class="soundboard-component theme-${this.state.currentTheme}">
-        <div class="soundboard-header">
-          <h3 class="soundboard-title">
-            <span class="soundboard-icon">🔊</span>
-            Meme Soundboard
-          </h3>
-          ${this.state.options.collapsible ? `
-            <button class="soundboard-toggle" type="button">
-              ${this.state.collapsed ? '▼' : '▲'}
-            </button>
-          ` : ''}
-        </div>
         
-        <div class="soundboard-content ${this.state.collapsed ? 'collapsed' : ''}">
-          <div class="soundboard-grid">
-            ${this.renderSoundButtons()}
-          </div>
-          
-          ${this.state.options.showControls ? `
-            <div class="soundboard-controls">
-              <div class="volume-control">
-                <label for="${this.id}-volume">Volume:</label>
-                <input 
-                  type="range" 
-                  id="${this.id}-volume" 
-                  min="0" 
-                  max="1" 
-                  step="0.1" 
-                  value="${this.state.volume}"
-                >
-                <button class="mute-toggle ${this.state.muted ? 'muted' : ''}" type="button">
-                  ${this.state.muted ? '🔇' : '🔊'}
-                </button>
-              </div>
+        if (localStorage.getItem('soundboardMuted') === 'true') {
+            this.toggleMute(true);
+        }
+    }
+    
+    /**
+     * Set up event listeners
+     */
+    setupEventListeners() {
+        // Listen for theme changes
+        if (typeof EventBus !== 'undefined') {
+            this.on('themeChanged', (data) => {
+                this.setState({ currentTheme: data.theme });
+            });
+            
+            // Listen for stonks mode changes
+            this.on('stonksModeToggled', (data) => {
+                this.setState({ isStonksModeActive: data.enabled });
+            });
+            
+            // Listen for volume changes
+            this.on('volumeChanged', (data) => {
+                this.setVolume(data.volume);
+            });
+            
+            // Listen for mute toggle
+            this.on('muteToggled', (data) => {
+                this.toggleMute(data.muted);
+            });
+            
+            // Listen for playSound requests
+            this.on('playSound', (data) => {
+                if (data.category && data.sound) {
+                    this.playSound(data.category, data.sound);
+                } else if (data.sound) {
+                    // Legacy support for just sound ID
+                    this.playSound('ui', data.sound);
+                }
+            });
+        }
+    }
+    
+    /**
+     * Render the component
+     */
+    render() {
+        const { currentTheme, isStonksModeActive, volume, muted, activeCategory, sounds } = this.state;
+        const { showCategories, categoriesLabels } = this.state.options;
+        
+        // Generate volume icon based on current volume
+        const volumeIcon = this.getVolumeIcon();
+        
+        // Generate HTML
+        this.container.innerHTML = `
+            <div class="soundboard-component theme-${currentTheme} ${isStonksModeActive ? 'stonks-mode' : ''}">
+                <div class="soundboard-volume">
+                    <button class="volume-icon" id="volume-icon">${volumeIcon}</button>
+                    <input 
+                        type="range" 
+                        class="volume-slider" 
+                        id="volume-slider" 
+                        min="0" 
+                        max="1" 
+                        step="0.1" 
+                        value="${volume}"
+                        ${muted ? 'disabled' : ''}
+                    >
+                    <button class="mute-button ${muted ? 'muted' : ''}" id="mute-button">
+                        ${muted ? '🔇 Unmute' : '🔊 Mute'}
+                    </button>
+                </div>
+                
+                ${showCategories ? `
+                    <div class="sound-categories">
+                        ${Object.keys(sounds).map(category => `
+                            <button class="category-button ${category === activeCategory ? 'active' : ''}" data-category="${category}">
+                                ${categoriesLabels[category] || category}
+                            </button>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="sound-buttons">
+                    ${this.renderSoundButtons()}
+                </div>
             </div>
-          ` : ''}
-        </div>
-      </div>
-    `;
-    
-    // Get important elements
-    this.soundboardElement = this.container.querySelector('.soundboard-component');
-    this.contentElement = this.container.querySelector('.soundboard-content');
-    this.toggleButton = this.container.querySelector('.soundboard-toggle');
-    this.volumeSlider = this.container.querySelector(`#${this.id}-volume`);
-    this.muteButton = this.container.querySelector('.mute-toggle');
-    
-    // Set up element event handlers
-    this.setupSoundboardEventListeners();
-    
-    // Mark as rendered
-    this.rendered = true;
-  }
-  
-  /**
-   * Set up event handlers for soundboard elements
-   */
-  setupSoundboardEventListeners() {
-    // Toggle button for collapsing/expanding
-    if (this.toggleButton) {
-      this.addListener(this.toggleButton, 'click', this.handleToggleCollapse);
+        `;
+        
+        // Get references to key elements
+        this.soundboardElement = this.container.querySelector('.soundboard-component');
+        this.volumeSlider = this.container.querySelector('#volume-slider');
+        this.volumeIcon = this.container.querySelector('#volume-icon');
+        this.muteButton = this.container.querySelector('#mute-button');
+        this.categoryButtons = this.container.querySelectorAll('.category-button');
+        
+        // Set up DOM event listeners
+        this.setupDomEventListeners();
+        
+        // Mark as rendered
+        this.rendered = true;
     }
     
-    // Volume controls
-    if (this.volumeSlider) {
-      this.addListener(this.volumeSlider, 'input', this.handleVolumeChange);
+    /**
+     * Render sound buttons for the active category
+     * @returns {string} HTML for sound buttons
+     */
+    renderSoundButtons() {
+        const { sounds, activeCategory } = this.state;
+        
+        // Get sounds for active category
+        const categoryItems = sounds[activeCategory];
+        if (!categoryItems) return '';
+        
+        return Object.keys(categoryItems).map(id => {
+            const sound = categoryItems[id];
+            return `
+                <button class="sound-button" data-category="${activeCategory}" data-sound="${id}">
+                    <span class="sound-button-icon">${sound.icon || '🔊'}</span>
+                    <span class="sound-button-label">${this.formatSoundName(id)}</span>
+                </button>
+            `;
+        }).join('');
     }
     
-    if (this.muteButton) {
-      this.addListener(this.muteButton, 'click', this.handleMuteToggle);
+    /**
+     * Format a sound ID into a readable name
+     * @param {string} id - Sound ID
+     * @returns {string} Formatted name
+     */
+    formatSoundName(id) {
+        // Convert camelCase to words with spaces and capitalize
+        return id
+            .replace(/([A-Z])/g, ' $1') // Insert a space before all capital letters
+            .replace(/^./, str => str.toUpperCase()) // Capitalize the first letter
+            .trim();
     }
     
-    // Sound buttons
-    const soundButtons = this.container.querySelectorAll('.sound-button');
-    soundButtons.forEach(button => {
-      this.addListener(button, 'click', this.handleSoundButtonClick);
-    });
-  }
-  
-  /**
-   * Render sound buttons
-   * @returns {string} - HTML for sound buttons
-   */
-  renderSoundButtons() {
-    // Filter for meme sounds only
-    const memeSounds = [
-      { key: 'oof', name: 'Oof' },
-      { key: 'stonks', name: 'Stonks' },
-      { key: 'airhorn', name: 'Airhorn' },
-      { key: 'sadviolin', name: 'Sad Violin' },
-      { key: 'emotionalDamage', name: 'Emotional Damage' },
-      { key: 'helloDarkness', name: 'Hello Darkness' },
-      { key: 'toBeContinued', name: 'To Be Continued' },
-      { key: 'nope', name: 'Nope' },
-      { key: 'laugh', name: 'Laugh' },
-      { key: 'damn', name: 'Damn' }
-    ];
-    
-    // Generate HTML for each sound button
-    return memeSounds.map(sound => `
-      <button 
-        class="sound-button" 
-        data-sound="${sound.key}" 
-        type="button"
-      >
-        <span class="sound-icon">🔊</span>
-        <span class="sound-name">${sound.name}</span>
-      </button>
-    `).join('');
-  }
-  
-  /**
-   * Handle collapse toggle
-   */
-  handleToggleCollapse() {
-    // Toggle collapsed state
-    this.setState({ collapsed: !this.state.collapsed });
-    
-    // Update toggle button text
-    if (this.toggleButton) {
-      this.toggleButton.textContent = this.state.collapsed ? '▼' : '▲';
+    /**
+     * Set up DOM event listeners
+     */
+    setupDomEventListeners() {
+        // Volume slider
+        if (this.volumeSlider) {
+            this.addListener(this.volumeSlider, 'input', (e) => {
+                const newVolume = parseFloat(e.target.value);
+                this.setVolume(newVolume);
+            });
+        }
+        
+        // Mute button
+        if (this.muteButton) {
+            this.addListener(this.muteButton, 'click', () => {
+                this.toggleMute();
+            });
+        }
+        
+        // Volume icon
+        if (this.volumeIcon) {
+            this.addListener(this.volumeIcon, 'click', () => {
+                this.toggleMute();
+            });
+        }
+        
+        // Category buttons
+        if (this.categoryButtons) {
+            this.categoryButtons.forEach(button => {
+                this.addListener(button, 'click', () => {
+                    const category = button.getAttribute('data-category');
+                    this.setActiveCategory(category);
+                });
+            });
+        }
+        
+        // Sound buttons
+        const soundButtons = this.container.querySelectorAll('.sound-button');
+        if (soundButtons) {
+            soundButtons.forEach(button => {
+                this.addListener(button, 'click', () => {
+                    const category = button.getAttribute('data-category');
+                    const sound = button.getAttribute('data-sound');
+                    this.playSound(category, sound);
+                });
+            });
+        }
     }
     
-    // Update content class
-    if (this.contentElement) {
-      this.contentElement.classList.toggle('collapsed', this.state.collapsed);
+    /**
+     * Set the active sound category
+     * @param {string} category - Category ID
+     */
+    setActiveCategory(category) {
+        if (this.state.sounds[category]) {
+            this.setState({ activeCategory: category });
+        }
     }
     
-    // Play sound
-    this.play('click');
-  }
-  
-  /**
-   * Handle volume change
-   * @param {Event} event - Input event
-   */
-  handleVolumeChange(event) {
-    const volume = parseFloat(event.target.value);
-    
-    // Update state
-    this.setState({ volume });
-    
-    // Save to localStorage
-    localStorage.setItem('soundVolume', volume.toString());
-    
-    // Play test sound if not muted
-    if (!this.state.muted) {
-      this.play('click');
-    }
-  }
-  
-  /**
-   * Handle mute toggle
-   */
-  handleMuteToggle() {
-    // Toggle mute state
-    const newMutedState = !this.state.muted;
-    
-    // Update state
-    this.setState({ muted: newMutedState });
-    
-    // Save to localStorage
-    localStorage.setItem('soundMuted', newMutedState.toString());
-    
-    // Update button text
-    if (this.muteButton) {
-      this.muteButton.textContent = newMutedState ? '🔇' : '🔊';
-      this.muteButton.classList.toggle('muted', newMutedState);
+    /**
+     * Set volume level
+     * @param {number} volume - Volume level (0-1)
+     */
+    setVolume(volume) {
+        // Ensure volume is between 0 and 1
+        volume = Math.max(0, Math.min(1, volume));
+        
+        // Update state
+        this.setState({ volume });
+        
+        // Update all audio elements
+        this.updateAudioVolumes();
+        
+        // Save to localStorage
+        localStorage.setItem('soundboardVolume', volume.toString());
+        
+        // Show volume toast
+        this.showVolumeToast();
     }
     
-    // Play test sound if unmuting
-    if (!newMutedState) {
-      this.play('click');
+    /**
+     * Update the volume of all audio elements
+     */
+    updateAudioVolumes() {
+        const { audioElements, sounds, volume, muted } = this.state;
+        
+        // If audio elements exist, update volumes
+        Object.keys(audioElements).forEach(category => {
+            Object.keys(audioElements[category]).forEach(id => {
+                const audio = audioElements[category][id];
+                const soundVolume = sounds[category][id].volume;
+                audio.volume = muted ? 0 : soundVolume * volume;
+            });
+        });
     }
     
-    // Emit event for other components
-    this.emit('soundMuteChanged', { muted: newMutedState });
-  }
-  
-  /**
-   * Handle sound button click
-   * @param {Event} event - Click event
-   */
-  handleSoundButtonClick(event) {
-    const button = event.currentTarget;
-    const soundKey = button.dataset.sound;
-    
-    if (soundKey) {
-      // Add playing class for animation
-      button.classList.add('playing');
-      
-      // Remove class after animation completes
-      setTimeout(() => {
-        button.classList.remove('playing');
-      }, 500);
-      
-      // Play the sound
-      this.play(soundKey);
-    }
-  }
-  
-  /**
-   * Preload sounds for better performance
-   * @param {Array<string>} soundKeys - Array of sound keys to preload
-   */
-  preloadSounds(soundKeys) {
-    soundKeys.forEach(key => {
-      if (this.sounds[key]) {
-        const audio = new Audio();
-        audio.src = this.sounds[key];
-        audio.volume = this.state.volume;
-        this.audioCache[key] = audio;
-      }
-    });
-  }
-  
-  /**
-   * Play a sound effect
-   * @param {string} soundKey - Key of the sound to play
-   * @param {Object} options - Options for playback
-   * @returns {HTMLAudioElement|null} - Audio element or null if muted/error
-   */
-  play(soundKey, options = {}) {
-    // Don't play if muted
-    if (this.state.muted) return null;
-    
-    // Get sound path
-    const soundPath = this.sounds[soundKey];
-    if (!soundPath) {
-      console.warn(`Sound not found: ${soundKey}`);
-      return null;
+    /**
+     * Toggle mute state
+     * @param {boolean} [forceMute] - Force a specific mute state
+     */
+    toggleMute(forceMute = null) {
+        // If forceMute is provided, use it, otherwise toggle
+        const newMuted = forceMute !== null ? forceMute : !this.state.muted;
+        
+        // Update state
+        this.setState({ muted: newMuted });
+        
+        // Update all audio volumes
+        this.updateAudioVolumes();
+        
+        // Save to localStorage
+        localStorage.setItem('soundboardMuted', newMuted.toString());
+        
+        // Show mute toast
+        this.showMuteToast();
     }
     
-    // Create options with defaults
-    const opts = {
-      volume: options.volume !== undefined ? options.volume : this.state.volume,
-      loop: options.loop || false,
-      rate: options.rate || 1.0
-    };
-    
-    // Use cached audio or create new one
-    let audio = this.audioCache[soundKey];
-    if (!audio) {
-      audio = new Audio(soundPath);
-      
-      // Store non-meme sounds in cache
-      if (!soundKey.startsWith('meme_')) {
-        this.audioCache[soundKey] = audio;
-      }
-    } else {
-      // Reset cached audio
-      audio.currentTime = 0;
+    /**
+     * Get volume icon based on current volume
+     * @returns {string} Volume icon
+     */
+    getVolumeIcon() {
+        const { volume, muted } = this.state;
+        
+        if (muted) return '🔇';
+        if (volume === 0) return '🔇';
+        if (volume < 0.33) return '🔈';
+        if (volume < 0.67) return '🔉';
+        return '🔊';
     }
     
-    // Apply options
-    audio.volume = opts.volume;
-    audio.loop = opts.loop;
-    audio.playbackRate = opts.rate;
-    
-    // Play the sound
-    audio.play().catch(error => {
-      console.warn(`Error playing sound ${soundKey}:`, error.message);
-    });
-    
-    // Store as currently playing for reference
-    this.state.playingSound = audio;
-    
-    return audio;
-  }
-  
-  /**
-   * Set volume for all sounds
-   * @param {number} volume - Volume level (0.0 to 1.0)
-   */
-  setVolume(volume) {
-    // Validate and constrain volume
-    const validVolume = Math.max(0, Math.min(1, volume));
-    
-    // Update state
-    this.setState({ volume: validVolume });
-    
-    // Save to localStorage
-    localStorage.setItem('soundVolume', validVolume.toString());
-    
-    // Update volume slider
-    if (this.volumeSlider) {
-      this.volumeSlider.value = validVolume;
+    /**
+     * Play a sound
+     * @param {string} category - Sound category
+     * @param {string} soundId - Sound ID
+     */
+    playSound(category, soundId) {
+        // If muted, don't play anything
+        if (this.state.muted) return;
+        
+        // Check if we have this sound
+        const audioElements = this.state.audioElements;
+        if (!audioElements[category] || !audioElements[category][soundId]) {
+            console.warn(`Sound not found: ${category}/${soundId}`);
+            return;
+        }
+        
+        // Get the audio element
+        const audio = audioElements[category][soundId];
+        
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        
+        // Play the sound
+        const promise = audio.play();
+        
+        // Handle autoplay restrictions
+        if (promise !== undefined) {
+            promise.catch(error => {
+                console.warn('Audio playback was prevented:', error);
+            });
+        }
+        
+        // Emit sound played event
+        this.emit('soundPlayed', { category, sound: soundId });
     }
     
-    // Update all cached audio
-    Object.values(this.audioCache).forEach(audio => {
-      audio.volume = validVolume;
-    });
-    
-    // Return the set volume
-    return validVolume;
-  }
-  
-  /**
-   * Toggle muted state
-   * @returns {boolean} - New muted state
-   */
-  toggleMute() {
-    // Call the handler
-    this.handleMuteToggle();
-    
-    // Return new state
-    return this.state.muted;
-  }
-  
-  /**
-   * Get the currently playing sound
-   * @returns {HTMLAudioElement|null} - Currently playing audio element or null
-   */
-  getPlayingSound() {
-    return this.state.playingSound;
-  }
-  
-  /**
-   * Stop all playing sounds
-   */
-  stopAllSounds() {
-    Object.values(this.audioCache).forEach(audio => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
-    
-    this.state.playingSound = null;
-  }
-  
-  /**
-   * Update component after state changes
-   */
-  update() {
-    // Update theme class
-    if (this.soundboardElement) {
-      // Remove all theme classes and add current one
-      this.soundboardElement.className = `soundboard-component theme-${this.state.currentTheme}`;
+    /**
+     * Show volume level toast
+     */
+    showVolumeToast() {
+        const volumeIcon = this.getVolumeIcon();
+        const volumePercent = Math.round(this.state.volume * 100);
+        this.showToast(`Volume: ${volumePercent}% ${volumeIcon}`);
     }
     
-    // Update collapsed state
-    if (this.contentElement) {
-      this.contentElement.classList.toggle('collapsed', this.state.collapsed);
+    /**
+     * Show mute status toast
+     */
+    showMuteToast() {
+        const icon = this.state.muted ? '🔇' : '🔊';
+        const status = this.state.muted ? 'muted' : 'unmuted';
+        this.showToast(`Sound ${status} ${icon}`);
     }
     
-    // Update toggle button
-    if (this.toggleButton) {
-      this.toggleButton.textContent = this.state.collapsed ? '▼' : '▲';
+    /**
+     * Show a toast notification
+     * @param {string} message - Message to display
+     */
+    showToast(message) {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'sound-toast';
+        toast.textContent = message;
+        
+        // Add to document
+        document.body.appendChild(toast);
+        
+        // Remove after delay
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 2000);
     }
     
-    // Update volume slider
-    if (this.volumeSlider) {
-      this.volumeSlider.value = this.state.volume;
+    /**
+     * Update component after state changes
+     */
+    update() {
+        if (this.soundboardElement) {
+            // Update theme and stonks mode classes
+            this.soundboardElement.className = `soundboard-component theme-${this.state.currentTheme} ${this.state.isStonksModeActive ? 'stonks-mode' : ''}`;
+            
+            // Update volume slider
+            if (this.volumeSlider) {
+                this.volumeSlider.value = this.state.volume;
+                this.volumeSlider.disabled = this.state.muted;
+            }
+            
+            // Update volume icon
+            if (this.volumeIcon) {
+                this.volumeIcon.textContent = this.getVolumeIcon();
+            }
+            
+            // Update mute button
+            if (this.muteButton) {
+                this.muteButton.className = `mute-button ${this.state.muted ? 'muted' : ''}`;
+                this.muteButton.textContent = this.state.muted ? '🔇 Unmute' : '🔊 Mute';
+            }
+            
+            // Update category buttons
+            if (this.categoryButtons) {
+                this.categoryButtons.forEach(button => {
+                    const category = button.getAttribute('data-category');
+                    if (category === this.state.activeCategory) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Update sound buttons
+            const soundButtonsContainer = this.container.querySelector('.sound-buttons');
+            if (soundButtonsContainer) {
+                soundButtonsContainer.innerHTML = this.renderSoundButtons();
+                
+                // Re-attach event listeners to new buttons
+                const soundButtons = soundButtonsContainer.querySelectorAll('.sound-button');
+                soundButtons.forEach(button => {
+                    this.addListener(button, 'click', () => {
+                        const category = button.getAttribute('data-category');
+                        const sound = button.getAttribute('data-sound');
+                        this.playSound(category, sound);
+                    });
+                });
+            }
+        } else {
+            // If component is not rendered, render it
+            this.render();
+        }
     }
-    
-    // Update mute button
-    if (this.muteButton) {
-      this.muteButton.textContent = this.state.muted ? '🔇' : '🔊';
-      this.muteButton.classList.toggle('muted', this.state.muted);
-    }
-  }
+}
+
+// Make sure the component is available globally
+if (typeof window !== 'undefined') {
+    window.Soundboard = Soundboard;
 }
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Soundboard;
-} 
+    module.exports = Soundboard;
+}

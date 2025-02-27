@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessageInput Component Test</title>
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="../css/enhanced-ui.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="../components/MessageInput/MessageInput.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Test page styles */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2 {
+            margin-top: 2rem;
+            color: white;
+        }
+        
+        #test-input-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .test-controls {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #3772FF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        button:hover {
+            background: #2055DD;
+        }
+        
+        .message-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            color: white;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .message-display .message {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: rgba(20, 30, 50, 0.7);
+            border-radius: 8px;
+            border-left: 3px solid #3772FF;
+        }
+        
+        .message-display .sender {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: #3772FF;
+        }
+        
+        #event-log {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff66;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="enhanced-ui">
+    <div class="test-container">
+        <h1>MessageInput Component Test</h1>
+        
+        <div id="test-input-container"></div>
+        
+        <h2>Message Display</h2>
+        <div id="message-display" class="message-display">
+            <div class="message">
+                <div class="sender">ROAST BOT:</div>
+                <div class="text">Welcome to the MessageInput test. Type something to test the component!</div>
+            </div>
+        </div>
+        
+        <div class="test-controls">
+            <h2>Testing Controls</h2>
+            
+            <div class="test-section">
+                <h3>Theme Controls</h3>
+                <button id="set-crypto-theme">Crypto Theme</button>
+                <button id="set-hacker-theme">Hacker Theme</button>
+                <button id="set-gamer-theme">Gamer Theme</button>
+                <button id="set-meme-theme">Meme Theme</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Input Controls</h3>
+                <button id="set-placeholder">Change Placeholder</button>
+                <button id="set-custom-text">Set Custom Text</button>
+                <button id="clear-input">Clear Input</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Stonks Mode</h3>
+                <button id="enable-stonks-mode">Enable Stonks Mode</button>
+                <button id="disable-stonks-mode">Disable Stonks Mode</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Meme Insertion</h3>
+                <button id="insert-meme-pepe">Insert Pepe Meme</button>
+                <button id="insert-meme-doge">Insert Doge Meme</button>
+                <button id="insert-meme-stonks">Insert Stonks Meme</button>
+            </div>
+        </div>
+        
+        <h2>Event Log</h2>
+        <div id="event-log"></div>
+    </div>
+    
+    <!-- Component System -->
+    <script src="../components/common/EventBus.js"></script>
+    <script src="../components/common/ComponentBase.js"></script>
+    <script src="../components/common/ThemeManager.js"></script>
+    <script src="../components/MessageInput/MessageInput.js"></script>
+    
+    <script>
+        // Initialize event log
+        const eventLog = document.getElementById('event-log');
+        const messageDisplay = document.getElementById('message-display');
+        
+        function logEvent(eventName, data) {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const message = document.createElement('div');
+            message.innerHTML = `<strong>${timestamp}</strong> - <span style="color: #ff9900">${eventName}</span>: ${JSON.stringify(data)}`;
+            eventLog.appendChild(message);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        function addMessage(sender, text) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.innerHTML = `
+                <div class="sender">${sender}:</div>
+                <div class="text">${text}</div>
+            `;
+            messageDisplay.appendChild(messageElement);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        }
+        
+        // Subscribe to all relevant events
+        EventBus.subscribe('themeChanged', data => logEvent('themeChanged', data));
+        EventBus.subscribe('messageSent', data => {
+            logEvent('messageSent', data);
+            addMessage(data.sender, data.text);
+        });
+        EventBus.subscribe('clearChat', () => {
+            logEvent('clearChat', {});
+            messageDisplay.innerHTML = '';
+        });
+        EventBus.subscribe('memeInserted', data => logEvent('memeInserted', data));
+        EventBus.subscribe('stonksModeToggled', data => logEvent('stonksModeToggled', data));
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize ThemeManager
+            if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.init();
+            }
+            
+            // Initialize MessageInput component
+            const messageInput = new MessageInput('test-input-container', {
+                placeholder: "Type something to get absolutely roasted...",
+                maxLength: 500,
+                showCharCounter: true,
+                showClearButton: true,
+                showQuickPhrases: true,
+                sendButtonText: "Roast Me",
+                sendButtonEmoji: "🔥",
+                clearButtonText: "Clear Chat",
+                clearButtonEmoji: "🧹",
+                quickPhrases: [
+                    { text: "How's my portfolio?", icon: "💰" },
+                    { text: "Roast my coding skills", icon: "💻" },
+                    { text: "Say something savage", icon: "🔥" },
+                    { text: "Eviscerate me", icon: "💀" }
+                ]
+            });
+            
+            window.testMessageInput = messageInput;
+            
+            // Set up test buttons
+            document.getElementById('set-crypto-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('crypto');
+            });
+            
+            document.getElementById('set-hacker-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('hacker');
+            });
+            
+            document.getElementById('set-gamer-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('gamer');
+            });
+            
+            document.getElementById('set-meme-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('meme');
+            });
+            
+            document.getElementById('set-placeholder').addEventListener('click', () => {
+                messageInput.state.options.placeholder = "Type a new message here...";
+                messageInput.render();
+                logEvent('placeholderChanged', { placeholder: "Type a new message here..." });
+            });
+            
+            document.getElementById('set-custom-text').addEventListener('click', () => {
+                const customText = "This is a test message";
+                messageInput.setState({ inputText: customText });
+                logEvent('customTextSet', { text: customText });
+            });
+            
+            document.getElementById('clear-input').addEventListener('click', () => {
+                messageInput.clearInput();
+                logEvent('inputCleared', {});
+            });
+            
+            document.getElementById('enable-stonks-mode').addEventListener('click', () => {
+                EventBus.publish('stonksModeToggled', { enabled: true });
+            });
+            
+            document.getElementById('disable-stonks-mode').addEventListener('click', () => {
+                EventBus.publish('stonksModeToggled', { enabled: false });
+            });
+            
+            document.getElementById('insert-meme-pepe').addEventListener('click', () => {
+                messageInput.insertMemeReference('pepe', 'Pepe Meme');
+                logEvent('memeInserted', { meme: 'pepe', displayName: 'Pepe Meme' });
+            });
+            
+            document.getElementById('insert-meme-doge').addEventListener('click', () => {
+                messageInput.insertMemeReference('doge', 'Doge Meme');
+                logEvent('memeInserted', { meme: 'doge', displayName: 'Doge Meme' });
+            });
+            
+            document.getElementById('insert-meme-stonks').addEventListener('click', () => {
+                messageInput.insertMemeReference('stonks', 'Stonks Meme');
+                logEvent('memeInserted', { meme: 'stonks', displayName: 'Stonks Meme' });
+            });
+            
+            // Log initialization
+            logEvent('componentInitialized', { component: 'MessageInput' });
+        });
+    </script>
+</body>
+</html> 

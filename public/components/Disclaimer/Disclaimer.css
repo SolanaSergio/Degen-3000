@@ -1,0 +1,125 @@
+/**
+ * Disclaimer.css
+ * Component-specific styles for Disclaimer
+ */
+
+/* Disclaimer component container */
+.disclaimer-component {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+/* Disclaimer text */
+.disclaimer-component p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Disclaimer emoji */
+.disclaimer-emoji {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  transition: transform 0.3s ease;
+}
+
+/* Terms link */
+.disclaimer-component .terms-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+
+.disclaimer-component .terms-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
+}
+
+/* Stonks mode effects */
+.disclaimer-component.stonks-mode {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(0, 255, 102, 0.1), rgba(0, 0, 0, 0.3));
+  border-top: 1px solid rgba(0, 255, 102, 0.3);
+  box-shadow: 0 -5px 15px rgba(0, 255, 102, 0.1);
+}
+
+.disclaimer-component.stonks-mode .disclaimer-emoji {
+  animation: emoji-spin 3s linear infinite;
+}
+
+@keyframes emoji-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Theme variations */
+.disclaimer-component.theme-crypto {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(247, 147, 26, 0.2);
+}
+
+.disclaimer-component.theme-hacker {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(0, 255, 102, 0.2);
+}
+
+.disclaimer-component.theme-gamer {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 0, 128, 0.2);
+}
+
+.disclaimer-component.theme-meme {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 206, 0, 0.2);
+}
+
+/* Stonks mode theme variations */
+.disclaimer-component.theme-crypto.stonks-mode {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(247, 147, 26, 0.1), rgba(0, 0, 0, 0.3));
+  border-top: 1px solid rgba(247, 147, 26, 0.3);
+  box-shadow: 0 -5px 15px rgba(247, 147, 26, 0.1);
+}
+
+.disclaimer-component.theme-hacker.stonks-mode {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(0, 255, 102, 0.1), rgba(0, 0, 0, 0.3));
+  border-top: 1px solid rgba(0, 255, 102, 0.3);
+  box-shadow: 0 -5px 15px rgba(0, 255, 102, 0.1);
+}
+
+.disclaimer-component.theme-gamer.stonks-mode {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(255, 0, 128, 0.1), rgba(0, 0, 0, 0.3));
+  border-top: 1px solid rgba(255, 0, 128, 0.3);
+  box-shadow: 0 -5px 15px rgba(255, 0, 128, 0.1);
+}
+
+.disclaimer-component.theme-meme.stonks-mode {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), rgba(255, 206, 0, 0.1), rgba(0, 0, 0, 0.3));
+  border-top: 1px solid rgba(255, 206, 0, 0.3);
+  box-shadow: 0 -5px 15px rgba(255, 206, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .disclaimer-component {
+    padding: 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .disclaimer-emoji {
+    font-size: 1rem;
+  }
+  
+  .disclaimer-component .terms-link {
+    font-size: 0.7rem;
+  }
+} 

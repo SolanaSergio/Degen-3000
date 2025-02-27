@@ -1,0 +1,203 @@
+/**
+ * StonksTicker.css
+ * Component-specific styles for StonksTicker
+ */
+
+/* Stonks ticker component container */
+.stonks-ticker-component {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+/* Ticker grid */
+.ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 0.8rem;
+  width: 100%;
+}
+
+/* Ticker item */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.ticker-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Ticker symbol */
+.ticker-symbol {
+  font-weight: bold;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+/* Ticker price */
+.ticker-price {
+  font-weight: bold;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.ticker-item.price-up .ticker-price {
+  color: #00ff88;
+}
+
+.ticker-item.price-down .ticker-price {
+  color: #ff3366;
+}
+
+/* Price flash animation */
+@keyframes price-flash-up {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #00ff88; }
+  100% { transform: scale(1); }
+}
+
+@keyframes price-flash-down {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #ff3366; }
+  100% { transform: scale(1); }
+}
+
+.ticker-item.price-up .ticker-price.price-flash {
+  animation: price-flash-up 0.5s ease;
+}
+
+.ticker-item.price-down .ticker-price.price-flash {
+  animation: price-flash-down 0.5s ease;
+}
+
+/* Stonks mode effects */
+.stonks-ticker-component.stonks-mode {
+  border-color: rgba(0, 255, 102, 0.3);
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+}
+
+.stonks-ticker-component.stonks-mode .ticker-item {
+  animation: ticker-pulse 1s infinite alternate;
+}
+
+@keyframes ticker-pulse {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+/* Theme variations */
+.stonks-ticker-component.theme-crypto .ticker-item.price-up .ticker-price {
+  color: #f7931a;
+}
+
+.stonks-ticker-component.theme-crypto .ticker-item.price-down .ticker-price {
+  color: #ff3366;
+}
+
+.stonks-ticker-component.theme-hacker .ticker-item.price-up .ticker-price {
+  color: #00ff66;
+}
+
+.stonks-ticker-component.theme-hacker .ticker-item.price-down .ticker-price {
+  color: #ff3366;
+}
+
+.stonks-ticker-component.theme-gamer .ticker-item.price-up .ticker-price {
+  color: #ff00ff;
+}
+
+.stonks-ticker-component.theme-gamer .ticker-item.price-down .ticker-price {
+  color: #ff3366;
+}
+
+.stonks-ticker-component.theme-meme .ticker-item.price-up .ticker-price {
+  color: #ffce00;
+}
+
+.stonks-ticker-component.theme-meme .ticker-item.price-down .ticker-price {
+  color: #ff3366;
+}
+
+/* Animation for theme specific flashes */
+@keyframes price-flash-up-crypto {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #f7931a; }
+  100% { transform: scale(1); }
+}
+
+@keyframes price-flash-up-hacker {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #00ff66; }
+  100% { transform: scale(1); }
+}
+
+@keyframes price-flash-up-gamer {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #ff00ff; }
+  100% { transform: scale(1); }
+}
+
+@keyframes price-flash-up-meme {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #ffce00; }
+  100% { transform: scale(1); }
+}
+
+.theme-crypto .ticker-item.price-up .ticker-price.price-flash {
+  animation: price-flash-up-crypto 0.5s ease;
+}
+
+.theme-hacker .ticker-item.price-up .ticker-price.price-flash {
+  animation: price-flash-up-hacker 0.5s ease;
+}
+
+.theme-gamer .ticker-item.price-up .ticker-price.price-flash {
+  animation: price-flash-up-gamer 0.5s ease;
+}
+
+.theme-meme .ticker-item.price-up .ticker-price.price-flash {
+  animation: price-flash-up-meme 0.5s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ticker-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .ticker-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .stonks-ticker-component {
+    padding: 0.8rem;
+    margin: 1rem 0;
+  }
+  
+  .ticker-item {
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .ticker-symbol,
+  .ticker-price {
+    font-size: 0.8rem;
+  }
+} 

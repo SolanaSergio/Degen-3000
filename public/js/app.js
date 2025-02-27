@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Enable EventBus debug mode in development
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      if (typeof EventBus !== 'undefined') {
-        EventBus.setDebugMode(true);
+      if (typeof window.EventBus !== 'undefined') {
+        window.EventBus.setDebugMode(true);
       }
     }
     
@@ -100,7 +100,7 @@ function initializeComponents() {
     
     console.log('Initializing chat window...');
     // Initialize chat window
-    const chatWindow = new ChatWindow('chat-container', {
+    const chatWindow = new window.ChatWindow('chat-container', {
       maxMessages: 50,
       animateMessages: true,
       typingSpeed: 20,
@@ -109,7 +109,7 @@ function initializeComponents() {
     
     console.log('Initializing message input...');
     // Initialize message input
-    const messageInput = new MessageInput('message-input-container', {
+    const messageInput = new window.MessageInput('message-input-container', {
       maxLength: 280,
       placeholder: "Enter your message...",
       submitButtonText: "Send"
@@ -117,7 +117,7 @@ function initializeComponents() {
     
     console.log('Initializing dashboard...');
     // Initialize dashboard
-    const dashboard = new Dashboard('dashboard-container', {
+    const dashboard = new window.Dashboard('dashboard-container', {
       initialLevel: 1,
       maxLevel: 5,
       showVolumeControls: true,
@@ -127,7 +127,7 @@ function initializeComponents() {
     
     console.log('Initializing soundboard...');
     // Initialize soundboard
-    const soundboard = new Soundboard('soundboard-container', {
+    const soundboard = new window.Soundboard('soundboard-container', {
       initialVolume: 0.7,
       initialMuted: false,
       showControls: true
@@ -135,7 +135,7 @@ function initializeComponents() {
     
     console.log('Initializing meme gallery...');
     // Initialize meme gallery
-    const memeGallery = new MemeGallery('meme-gallery-container', {
+    const memeGallery = new window.MemeGallery('meme-gallery-container', {
       layout: 'grid',
       showLabels: true,
       collapsible: true,
@@ -213,7 +213,7 @@ function setupMessageHandling() {
   console.log('Setting up message handling between components');
   
   // When a message is sent by the user
-  EventBus.subscribe('messageSent', (data) => {
+  window.EventBus.subscribe('messageSent', (data) => {
     console.log('Message sent:', data);
     
     // Handle the user message
@@ -243,7 +243,7 @@ function setupMessageHandling() {
  */
 function setupMemeHandling() {
   // Listen for meme selection events from MemeGallery component
-  EventBus.subscribe('memeSelected', (data) => {
+  window.EventBus.subscribe('memeSelected', (data) => {
     // Get the selected meme
     const meme = data.meme;
     if (!meme) return;
@@ -257,7 +257,7 @@ function setupMemeHandling() {
       window.appComponents.messageInput.setMessage(currentMessage + ' ' + memeTag);
       
       // Emit memeInserted event for other components to reset selection
-      EventBus.publish('memeInserted', { meme });
+      window.EventBus.publish('memeInserted', { meme });
     }
     
     // Play meme sound using the Soundboard component
@@ -307,7 +307,7 @@ function handleUserMessage(message) {
   // If legacy function isn't available, create our own bot response flow
   setTimeout(() => {
     // Show loading/typing message
-    EventBus.publish('botResponse', {
+    window.EventBus.publish('botResponse', {
       text: '<div class="typing-indicator"><span></span><span></span><span></span></div>',
       sender: 'DEGEN ROAST 3000',
       type: 'bot',
@@ -343,7 +343,7 @@ function handleUserMessage(message) {
       currentLevel += 1;
       
       // Publish level change event
-      EventBus.publish('levelChanged', { level: currentLevel });
+      window.EventBus.publish('levelChanged', { level: currentLevel });
     }
     
     // Simulate API delay
@@ -361,7 +361,7 @@ function handleUserMessage(message) {
       const randomRoast = mockRoasts[Math.floor(Math.random() * mockRoasts.length)];
       
       // Send bot response
-      EventBus.publish('botResponse', {
+      window.EventBus.publish('botResponse', {
         text: randomRoast,
         sender: 'DEGEN ROAST 3000',
         type: 'bot',

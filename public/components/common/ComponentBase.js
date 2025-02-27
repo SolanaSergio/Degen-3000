@@ -18,208 +18,247 @@ class ComponentBase {
   constructor(containerId, initialState = {}) {
     // Get the container element
     this.container = document.getElementById(containerId);
+    
     if (!this.container) {
-      console.error(`Container element with ID "${containerId}" not found.`);
-      throw new Error(`Container element with ID "${containerId}" not found.`);
-    }
-    
-    // Store the component ID for reference
-    this.id = containerId;
-    
-    // Initialize state
-    this.state = { ...initialState };
-    
-    // Track if the component has been rendered
-    this.rendered = false;
-    
-    // Store event handler references for cleanup
-    this.eventHandlers = [];
-    
-    // Auto-load component's CSS if it exists
-    this.loadStyles();
-    
-    console.log(`Component created: ${this.constructor.name}#${this.id}`);
-  }
-  
-  /**
-   * Automatically load the component's CSS file
-   * Uses naming convention: ComponentName/ComponentName.css
-   */
-  loadStyles() {
-    const componentName = this.constructor.name;
-    const styleId = `style-${componentName}`;
-    
-    // Skip if already loaded
-    if (document.getElementById(styleId)) {
+      console.error(`ComponentBase: Container with ID "${containerId}" not found`);
       return;
     }
     
-    // Create link element
-    const link = document.createElement('link');
-    link.id = styleId;
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = `/components/${componentName}/${componentName}.css`;
+    // Store component ID
+    this.containerId = containerId;
     
-    // Add to document head
-    document.head.appendChild(link);
+    // Track event listeners for cleanup
+    this.eventListeners = [];
     
-    // Handle load errors
-    link.onerror = () => {
-      console.warn(`Could not load CSS for ${componentName} component.`);
-      link.remove();
+    // Initialize state
+    this.state = {
+      ...initialState
     };
+    
+    // Track render status
+    this.rendered = false;
+    
+    // Store a reference to EventBus if available - always use window.EventBus
+    this.eventBus = typeof window !== 'undefined' && window.EventBus ? window.EventBus : null;
+    
+    // Optional CSS loading
+    this.loadStyles();
   }
   
   /**
-   * Update component state and trigger re-render
-   * @param {Object} newState - State object to merge with current state
-   * @param {boolean} shouldRender - Whether to re-render after state update
+   * Load component-specific styles if available
+   * This is called automatically during constructor
+   */
+  loadStyles() {
+    // Derive component name from constructor
+    const componentName = this.constructor.name;
+    
+    // Only attempt to load styles if this is a real component (not the base class)
+    if (componentName !== 'ComponentBase') {
+      // Try to load styles if they exist, but don't fail if missing
+      
+      // Create link element
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `components/${componentName}/${componentName}.css`;
+      
+      // Handle errors silently
+      link.onerror = () => {
+        console.debug(`Styles for ${componentName} not found at ${link.href}`);
+      };
+      
+      // Append to head
+      document.head.appendChild(link);
+    }
+  }
+  
+  /**
+   * Update component state
+   * @param {Object} newState - New state to merge with existing state
+   * @param {boolean} shouldRender - Whether to update the DOM after state change
    */
   setState(newState, shouldRender = true) {
-    // Merge with existing state
-    this.state = { ...this.state, ...newState };
+    // Merge new state with existing state
+    this.state = {
+      ...this.state,
+      ...newState
+    };
     
-    // Trigger render if component is already in the DOM
-    if (shouldRender && this.rendered) {
-      this.update();
+    // Update the DOM if needed
+    if (shouldRender) {
+      // If component has its own update method, use it
+      if (typeof this.update === 'function') {
+        this.update();
+      } else {
+        // Otherwise re-render the entire component
+        this.render();
+      }
     }
-    
-    return this.state;
   }
   
   /**
-   * Subscribe to an event from the EventBus
-   * @param {string} eventName - Name of the event to listen for
-   * @param {Function} callback - Function to call when event occurs
+   * Subscribe to an event
+   * @param {string} eventName - Name of the event to subscribe to
+   * @param {Function} callback - Function to call when event is published
+   * @returns {Function} - Unsubscribe function
    */
   on(eventName, callback) {
-    // Make sure EventBus is available
-    if (typeof EventBus === 'undefined') {
-      console.error('EventBus is not defined. Make sure to load EventBus.js before using on().');
+    if (!this.eventBus) {
+      console.error('ComponentBase: EventBus not available');
       return null;
     }
     
-    // Subscribe to the event
-    const unsubscribe = EventBus.subscribe(eventName, callback.bind(this));
+    // Bind callback to this component instance
+    const boundCallback = callback.bind(this);
     
-    // Store the subscription for cleanup
-    this.eventHandlers.push({ eventName, unsubscribe });
+    // Subscribe to event
+    const unsubscribe = this.eventBus.subscribe(eventName, boundCallback);
+    
+    // Track subscription for cleanup
+    this.eventListeners.push({
+      eventName,
+      callback: boundCallback,
+      unsubscribe
+    });
     
     return unsubscribe;
   }
   
   /**
-   * Publish an event to the EventBus
+   * Publish an event
    * @param {string} eventName - Name of the event to publish
-   * @param {any} data - Data to include with the event
+   * @param {any} data - Data to pass to subscribers
    */
   emit(eventName, data) {
-    // Make sure EventBus is available
-    if (typeof EventBus === 'undefined') {
-      console.error('EventBus is not defined. Make sure to load EventBus.js before using emit().');
+    if (!this.eventBus) {
+      console.error('ComponentBase: EventBus not available');
       return;
     }
     
-    // Publish the event
-    EventBus.publish(eventName, data);
+    // Add component info to data
+    const eventData = {
+      ...data,
+      component: this.constructor.name,
+      containerId: this.containerId
+    };
+    
+    // Publish event
+    this.eventBus.publish(eventName, eventData);
   }
   
   /**
-   * Add a DOM event listener with automatic cleanup
-   * @param {HTMLElement} element - Element to attach listener to
-   * @param {string} eventName - DOM event name (e.g., 'click')
+   * Add DOM event listener with automatic cleanup
+   * @param {Element} element - DOM element to listen on
+   * @param {string} eventName - Name of DOM event (e.g., 'click')
    * @param {Function} handler - Event handler function
    */
   addListener(element, eventName, handler) {
     // Bind handler to this component instance
     const boundHandler = handler.bind(this);
     
-    // Add the event listener
+    // Add event listener
     element.addEventListener(eventName, boundHandler);
     
-    // Store reference for cleanup
-    this.eventHandlers.push({
-      element, 
-      eventName, 
+    // Track for cleanup
+    this.eventListeners.push({
+      element,
+      eventName,
       handler: boundHandler,
       type: 'dom'
     });
-    
-    return boundHandler;
   }
   
   /**
-   * Initial render of the component
-   * Must be implemented by subclasses
+   * Render the component
+   * This should be overridden by subclasses
    */
   render() {
-    // Child classes should override this method
-    console.warn(`${this.constructor.name} does not implement render()`);
+    console.warn(`ComponentBase: render() not implemented in ${this.constructor.name}`);
+    this.container.innerHTML = `<div>Component ${this.constructor.name} (not implemented)</div>`;
     this.rendered = true;
   }
   
   /**
-   * Update the component after state changes
-   * Default implementation is to re-render completely
+   * Update the DOM after state changes
+   * This should be overridden by subclasses for better performance
    */
   update() {
-    // By default, just re-render the component
-    // Subclasses can implement more efficient updates
+    // Default implementation just re-renders the whole component
     if (this.rendered) {
       this.render();
     }
   }
   
   /**
-   * Mount component to a different container
-   * @param {string|HTMLElement} newContainer - New container ID or element
+   * Change the container element
+   * @param {string|Element} newContainer - New container element or ID
+   * @returns {boolean} - Whether the mount was successful
    */
   mount(newContainer) {
-    // Get the new container
+    let container;
+    
+    // Get container element from string ID or use element directly
     if (typeof newContainer === 'string') {
-      newContainer = document.getElementById(newContainer);
+      container = document.getElementById(newContainer);
+    } else if (newContainer instanceof Element) {
+      container = newContainer;
     }
     
-    if (!newContainer || !(newContainer instanceof HTMLElement)) {
-      console.error('Invalid container for mounting');
+    // Check if container is valid
+    if (!container) {
+      console.error(`ComponentBase: Invalid container`);
       return false;
     }
     
-    // Update container reference
-    this.container = newContainer;
-    this.id = newContainer.id || 'unnamed-container';
+    // Update container
+    this.container = container;
+    this.containerId = container.id;
     
-    // Render in the new container
-    this.rendered = false;
-    this.render();
+    // Re-render
+    if (this.rendered) {
+      this.render();
+    }
     
     return true;
   }
   
   /**
-   * Clean up the component before removal
+   * Clean up component
+   * This should be called when removing a component
    */
   destroy() {
-    // Clean up all event handlers
-    this.eventHandlers.forEach(handler => {
-      if (handler.type === 'dom' && handler.element) {
-        handler.element.removeEventListener(handler.eventName, handler.handler);
-      } else if (handler.unsubscribe) {
-        handler.unsubscribe();
+    // Remove all event listeners
+    this.eventListeners.forEach(listener => {
+      if (listener.type === 'dom') {
+        // DOM event listener
+        listener.element.removeEventListener(listener.eventName, listener.handler);
+      } else {
+        // EventBus subscription
+        if (listener.unsubscribe) {
+          listener.unsubscribe();
+        }
       }
     });
     
-    // Clear event handlers array
-    this.eventHandlers = [];
+    // Clear event listeners
+    this.eventListeners = [];
     
-    // Clear the container
+    // Clear container
     if (this.container) {
       this.container.innerHTML = '';
     }
     
-    console.log(`Component destroyed: ${this.constructor.name}#${this.id}`);
+    // Clear state
+    this.state = {};
+    this.rendered = false;
+    
+    console.log(`ComponentBase: ${this.constructor.name} destroyed`);
   }
+}
+
+// Make sure it's available globally
+if (typeof window !== 'undefined') {
+  window.ComponentBase = ComponentBase;
 }
 
 // Export for module systems

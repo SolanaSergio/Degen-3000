@@ -1,367 +1,292 @@
 /**
  * Soundboard.css
- * Component-specific styles for the Soundboard
+ * Styles for the Soundboard component
  */
 
-/* Main soundboard container */
+/* Main container */
 .soundboard-component {
   width: 100%;
-  background: rgba(15, 15, 25, 0.7);
-  backdrop-filter: blur(5px);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  margin-top: 1rem;
+  padding: var(--space-md);
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--space-lg);
   transition: all 0.3s ease;
 }
 
-.soundboard-component:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-}
-
-/* Soundboard header */
-.soundboard-component .soundboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: rgba(20, 20, 30, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.soundboard-component .soundboard-title {
+/* Volume controls */
+.soundboard-volume {
   display: flex;
   align-items: center;
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--pro-accent, #8957ff);
-  gap: 0.5rem;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--border-radius-md);
 }
 
-.soundboard-component .soundboard-icon {
-  font-size: 1.2rem;
-}
-
-.soundboard-component .soundboard-toggle {
-  background: transparent;
+.volume-icon {
+  font-size: 1.25rem;
+  background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  transition: color 0.3s ease, transform 0.3s ease;
-  line-height: 1;
+  padding: var(--space-xs);
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
-.soundboard-component .soundboard-toggle:hover {
-  color: var(--pro-accent, #8957ff);
-  transform: translateY(-2px);
+.volume-icon:hover {
+  background-color: var(--accent-primary-alpha);
 }
 
-/* Soundboard content */
-.soundboard-component .soundboard-content {
-  padding: 1rem;
-  transition: max-height 0.5s ease, padding 0.5s ease;
-  max-height: 500px;
-  overflow: hidden;
+.volume-slider {
+  flex: 1;
+  height: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-sm);
+  outline: none;
 }
 
-.soundboard-component .soundboard-content.collapsed {
-  max-height: 0;
-  padding: 0 1rem;
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Soundboard grid of buttons */
-.soundboard-component .soundboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mute-button {
+  background-color: var(--button-primary);
+  color: var(--text-button);
+  border: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.mute-button:hover {
+  background-color: var(--button-primary-hover);
+}
+
+.mute-button.muted {
+  background-color: var(--button-danger);
+}
+
+.mute-button.muted:hover {
+  background-color: var(--button-danger-hover);
+}
+
+/* Sound categories */
+.sound-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.category-button {
+  background-color: var(--button-secondary);
+  color: var(--text-button);
+  border: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.category-button:hover {
+  background-color: var(--button-secondary-hover);
+}
+
+.category-button.active {
+  background-color: var(--accent-primary);
+}
+
+.category-button.active:hover {
+  background-color: var(--accent-primary-hover);
 }
 
 /* Sound buttons */
-.soundboard-component .sound-button {
+.sound-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--space-sm);
+}
+
+.sound-button {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 30, 40, 0.6);
-  color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 0.75rem 0.5rem;
-  gap: 0.5rem;
+  background-color: var(--button-secondary);
+  color: var(--text-button);
+  border: none;
+  padding: var(--space-sm);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   min-height: 80px;
 }
 
-.soundboard-component .sound-button:hover {
-  background: rgba(40, 40, 50, 0.7);
-  transform: translateY(-3px);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
+.sound-button:hover {
+  background-color: var(--button-secondary-hover);
+  transform: translateY(-2px);
 }
 
-.soundboard-component .sound-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+.sound-button:active {
+  transform: translateY(0);
 }
 
-.soundboard-component .sound-button.playing {
-  background: rgba(var(--pro-accent-rgb, 137, 87, 255), 0.3);
-  animation: button-pulse 0.5s ease;
-}
-
-.soundboard-component .sound-icon {
+.sound-button-icon {
   font-size: 1.5rem;
-  opacity: 0.9;
-  transition: transform 0.3s ease;
+  margin-bottom: var(--space-xs);
 }
 
-.soundboard-component .sound-button:hover .sound-icon {
-  transform: scale(1.1);
-}
-
-.soundboard-component .sound-name {
+.sound-button-label {
   font-size: 0.8rem;
-  font-weight: 500;
   text-align: center;
+  word-wrap: break-word;
 }
 
-/* Volume controls */
-.soundboard-component .soundboard-controls {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 1rem;
-}
-
-.soundboard-component .volume-control {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.soundboard-component .volume-control label {
+/* Toast notification */
+.sound-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius-md);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+  transition: opacity 0.3s ease;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  min-width: 60px;
 }
 
-.soundboard-component .volume-control input[type="range"] {
-  flex: 1;
-  height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: rgba(30, 30, 40, 0.7);
-  border-radius: 3px;
-  outline: none;
+/* Stonks mode */
+.soundboard-component.stonks-mode {
+  background-color: var(--stonks-bg);
+  border-color: var(--stonks-accent);
+  animation: pulse 2s infinite;
 }
 
-.soundboard-component .volume-control input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--pro-accent, #8957ff);
-  cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+.soundboard-component.stonks-mode .sound-button:hover {
+  background-color: var(--stonks-accent);
+  animation: bounce 0.5s;
 }
 
-.soundboard-component .volume-control input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--pro-accent, #8957ff);
-  cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--stonks-accent-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--stonks-accent-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--stonks-accent-rgb), 0);
+  }
 }
 
-.soundboard-component .mute-toggle {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  padding: 0.25rem;
-  line-height: 1;
-}
-
-.soundboard-component .mute-toggle:hover {
-  color: white;
-}
-
-.soundboard-component .mute-toggle.muted {
-  color: var(--hodl-red, #ff3366);
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 /* Theme variations */
-
-/* Crypto theme */
-.soundboard-component.theme-crypto .soundboard-title {
-  color: var(--crypto-primary, #f7931a);
+.soundboard-component.theme-crypto {
+  background-color: #1a1f2b;
+  border-color: #3f75ff;
 }
 
-.soundboard-component.theme-crypto .soundboard-toggle:hover {
-  color: var(--crypto-primary, #f7931a);
+.soundboard-component.theme-hacker {
+  background-color: #0a0a0a;
+  border-color: #00ff41;
 }
 
-.soundboard-component.theme-crypto .sound-button.playing {
-  background: rgba(var(--crypto-primary-rgb, 247, 147, 26), 0.3);
+.soundboard-component.theme-gamer {
+  background-color: #140a1f;
+  border-color: #ff19f3;
 }
 
-.soundboard-component.theme-crypto .volume-control input[type="range"]::-webkit-slider-thumb {
-  background: var(--crypto-primary, #f7931a);
+.soundboard-component.theme-meme {
+  background-color: #fdf6e3;
+  border-color: #ff9226;
 }
 
-.soundboard-component.theme-crypto .volume-control input[type="range"]::-moz-range-thumb {
-  background: var(--crypto-primary, #f7931a);
-}
-
-/* Hacker theme */
-.soundboard-component.theme-hacker .soundboard-title {
-  color: var(--hacker-primary, #00ff66);
-}
-
-.soundboard-component.theme-hacker .soundboard-toggle:hover {
-  color: var(--hacker-primary, #00ff66);
-}
-
-.soundboard-component.theme-hacker .sound-button.playing {
-  background: rgba(var(--hacker-primary-rgb, 0, 255, 102), 0.3);
-}
-
-.soundboard-component.theme-hacker .volume-control input[type="range"]::-webkit-slider-thumb {
-  background: var(--hacker-primary, #00ff66);
-}
-
-.soundboard-component.theme-hacker .volume-control input[type="range"]::-moz-range-thumb {
-  background: var(--hacker-primary, #00ff66);
-}
-
-/* Gamer theme */
-.soundboard-component.theme-gamer .soundboard-title {
-  color: var(--gamer-primary, #ff00d4);
-}
-
-.soundboard-component.theme-gamer .soundboard-toggle:hover {
-  color: var(--gamer-primary, #ff00d4);
-}
-
-.soundboard-component.theme-gamer .sound-button.playing {
-  background: rgba(var(--gamer-primary-rgb, 255, 0, 212), 0.3);
-}
-
-.soundboard-component.theme-gamer .volume-control input[type="range"]::-webkit-slider-thumb {
-  background: var(--gamer-primary, #ff00d4);
-}
-
-.soundboard-component.theme-gamer .volume-control input[type="range"]::-moz-range-thumb {
-  background: var(--gamer-primary, #ff00d4);
-}
-
-/* Meme theme */
-.soundboard-component.theme-meme .soundboard-title {
-  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.soundboard-component.theme-meme .soundboard-toggle:hover {
-  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.soundboard-component.theme-meme .sound-button:hover {
-  background: rgba(20, 20, 30, 0.8);
-  position: relative;
-  overflow: hidden;
-}
-
-.soundboard-component.theme-meme .sound-button:hover::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0)
-  );
-  transform: rotate(30deg);
-  transition: 0.5s;
-  opacity: 0.5;
-}
-
-.soundboard-component.theme-meme .sound-button.playing {
-  background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(255, 105, 180, 0.3));
-}
-
-.soundboard-component.theme-meme .volume-control input[type="range"]::-webkit-slider-thumb {
-  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
-}
-
-.soundboard-component.theme-meme .volume-control input[type="range"]::-moz-range-thumb {
-  background: linear-gradient(90deg, #8A2BE2, #FF69B4);
-}
-
-/* Animations */
-@keyframes button-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-/* Responsive adjustments */
+/* Responsive design */
 @media (max-width: 768px) {
-  .soundboard-component .soundboard-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 0.5rem;
+  .sound-buttons {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
   
-  .soundboard-component .sound-button {
-    padding: 0.5rem;
+  .sound-button {
     min-height: 70px;
+    padding: var(--space-xs);
   }
   
-  .soundboard-component .sound-icon {
+  .sound-button-icon {
     font-size: 1.2rem;
   }
   
-  .soundboard-component .sound-name {
+  .sound-button-label {
     font-size: 0.7rem;
   }
   
-  .soundboard-component .volume-control {
+  .soundboard-volume {
     flex-wrap: wrap;
-  }
-  
-  .soundboard-component .volume-control label {
-    min-width: auto;
-    width: 100%;
-    margin-bottom: 0.25rem;
   }
 }
 
 @media (max-width: 480px) {
-  .soundboard-component .soundboard-grid {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  .sound-buttons {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   }
   
-  .soundboard-component .sound-button {
+  .sound-button {
     min-height: 60px;
   }
   
-  .soundboard-component .sound-icon {
-    font-size: 1rem;
+  .category-button {
+    font-size: 0.8rem;
+    padding: var(--space-xxs) var(--space-xs);
   }
 } 

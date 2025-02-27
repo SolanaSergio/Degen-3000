@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ControlPanel Component Test</title>
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="../css/enhanced-ui.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="../components/ControlPanel/ControlPanel.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Test page styles */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2 {
+            margin-top: 2rem;
+            color: white;
+        }
+        
+        #test-panel-container {
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+        
+        .test-controls {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #3772FF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        button:hover {
+            background: #2055DD;
+        }
+        
+        #event-log {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff66;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="enhanced-ui">
+    <div class="test-container">
+        <h1>ControlPanel Component Test</h1>
+        
+        <div id="test-panel-container"></div>
+        
+        <div class="test-controls">
+            <h2>Testing Controls</h2>
+            
+            <div class="test-section">
+                <h3>Stonks Mode</h3>
+                <button id="enable-stonks-mode">Enable Stonks Mode</button>
+                <button id="disable-stonks-mode">Disable Stonks Mode</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Volume Controls</h3>
+                <button id="set-volume-0">Mute</button>
+                <button id="set-volume-50">50% Volume</button>
+                <button id="set-volume-100">100% Volume</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Theme Controls</h3>
+                <button id="set-crypto-theme">Crypto Theme</button>
+                <button id="set-hacker-theme">Hacker Theme</button>
+                <button id="set-gamer-theme">Gamer Theme</button>
+                <button id="set-meme-theme">Meme Theme</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Component Controls</h3>
+                <button id="reset-controls">Reset All Controls</button>
+                <button id="reload-component">Reload Component</button>
+            </div>
+        </div>
+        
+        <h2>Event Log</h2>
+        <div id="event-log"></div>
+    </div>
+    
+    <!-- Component System -->
+    <script src="../components/common/EventBus.js"></script>
+    <script src="../components/common/ComponentBase.js"></script>
+    <script src="../components/common/ThemeManager.js"></script>
+    <script src="../components/ControlPanel/ControlPanel.js"></script>
+    
+    <script>
+        // Initialize event log
+        const eventLog = document.getElementById('event-log');
+        
+        function logEvent(eventName, data) {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const message = document.createElement('div');
+            message.innerHTML = `<strong>${timestamp}</strong> - <span style="color: #ff9900">${eventName}</span>: ${JSON.stringify(data)}`;
+            eventLog.appendChild(message);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        // Subscribe to all relevant events
+        EventBus.subscribe('themeChanged', data => logEvent('themeChanged', data));
+        EventBus.subscribe('themeSelected', data => logEvent('themeSelected', data));
+        EventBus.subscribe('volumeChanged', data => logEvent('volumeChanged', data));
+        EventBus.subscribe('stonksModeToggled', data => logEvent('stonksModeToggled', data));
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize ThemeManager
+            if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.init();
+            }
+            
+            // Initialize ControlPanel component
+            const controlPanel = new ControlPanel('test-panel-container', {
+                themes: [
+                    { id: 'crypto', name: 'Crypto', icon: '🚀' },
+                    { id: 'hacker', name: 'Hacker', icon: '💻' },
+                    { id: 'gamer', name: 'Gamer', icon: '🎮' },
+                    { id: 'meme', name: 'Meme', icon: '🤣' }
+                ],
+                defaultTheme: 'crypto',
+                stonksMode: false,
+                defaultVolume: 0.5,
+                showVolumeControl: true
+            });
+            
+            window.testControlPanel = controlPanel;
+            
+            // Set up test buttons
+            document.getElementById('enable-stonks-mode').addEventListener('click', () => {
+                testControlPanel.toggleStonksMode(true);
+            });
+            
+            document.getElementById('disable-stonks-mode').addEventListener('click', () => {
+                testControlPanel.toggleStonksMode(false);
+            });
+            
+            document.getElementById('set-volume-0').addEventListener('click', () => {
+                testControlPanel.setVolume(0);
+            });
+            
+            document.getElementById('set-volume-50').addEventListener('click', () => {
+                testControlPanel.setVolume(0.5);
+            });
+            
+            document.getElementById('set-volume-100').addEventListener('click', () => {
+                testControlPanel.setVolume(1);
+            });
+            
+            document.getElementById('set-crypto-theme').addEventListener('click', () => {
+                testControlPanel.setActiveTheme('crypto');
+            });
+            
+            document.getElementById('set-hacker-theme').addEventListener('click', () => {
+                testControlPanel.setActiveTheme('hacker');
+            });
+            
+            document.getElementById('set-gamer-theme').addEventListener('click', () => {
+                testControlPanel.setActiveTheme('gamer');
+            });
+            
+            document.getElementById('set-meme-theme').addEventListener('click', () => {
+                testControlPanel.setActiveTheme('meme');
+            });
+            
+            document.getElementById('reset-controls').addEventListener('click', () => {
+                testControlPanel.toggleStonksMode(false);
+                testControlPanel.setVolume(0.5);
+                testControlPanel.setActiveTheme('crypto');
+            });
+            
+            document.getElementById('reload-component').addEventListener('click', () => {
+                // Remove component
+                const container = document.getElementById('test-panel-container');
+                container.innerHTML = '';
+                
+                // Recreate component
+                window.testControlPanel = new ControlPanel('test-panel-container', {
+                    themes: [
+                        { id: 'crypto', name: 'Crypto', icon: '🚀' },
+                        { id: 'hacker', name: 'Hacker', icon: '💻' },
+                        { id: 'gamer', name: 'Gamer', icon: '🎮' },
+                        { id: 'meme', name: 'Meme', icon: '🤣' }
+                    ],
+                    defaultTheme: 'crypto',
+                    stonksMode: false,
+                    defaultVolume: 0.5,
+                    showVolumeControl: true
+                });
+                
+                logEvent('componentReloaded', { component: 'ControlPanel' });
+            });
+            
+            // Log initialization
+            logEvent('componentInitialized', { component: 'ControlPanel' });
+        });
+    </script>
+</body>
+</html> 

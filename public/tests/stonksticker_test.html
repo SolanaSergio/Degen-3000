@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StonksTicker Component Test</title>
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="../css/enhanced-ui.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="../components/StonksTicker/StonksTicker.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Test page styles */
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2 {
+            margin-top: 2rem;
+            color: white;
+        }
+        
+        #test-ticker-container {
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+        
+        .test-controls {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #3772FF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        button:hover {
+            background: #2055DD;
+        }
+        
+        #event-log {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff66;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="enhanced-ui">
+    <div class="test-container">
+        <h1>StonksTicker Component Test</h1>
+        
+        <div id="test-ticker-container"></div>
+        
+        <div class="test-controls">
+            <h2>Testing Controls</h2>
+            
+            <div class="test-section">
+                <h3>Theme Controls</h3>
+                <button id="set-crypto-theme">Crypto Theme</button>
+                <button id="set-hacker-theme">Hacker Theme</button>
+                <button id="set-gamer-theme">Gamer Theme</button>
+                <button id="set-meme-theme">Meme Theme</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Update Controls</h3>
+                <button id="update-random">Update Random Ticker</button>
+                <button id="update-extreme">Update with Extreme Change</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Stonks Mode</h3>
+                <button id="enable-stonks-mode">Enable Stonks Mode</button>
+                <button id="disable-stonks-mode">Disable Stonks Mode</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Auto-update Controls</h3>
+                <button id="start-updates">Start Auto-updates</button>
+                <button id="stop-updates">Stop Auto-updates</button>
+            </div>
+            
+            <div class="test-section">
+                <h3>Ticker Manipulation</h3>
+                <button id="update-meme">Update MEME to +100%</button>
+                <button id="update-doge">Update DOGE to -50%</button>
+            </div>
+        </div>
+        
+        <h2>Event Log</h2>
+        <div id="event-log"></div>
+    </div>
+    
+    <!-- Component System -->
+    <script src="../components/common/EventBus.js"></script>
+    <script src="../components/common/ComponentBase.js"></script>
+    <script src="../components/common/ThemeManager.js"></script>
+    <script src="../components/StonksTicker/StonksTicker.js"></script>
+    
+    <script>
+        // Initialize event log
+        const eventLog = document.getElementById('event-log');
+        
+        function logEvent(eventName, data) {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const message = document.createElement('div');
+            message.innerHTML = `<strong>${timestamp}</strong> - <span style="color: #ff9900">${eventName}</span>: ${JSON.stringify(data)}`;
+            eventLog.appendChild(message);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        // Subscribe to all relevant events
+        EventBus.subscribe('themeChanged', data => logEvent('themeChanged', data));
+        EventBus.subscribe('tickerUpdated', data => logEvent('tickerUpdated', data));
+        EventBus.subscribe('stonksModeToggled', data => logEvent('stonksModeToggled', data));
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize ThemeManager
+            if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.init();
+            }
+            
+            // Initialize StonksTicker component
+            const stonksTicker = new StonksTicker('test-ticker-container', {
+                tickers: [
+                    { symbol: 'MEME', price: '+43.48%', isUp: true },
+                    { symbol: 'DOGE', price: '+9.23%', isUp: true },
+                    { symbol: 'ROFL', price: '-29.39%', isUp: false },
+                    { symbol: 'KEK', price: '+15.67%', isUp: true }
+                ],
+                updateInterval: 5000,
+                enableAnimations: true,
+                enableRandomUpdates: false // Don't start auto-updates initially
+            });
+            
+            window.testTicker = stonksTicker;
+            
+            // Set up test buttons
+            document.getElementById('set-crypto-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('crypto');
+            });
+            
+            document.getElementById('set-hacker-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('hacker');
+            });
+            
+            document.getElementById('set-gamer-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('gamer');
+            });
+            
+            document.getElementById('set-meme-theme').addEventListener('click', () => {
+                ThemeManager.applyTheme('meme');
+            });
+            
+            document.getElementById('update-random').addEventListener('click', () => {
+                testTicker.updateRandomPrice(false);
+            });
+            
+            document.getElementById('update-extreme').addEventListener('click', () => {
+                testTicker.updateRandomPrice(true);
+            });
+            
+            document.getElementById('enable-stonks-mode').addEventListener('click', () => {
+                EventBus.publish('stonksModeToggled', { enabled: true });
+            });
+            
+            document.getElementById('disable-stonks-mode').addEventListener('click', () => {
+                EventBus.publish('stonksModeToggled', { enabled: false });
+            });
+            
+            document.getElementById('start-updates').addEventListener('click', () => {
+                testTicker.startUpdates();
+                logEvent('updatesStarted', {});
+            });
+            
+            document.getElementById('stop-updates').addEventListener('click', () => {
+                testTicker.stopUpdates();
+                logEvent('updatesStopped', {});
+            });
+            
+            document.getElementById('update-meme').addEventListener('click', () => {
+                testTicker.updateTicker('MEME', '+100.00%', true);
+                logEvent('manualUpdate', { symbol: 'MEME', price: '+100.00%', isUp: true });
+            });
+            
+            document.getElementById('update-doge').addEventListener('click', () => {
+                testTicker.updateTicker('DOGE', '-50.00%', false);
+                logEvent('manualUpdate', { symbol: 'DOGE', price: '-50.00%', isUp: false });
+            });
+            
+            // Log initialization
+            logEvent('componentInitialized', { component: 'StonksTicker' });
+        });
+    </script>
+</body>
+</html> 

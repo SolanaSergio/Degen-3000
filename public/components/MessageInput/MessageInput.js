@@ -1,13 +1,9 @@
 /**
  * MessageInput.js
  * 
- * Component for user message input functionality including:
- * - Message text input area
- * - Character counter
- * - Quick phrase selection buttons
- * - Submit handling
+ * Message input component for DEGEN ROAST 3000
+ * Manages user input and message submission
  */
-
 class MessageInput extends ComponentBase {
   /**
    * Create a new MessageInput component
@@ -17,32 +13,32 @@ class MessageInput extends ComponentBase {
   constructor(containerId, options = {}) {
     // Default options
     const defaultOptions = {
-      maxLength: 280,              // Maximum message length
-      placeholder: "Enter your message...",
-      submitButtonText: "Send",
+      placeholder: "Type something to get absolutely roasted...", 
+      maxLength: 500,
+      showCharCounter: true,
+      showClearButton: true,
+      showQuickPhrases: true,
+      sendButtonText: "Roast Me",
+      sendButtonEmoji: "🔥",
+      clearButtonText: "Clear Chat",
+      clearButtonEmoji: "🧹",
       quickPhrases: [
-        { emoji: "📉", text: "Roast my crypto portfolio", phrase: "Roast my crypto portfolio" },
-        { emoji: "💻", text: "My Code", phrase: "Roast my coding skills" },
-        { emoji: "🤔", text: "Life Choices", phrase: "Roast my life choices" },
-        { emoji: "🤣", text: "Meme Me", phrase: "Roast me like a meme" },
-        { emoji: "💰", text: "Crypto Trader", phrase: "I'm a crypto trader" },
-        { emoji: "🔥", text: "Roast Hard", phrase: "Roast me hard" }
-      ],
-      showCharacterCounter: true,
-      animateQuickPhrases: true
+        { text: "How's my portfolio?", icon: "💰" },
+        { text: "Roast my coding skills", icon: "💻" },
+        { text: "Say something savage", icon: "🔥" },
+        { text: "Eviscerate me", icon: "💀" }
+      ]
     };
     
-    // Merge default options with provided options
-    const mergedOptions = { ...defaultOptions, ...options };
-    
-    // Initialize base component
+    // Initialize base component with merged options and initial state
     super(containerId, {
-      message: "",                 // Current message text
-      characterCount: 0,           // Current character count
-      isSubmitting: false,         // Whether a message is being submitted
-      canSubmit: false,            // Whether the message can be submitted
-      currentTheme: typeof ThemeManager !== 'undefined' ? ThemeManager.getCurrentTheme() : 'crypto',
-      options: mergedOptions       // Component options
+      options: { ...defaultOptions, ...options },
+      currentTheme: typeof ThemeManager !== 'undefined' ? 
+        ThemeManager.getCurrentTheme() : 'crypto',
+      isStonksModeActive: false,
+      inputText: '',
+      isTyping: false,
+      selectedMeme: null
     });
     
     // Initialize component
@@ -69,6 +65,22 @@ class MessageInput extends ComponentBase {
       this.on('themeChanged', (data) => {
         this.setState({ currentTheme: data.theme });
       });
+      
+      // Listen for stonks mode changes
+      this.on('stonksModeToggled', (data) => {
+        this.setState({ isStonksModeActive: data.enabled });
+      });
+      
+      // Listen for clear chat
+      this.on('clearChat', () => {
+        this.clearInput();
+      });
+      
+      // Listen for meme selection
+      this.on('memeSelected', (data) => {
+        this.setState({ selectedMeme: data.meme });
+        this.insertMemeReference(data.meme, data.displayName || data.meme);
+      });
     }
   }
   
@@ -76,125 +88,123 @@ class MessageInput extends ComponentBase {
    * Render the component
    */
   render() {
-    // Create the message input HTML
+    const { currentTheme, isStonksModeActive, inputText } = this.state;
+    const { 
+      placeholder,
+      maxLength,
+      showCharCounter,
+      showClearButton,
+      showQuickPhrases,
+      sendButtonText,
+      sendButtonEmoji,
+      clearButtonText,
+      clearButtonEmoji,
+      quickPhrases
+    } = this.state.options;
+    
+    // Generate HTML
     this.container.innerHTML = `
-      <div class="message-input theme-${this.state.currentTheme}">
-        <form id="${this.id}-form" class="message-form">
+      <div class="message-input-component theme-${currentTheme} ${isStonksModeActive ? 'stonks-mode' : ''}">
+        <form class="message-form" id="message-form">
           <div class="input-container">
             <textarea 
-              id="${this.id}-textarea" 
-              placeholder="${this.state.options.placeholder}" 
-              maxlength="${this.state.options.maxLength}"
-              >${this.state.message}</textarea>
-            <button 
-              type="submit" 
-              id="${this.id}-submit"
-              class="submit-button"
-              ${!this.state.canSubmit ? 'disabled' : ''}
-            >${this.state.options.submitButtonText}</button>
+              id="user-input" 
+              class="input-field"
+              placeholder="${placeholder}" 
+              maxlength="${maxLength}"
+              rows="3"
+            >${inputText}</textarea>
+            ${showCharCounter ? `<div class="char-counter"><span id="char-count">0</span>/${maxLength}</div>` : ''}
           </div>
-          ${this.state.options.showCharacterCounter ? 
-            `<div class="char-counter ${this.getCounterClass()}" id="${this.id}-counter">
-              ${this.state.characterCount}/${this.state.options.maxLength}
-            </div>` 
-            : ''}
-          <div class="quick-phrases" id="${this.id}-quick-phrases">
-            ${this.renderQuickPhrases()}
+          
+          ${showQuickPhrases && quickPhrases.length > 0 ? `
+            <div class="quick-phrases">
+              ${quickPhrases.map(phrase => `
+                <button type="button" class="quick-phrase-button" data-text="${phrase.text}">
+                  <span class="phrase-icon">${phrase.icon}</span>
+                  <span class="phrase-text">${phrase.text}</span>
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          <div class="button-row">
+            ${showClearButton ? `
+              <button type="button" id="clear-button" class="action-button clear-button">
+                <span>${clearButtonText}</span>
+                <span class="button-icon">${clearButtonEmoji}</span>
+              </button>
+            ` : ''}
+            <button type="submit" id="send-button" class="action-button send-button" disabled>
+              <span>${sendButtonText}</span>
+              <span class="button-icon">${sendButtonEmoji}</span>
+            </button>
           </div>
         </form>
       </div>
     `;
     
-    // Get form elements
-    this.form = document.getElementById(`${this.id}-form`);
-    this.textarea = document.getElementById(`${this.id}-textarea`);
-    this.submitButton = document.getElementById(`${this.id}-submit`);
-    this.counter = document.getElementById(`${this.id}-counter`);
-    this.quickPhrasesContainer = document.getElementById(`${this.id}-quick-phrases`);
+    // Get references to key elements
+    this.messageInputComponent = this.container.querySelector('.message-input-component');
+    this.messageForm = this.container.querySelector('#message-form');
+    this.inputField = this.container.querySelector('#user-input');
+    this.charCounter = this.container.querySelector('#char-count');
+    this.sendButton = this.container.querySelector('#send-button');
+    this.clearButton = this.container.querySelector('#clear-button');
+    this.quickPhraseButtons = this.container.querySelectorAll('.quick-phrase-button');
     
-    // Set up form event listeners
-    this.setupFormEventListeners();
+    // Set up DOM event listeners
+    this.setupDomEventListeners();
+    
+    // Update char counter
+    this.updateCharCounter();
     
     // Mark as rendered
     this.rendered = true;
   }
   
   /**
-   * Set up form event listeners
+   * Set up DOM event listeners
    */
-  setupFormEventListeners() {
-    if (this.form) {
-      // Form submit
-      this.addListener(this.form, 'submit', this.handleSubmit);
+  setupDomEventListeners() {
+    if (this.messageForm) {
+      this.addListener(this.messageForm, 'submit', this.handleSubmit.bind(this));
     }
     
-    if (this.textarea) {
-      // Input change
-      this.addListener(this.textarea, 'input', this.handleInput);
-      
-      // Focus/blur
-      this.addListener(this.textarea, 'focus', () => {
-        this.textarea.classList.add('focused');
-      });
-      
-      this.addListener(this.textarea, 'blur', () => {
-        this.textarea.classList.remove('focused');
-      });
+    if (this.inputField) {
+      this.addListener(this.inputField, 'input', this.handleInput.bind(this));
+      this.addListener(this.inputField, 'keydown', this.handleKeyDown.bind(this));
     }
     
-    // Quick phrase buttons
-    const quickPhraseButtons = this.container.querySelectorAll('.quick-phrase-button');
-    quickPhraseButtons.forEach(button => {
-      this.addListener(button, 'click', this.handleQuickPhrase);
-    });
+    if (this.clearButton) {
+      this.addListener(this.clearButton, 'click', this.handleClearClick.bind(this));
+    }
+    
+    if (this.quickPhraseButtons) {
+      this.quickPhraseButtons.forEach(button => {
+        this.addListener(button, 'click', this.handleQuickPhraseClick.bind(this));
+      });
+    }
   }
   
   /**
-   * Handle form submit
+   * Handle form submission
    * @param {Event} event - Submit event
    */
   handleSubmit(event) {
-    // Prevent form submission
     event.preventDefault();
     
-    if (!this.state.canSubmit || this.state.isSubmitting) {
-      return;
-    }
+    // Get input text
+    const text = this.inputField.value.trim();
     
-    // Get message text
-    const message = this.state.message.trim();
+    // Don't send empty messages
+    if (!text) return;
     
-    if (message) {
-      // Update state
-      this.setState({
-        isSubmitting: true
-      });
-      
-      // Broadcast message via EventBus
-      this.emit('messageSent', {
-        text: message,
-        sender: 'You',
-        type: 'user'
-      });
-      
-      // Play sound if available
-      if (typeof playSound === 'function') {
-        playSound('send');
-      }
-      
-      // Clear message
-      this.setState({
-        message: '',
-        characterCount: 0,
-        canSubmit: false,
-        isSubmitting: false
-      });
-      
-      // Focus textarea
-      if (this.textarea) {
-        this.textarea.focus();
-      }
-    }
+    // Send message
+    this.sendMessage(text);
+    
+    // Clear input
+    this.clearInput();
   }
   
   /**
@@ -202,163 +212,223 @@ class MessageInput extends ComponentBase {
    * @param {Event} event - Input event
    */
   handleInput(event) {
-    // Get current message
-    const message = event.target.value;
-    
     // Update state
-    this.setState({
-      message: message,
-      characterCount: message.length,
-      canSubmit: message.trim().length > 0
-    });
+    this.setState({ inputText: event.target.value, isTyping: true });
     
-    // Update character counter
+    // Update char counter
     this.updateCharCounter();
+    
+    // Enable/disable send button
+    this.toggleSendButton();
+    
+    // Reset typing flag after a short delay
+    clearTimeout(this.typingTimeout);
+    this.typingTimeout = setTimeout(() => {
+      this.setState({ isTyping: false });
+    }, 500);
   }
   
   /**
-   * Handle quick phrase click
+   * Handle keydown events
+   * @param {KeyboardEvent} event - Keydown event
+   */
+  handleKeyDown(event) {
+    // Submit on Enter (without Shift)
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      
+      // Get input text
+      const text = this.inputField.value.trim();
+      
+      // Don't send empty messages
+      if (!text) return;
+      
+      // Send message
+      this.sendMessage(text);
+      
+      // Clear input
+      this.clearInput();
+    }
+  }
+  
+  /**
+   * Handle clear button click
    * @param {Event} event - Click event
    */
-  handleQuickPhrase(event) {
-    // Get phrase
-    const phrase = event.target.dataset.phrase;
+  handleClearClick(event) {
+    // Emit clear chat event
+    this.emit('clearChat', {});
     
-    if (phrase) {
-      // Update state
-      this.setState({
-        message: phrase,
-        characterCount: phrase.length,
-        canSubmit: true
-      });
-      
-      // Update textarea
-      if (this.textarea) {
-        this.textarea.value = phrase;
-        this.textarea.focus();
-      }
-      
-      // Update character counter
-      this.updateCharCounter();
-      
-      // Add animation
-      if (this.state.options.animateQuickPhrases) {
-        event.target.classList.add('meme-bounce');
-        setTimeout(() => {
-          event.target.classList.remove('meme-bounce');
-        }, 1000);
-      }
-      
-      // Play sound if available
-      if (typeof playSound === 'function') {
-        playSound('click');
-      }
+    // Clear input
+    this.clearInput();
+    
+    // Play sound if available
+    if (window.appComponents && window.appComponents.soundboard) {
+      window.appComponents.soundboard.playSound('ui', 'clear');
     }
   }
   
   /**
-   * Update character counter display
+   * Handle quick phrase button click
+   * @param {Event} event - Click event
+   */
+  handleQuickPhraseClick(event) {
+    // Get phrase
+    const button = event.currentTarget;
+    const text = button.getAttribute('data-text');
+    
+    // Set as input
+    this.inputField.value = text;
+    this.setState({ inputText: text });
+    
+    // Update UI
+    this.updateCharCounter();
+    this.toggleSendButton();
+    
+    // Add animation
+    button.classList.add('active');
+    setTimeout(() => {
+      button.classList.remove('active');
+    }, 300);
+    
+    // Focus input field
+    this.inputField.focus();
+    
+    // Play sound if available
+    if (window.appComponents && window.appComponents.soundboard) {
+      window.appComponents.soundboard.playSound('ui', 'select');
+    }
+  }
+  
+  /**
+   * Send a message
+   * @param {string} text - Message text
+   */
+  sendMessage(text) {
+    // Emit message sent event
+    this.emit('messageSent', {
+      text: text,
+      sender: 'You',
+      timestamp: Date.now()
+    });
+    
+    // Reset selected meme
+    this.setState({ selectedMeme: null });
+    
+    // Play sound if available
+    if (window.appComponents && window.appComponents.soundboard) {
+      window.appComponents.soundboard.playSound('message', 'send');
+    }
+  }
+  
+  /**
+   * Clear the input field
+   */
+  clearInput() {
+    if (this.inputField) {
+      this.inputField.value = '';
+      this.setState({ inputText: '' });
+      this.updateCharCounter();
+      this.toggleSendButton();
+    }
+  }
+  
+  /**
+   * Update character counter
    */
   updateCharCounter() {
-    if (this.counter) {
-      // Update counter text
-      this.counter.textContent = `${this.state.characterCount}/${this.state.options.maxLength}`;
+    if (this.charCounter && this.inputField) {
+      const count = this.inputField.value.length;
+      this.charCounter.textContent = count;
       
-      // Update counter class
-      this.counter.className = `char-counter ${this.getCounterClass()}`;
+      // Color the counter when nearing the limit
+      if (count > this.state.options.maxLength * 0.9) {
+        this.charCounter.parentElement.classList.add('near-limit');
+      } else {
+        this.charCounter.parentElement.classList.remove('near-limit');
+      }
     }
   }
   
   /**
-   * Get CSS class for character counter based on current count
-   * @returns {string} - CSS class
+   * Toggle send button enabled/disabled state
    */
-  getCounterClass() {
-    const count = this.state.characterCount;
-    const max = this.state.options.maxLength;
-    
-    if (count >= max) {
-      return 'at-limit';
-    } else if (count >= max * 0.8) {
-      return 'near-limit';
+  toggleSendButton() {
+    if (this.sendButton && this.inputField) {
+      const hasText = this.inputField.value.trim().length > 0;
+      this.sendButton.disabled = !hasText;
     }
-    
-    return '';
   }
   
   /**
-   * Render quick phrases buttons
-   * @returns {string} - HTML for quick phrase buttons
+   * Insert a meme reference into the input field
+   * @param {string} memeId - Meme identifier
+   * @param {string} displayName - Display name
    */
-  renderQuickPhrases() {
-    // Create buttons HTML
-    return this.state.options.quickPhrases.map(phrase => {
-      return `
-        <button 
-          type="button" 
-          class="quick-phrase-button" 
-          data-phrase="${phrase.phrase}"
-        >${phrase.emoji} ${phrase.text}</button>
-      `;
-    }).join('');
+  insertMemeReference(memeId, displayName) {
+    if (!this.inputField) return;
+    
+    // Create meme tag
+    const memeTag = `[meme:${memeId}]`;
+    
+    // Get cursor position
+    const cursorPos = this.inputField.selectionStart;
+    
+    // Insert at cursor position or end
+    const startText = this.inputField.value.substring(0, cursorPos);
+    const endText = this.inputField.value.substring(cursorPos);
+    this.inputField.value = `${startText} ${memeTag} ${endText}`;
+    
+    // Update state
+    this.setState({ inputText: this.inputField.value });
+    
+    // Update UI
+    this.updateCharCounter();
+    this.toggleSendButton();
+    
+    // Focus input
+    this.inputField.focus();
+    
+    // Play sound if available
+    if (window.appComponents && window.appComponents.soundboard) {
+      window.appComponents.soundboard.playSound('ui', 'meme');
+    }
+    
+    // Emit event
+    this.emit('memeInserted', { meme: memeId });
   }
   
   /**
    * Update component after state changes
    */
   update() {
-    // If textarea exists, just update its content
-    if (this.textarea) {
-      // Update textarea
-      this.textarea.value = this.state.message;
+    if (this.messageInputComponent) {
+      // Update theme class
+      this.messageInputComponent.className = `message-input-component theme-${this.state.currentTheme}`;
       
-      // Enable/disable submit button
-      if (this.submitButton) {
-        if (this.state.canSubmit) {
-          this.submitButton.removeAttribute('disabled');
-        } else {
-          this.submitButton.setAttribute('disabled', 'true');
-        }
+      // Update stonks mode class
+      if (this.state.isStonksModeActive) {
+        this.messageInputComponent.classList.add('stonks-mode');
+      } else {
+        this.messageInputComponent.classList.remove('stonks-mode');
       }
       
-      // Update character counter
-      this.updateCharCounter();
+      // Update input text if changed externally
+      if (this.inputField && this.inputField.value !== this.state.inputText) {
+        this.inputField.value = this.state.inputText;
+        this.updateCharCounter();
+        this.toggleSendButton();
+      }
     } else {
-      // Otherwise, re-render completely
+      // If critical elements don't exist, re-render
       this.render();
     }
   }
-  
-  /**
-   * Clear the current message
-   */
-  clearMessage() {
-    this.setState({
-      message: '',
-      characterCount: 0,
-      canSubmit: false
-    });
-  }
-  
-  /**
-   * Get the current message
-   * @returns {string} - Current message
-   */
-  getMessage() {
-    return this.state.message;
-  }
-  
-  /**
-   * Set a message programmatically
-   * @param {string} message - Message to set
-   */
-  setMessage(message) {
-    this.setState({
-      message: message,
-      characterCount: message.length,
-      canSubmit: message.trim().length > 0
-    });
-  }
+}
+
+// Make sure the component is available globally
+if (typeof window !== 'undefined') {
+  window.MessageInput = MessageInput;
 }
 
 // Export for module systems

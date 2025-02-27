@@ -1,1 +1,268 @@
- 
+/* Meme Components Styling */
+
+/* Stonks Mode */
+.stonks-mode {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, #ffd700, #ff6b6b);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.stonks-mode:hover {
+  transform: translateY(-2px) rotate(-2deg);
+  box-shadow: var(--shadow-lg);
+}
+
+.stonks-mode:active {
+  transform: translateY(0) rotate(0);
+}
+
+.stonks-emoji {
+  font-size: 1.2em;
+  margin-right: var(--spacing-xs);
+  display: inline-block;
+  animation: stonksWiggle 2s infinite;
+}
+
+/* Meme Gallery */
+.meme-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.meme-card {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.meme-card:hover {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow: var(--shadow-lg);
+}
+
+.meme-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.meme-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: var(--spacing-sm);
+  color: white;
+  font-family: 'Comic Sans MS', cursive;
+  text-align: center;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.meme-card:hover .meme-card-overlay {
+  transform: translateY(0);
+}
+
+/* Stonks Ticker */
+.stonks-ticker {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.stonks-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.stonks-positive {
+  color: #00ff00;
+}
+
+.stonks-negative {
+  color: #ff0000;
+}
+
+/* Meme Text Effects */
+.rainbow-text {
+  background: linear-gradient(to right, 
+    #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow 5s linear infinite;
+}
+
+.glitch-text {
+  position: relative;
+  animation: glitch 1s infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00ff;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -2px 0 #00ff00;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2s infinite linear alternate-reverse;
+}
+
+/* Animations */
+@keyframes stonksWiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(44px, 9999px, 56px, 0);
+  }
+  20% {
+    clip: rect(12px, 9999px, 78px, 0);
+  }
+  40% {
+    clip: rect(89px, 9999px, 23px, 0);
+  }
+  60% {
+    clip: rect(67px, 9999px, 34px, 0);
+  }
+  80% {
+    clip: rect(90px, 9999px, 12px, 0);
+  }
+  100% {
+    clip: rect(45px, 9999px, 67px, 0);
+  }
+}
+
+/* Meme Buttons */
+.meme-button {
+  background: var(--gradient-meme);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: white;
+  font-family: 'Comic Sans MS', cursive;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.meme-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.meme-button:hover::before {
+  left: 100%;
+}
+
+.meme-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Quick Reactions */
+.reaction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+}
+
+.reaction-button {
+  background: var(--card-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reaction-button:hover {
+  transform: scale(1.2);
+}
+
+/* Toast Notifications */
+.meme-toast {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: var(--gradient-meme);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-family: 'Comic Sans MS', cursive;
+  z-index: 1000;
+  animation: toastSlide 0.3s ease forwards;
+}
+
+@keyframes toastSlide {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+} 

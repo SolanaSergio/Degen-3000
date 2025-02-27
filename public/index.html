@@ -3,177 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DEGEN ROAST 3000 - The most savage AI roast generator on the internet">
+    <meta name="description" content="DEGEN ROAST 3000 - Ultimate AI-Powered Crypto Roast Generator">
     <meta property="og:title" content="DEGEN ROAST 3000">
-    <meta property="og:description" content="Get absolutely roasted by the most savage AI in existence">
-    <meta property="og:image" content="https://degenroast3000.lol/images/og-image.jpg">
-    <!-- Favicon files -->
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
-    <title>DEGEN ROAST 3000</title>
+    <meta property="og:description" content="Get your crypto investments roasted by advanced AI. More brutal than your portfolio losses!">
+    <meta property="og:image" content="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
+    <meta property="og:type" content="website">
     
-    <!-- Google Fonts - for better typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- EventBus Protection - Prevents EventBus from being used as a constructor -->
+    <script>
+        // This ensures even if someone uses 'new EventBus()', it won't crash the page
+        window.EventBus = window.EventBus || {
+            // Provide dummy methods that won't crash
+            subscribe: function() { 
+                console.warn("EventBus not fully loaded yet - subscription queued");
+                return function() {}; // Return dummy unsubscribe function
+            },
+            publish: function(eventName, data) {
+                console.warn("EventBus not fully loaded yet - publish delayed", eventName, data);
+            },
+            // Flag to indicate this is a temporary instance
+            __isPlaceholder: true
+        };
+        
+        // Add basic error tracking for debugging
+        window.__eventBusErrors = [];
+        
+        // Track when scripts are loaded to help debug initialization issues
+        window.__scriptLoadTimes = {};
+        
+        // Catch and log all JavaScript errors
+        window.addEventListener('error', function(event) {
+            // Create a timestamp
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            
+            // Store all errors
+            window.__allErrors = window.__allErrors || [];
+            window.__allErrors.push({
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                timestamp: timestamp,
+                error: event.error
+            });
+            
+            // Specifically track EventBus errors
+            if (event.message && event.message.includes('EventBus is not a constructor')) {
+                window.__eventBusErrors.push({
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    timestamp: timestamp
+                });
+                
+                console.error('ERROR: EventBus is not a constructor. Use window.EventBus directly.');
+                event.preventDefault(); // Prevent the default error handling
+            }
+        }, true);
+        
+        // Track script loading
+        function trackScriptLoading(scriptElement) {
+            const src = scriptElement.src;
+            if (!src) return; // Skip inline scripts
+            
+            const filename = src.split('/').pop();
+            scriptElement.addEventListener('load', function() {
+                window.__scriptLoadTimes[filename] = new Date().toLocaleTimeString();
+                console.log(`Script loaded: ${filename}`);
+            });
+        }
+        
+        // Install the script tracking
+        const originalCreateElement = document.createElement;
+        document.createElement = function(tagName) {
+            const element = originalCreateElement.call(document, tagName);
+            if (tagName.toLowerCase() === 'script') {
+                trackScriptLoading(element);
+            }
+            return element;
+        };
+        
+        // Also expose a function to check script loading order
+        window.checkScriptLoading = function() {
+            console.table(window.__scriptLoadTimes);
+        };
+    </script>
     
-    <!-- Core stylesheets - original system -->
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Favicon -->
+    <link rel="icon" href="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
+    <link rel="apple-touch-icon" href="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/enhanced-ui.css">
-    <link rel="stylesheet" href="css/soundboard.css">
-    <link rel="stylesheet" href="css/meme-components.css">
-    
-    <!-- Component System Core -->
-    <script src="components/common/EventBus.js"></script>
-    <script src="components/common/ComponentBase.js"></script>
-    <script src="components/common/ThemeManager.js"></script>
-    
-    <!-- Components -->
-    <script src="components/ChatWindow/ChatWindow.js"></script>
-    <script src="components/MessageInput/MessageInput.js"></script>
-    <script src="components/Dashboard/Dashboard.js"></script>
-    <script src="components/Soundboard/Soundboard.js"></script>
-    <script src="components/MemeGallery/MemeGallery.js"></script>
+    <link rel="stylesheet" href="css/app-layout.css">
     
     <!-- Component CSS -->
+    <link rel="stylesheet" href="components/Header/Header.css">
+    <link rel="stylesheet" href="components/StonksTicker/StonksTicker.css">
+    <link rel="stylesheet" href="components/ControlPanel/ControlPanel.css">
     <link rel="stylesheet" href="components/ChatWindow/ChatWindow.css">
     <link rel="stylesheet" href="components/MessageInput/MessageInput.css">
-    <link rel="stylesheet" href="components/Dashboard/Dashboard.css">
     <link rel="stylesheet" href="components/Soundboard/Soundboard.css">
     <link rel="stylesheet" href="components/MemeGallery/MemeGallery.css">
+    <link rel="stylesheet" href="components/Disclaimer/Disclaimer.css">
     
-    <!-- Application entry point -->
-    <script src="js/app.js"></script>
+    <style>
+        .fallback-content {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .fallback-content h2 {
+            color: #ff3366;
+            margin-bottom: 10px;
+        }
+        
+        .fallback-content p {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .debug-button {
+            background-color: #3772ff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .debug-button:hover {
+            background-color: #4a85ff;
+            transform: translateY(-2px);
+        }
+        
+        /* Loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(20, 26, 40, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loading-spinner {
+            border: 6px solid rgba(55, 114, 255, 0.2);
+            border-top: 6px solid #3772ff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Fade out animation */
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
     
-    <!-- Legacy JavaScript files - will be phased out -->
-    <script src="js/dashboard.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/enhanced-ui.js"></script>
-    <script src="js/soundboard.js" defer></script>
-    <script src="js/effects.js" defer></script>
+    <!-- Image fallback script -->
+    <script>
+        function handleImageError(img) {
+            // Try Tenor first
+            if (!img.src.includes('tenor')) {
+                img.src = 'https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298';
+            }
+            // If still failing, try Giphy as fallback
+            else {
+                img.src = 'https://media.giphy.com/media/YnkMcHgNIMW4Yfmjxr/giphy.gif';
+                // Disable further onerror to prevent loops
+                img.onerror = null;
+            }
+        }
+    </script>
     
-    <!-- Confetti and Effects -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Debug Helper Script - Load before everything else -->
+    <script src="js/debug-helper.js"></script>
+    
+    <!-- Core Scripts - Load these first with defer to ensure they're initialized before other components -->
+    <script defer src="components/common/EventBus.js"></script>
+    <script defer src="components/common/ComponentBase.js"></script>
+    <script defer src="components/common/ThemeManager.js"></script>
+    <script defer src="js/utils.js"></script>
 </head>
-<body class="theme-meme">
-    <!-- Warning banner -->
-    <div id="warning-banner" class="enhanced-ui">⚠️ WARNING: BRUTAL ROASTS AHEAD - NOT FOR THE EASILY OFFENDED ⚠️</div>
-    
-    <!-- Main container -->
-    <div class="container enhanced-ui">
-        <!-- Header section -->
-        <div class="header-area">
-            <h1 class="title enhanced-ui gradient-text">DEGEN ROAST 3000</h1>
-            <p class="subtitle enhanced-ui">The most savage AI roast generator on the internet <span class="meme-text">much wow</span></p>
-        </div>
-        
-        <!-- Stonks Mode Toggle Button -->
-        <button class="stonks-mode-toggle">
-            <span class="stonks-emoji">📈</span>
-            <span>STONKS MODE</span>
-        </button>
-        
-        <!-- Dark Mode Toggle -->
-        <button id="dark-mode-toggle" class="dark-mode-toggle">
-            <span class="moon">🌙</span>
-            <span class="sun">☀️</span>
-            <span class="toggle-track"></span>
-        </button>
-        
-        <!-- Dashboard container -->
-        <div id="dashboard-container" class="dashboard-wrapper" style="display: block !important;"></div>
-        
-        <!-- Chat container (main content) -->
-        <div id="chat-container" class="chat-container-wrapper" style="display: block !important; min-height: 500px;"></div>
-        
-        <!-- MemeGallery container -->
-        <div id="meme-gallery-container" class="meme-gallery-wrapper" style="display: block !important;"></div>
-        
-        <!-- Message input component -->
-        <div id="message-input-container" class="message-input-wrapper" style="display: block !important;"></div>
-        
-        <!-- Soundboard component -->
-        <div id="soundboard-container" class="soundboard-wrapper" style="display: block !important;"></div>
-        
-        <!-- Disclaimer section -->
-        <div class="disclaimer enhanced-ui">
-            <p>All roasts are generated by AI and meant to be humorous. Don't take anything personally!</p>
-            <div class="meme-disclaimer" style="display: block;">Your self-esteem may never financially recover from this. <span class="stonks-text">Not stonks!</span> 📉</div>
-        </div>
-    </div>
-    
-    <!-- Toast container for notifications -->
-    <div id="toast-container"></div>
-    
-    <!-- Debug output for troubleshooting - hidden by default and only accessible via Ctrl+D -->
-    <div id="debug-output" style="display: none; padding: 10px; background: rgba(0,0,0,0.8); color: #00ff00; font-family: monospace; position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow: auto; z-index: 9999;">
-        <div class="debug-title">Debug Output <button id="debug-close-btn" onclick="document.getElementById('debug-output').style.display='none'">Close</button></div>
-        <pre id="debug-log"></pre>
+<body class="theme-crypto">
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading DEGEN ROAST 3000...</div>
     </div>
 
-    <!-- Add a script to show debug info only when explicitly requested -->
+    <div class="container enhanced-ui">
+        <!-- Debug Button -->
+        <div style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+            <button class="debug-button" id="debug-button">Debug Components</button>
+        </div>
+        
+        <!-- Fallback content in case components don't load -->
+        <div class="fallback-content" id="fallback-content">
+            <h2>DEGEN ROAST 3000</h2>
+            <p>There seems to be an issue loading the application components. Please check the browser console for more details.</p>
+            <button class="debug-button" id="run-diagnostics">Run Diagnostics</button>
+        </div>
+        
+        <!-- Header Component -->
+        <div id="header-container"></div>
+        
+        <!-- Stonks Ticker Component -->
+        <div id="stonks-ticker"></div>
+        
+        <div class="content-grid">
+            <div class="left-sidebar-wrapper">
+                <!-- Control Panel Component -->
+                <div id="control-panel-container"></div>
+                
+                <!-- Soundboard Component -->
+                <div id="soundboard-container"></div>
+            </div>
+            
+            <div class="chat-section">
+                <!-- Chat Window Component -->
+                <div id="chat-messages-container"></div>
+                
+                <!-- Message Input Component -->
+                <div id="message-input-container"></div>
+            </div>
+            
+            <div class="right-sidebar-wrapper">
+                <!-- Meme Gallery Component -->
+                <div id="meme-gallery-container"></div>
+            </div>
+        </div>
+        
+        <!-- Disclaimer Component -->
+        <div id="disclaimer-container"></div>
+    </div>
+    
+    <!-- Component Scripts - load after the core components -->
+    <script defer src="components/Header/Header.js"></script>
+    <script defer src="components/StonksTicker/StonksTicker.js"></script>
+    <script defer src="components/ControlPanel/ControlPanel.js"></script>
+    <script defer src="components/ChatWindow/ChatWindow.js"></script>
+    <script defer src="components/MessageInput/MessageInput.js"></script>
+    <script defer src="components/Soundboard/Soundboard.js"></script>
+    <script defer src="components/MemeGallery/MemeGallery.js"></script>
+    <script defer src="components/Disclaimer/Disclaimer.js"></script>
+    
+    <!-- Main initialization script - must be loaded last -->
+    <script defer src="js/main.js"></script>
+    
+    <!-- Show fallback content if components don't load after timeout -->
     <script>
-        // Show debug info only when pressing Ctrl+D
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'd') {
-                event.preventDefault();
-                const debugOutput = document.getElementById('debug-output');
-                debugOutput.style.display = debugOutput.style.display === 'none' ? 'block' : 'none';
+        // Hide loading screen after everything is loaded
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('fade-out');
+                    setTimeout(function() {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                }
+            }, 2000); // Wait 2 seconds after load to hide
+        });
+        
+        // Set up debug button handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Debug button
+            const debugButton = document.getElementById('debug-button');
+            if (debugButton) {
+                debugButton.addEventListener('click', function() {
+                    if (window.debugHelper) {
+                        window.debugHelper.checkComponents();
+                    } else {
+                        console.error('Debug helper not loaded');
+                    }
+                });
+            }
+            
+            // Run diagnostics button
+            const runDiagnosticsButton = document.getElementById('run-diagnostics');
+            if (runDiagnosticsButton) {
+                runDiagnosticsButton.addEventListener('click', function() {
+                    if (window.debugHelper) {
+                        window.debugHelper.checkComponents();
+                    } else {
+                        console.error('Debug helper not loaded');
+                    }
+                });
             }
         });
         
-        // Ensure close button works
-        document.getElementById('debug-close-btn').addEventListener('click', function() {
-            document.getElementById('debug-output').style.display = 'none';
-        });
-        
-        // Override console.log/error to add to debug panel BUT NEVER show automatically
-        const originalLog = console.log;
-        const originalError = console.error;
-        const originalWarn = console.warn;
-        
-        console.log = function() {
-            // Call original console.log
-            originalLog.apply(console, arguments);
-            
-            // Add to debug panel
-            const debugLog = document.getElementById('debug-log');
-            if (debugLog) {
-                const args = Array.from(arguments).join(' ');
-                debugLog.innerHTML += `[LOG] ${args}\n`;
-                debugLog.scrollTop = debugLog.scrollHeight;
+        // Show fallback content if initialization fails
+        setTimeout(function() {
+            if (document.getElementById('header-container').innerHTML === '') {
+                document.getElementById('fallback-content').style.display = 'block';
+                console.error('Components failed to initialize within timeout period.');
             }
-        };
-        
-        console.error = function() {
-            // Call original console.error
-            originalError.apply(console, arguments);
-            
-            // Add to debug panel
-            const debugLog = document.getElementById('debug-log');
-            if (debugLog) {
-                const args = Array.from(arguments).join(' ');
-                debugLog.innerHTML += `[ERROR] ${args}\n`;
-                debugLog.scrollTop = debugLog.scrollHeight;
-                // Never show debug panel automatically
-            }
-        };
-        
-        console.warn = function() {
-            // Call original console.warn
-            originalWarn.apply(console, arguments);
-            
-            // Add to debug panel
-            const debugLog = document.getElementById('debug-log');
-            if (debugLog) {
-                const args = Array.from(arguments).join(' ');
-                debugLog.innerHTML += `[WARN] ${args}\n`;
-                debugLog.scrollTop = debugLog.scrollHeight;
-            }
-        };
+        }, 15000); // Increased timeout to 15 seconds to allow for slower loading
     </script>
 </body>
 </html>
