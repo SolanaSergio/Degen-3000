@@ -8,10 +8,11 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const sessionManager = require('./utils/session-manager');
 const apiRoutes = require('./routes/api');
+const session = require('express-session');
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 // Apply security middleware
 app.use(helmet({
@@ -52,6 +53,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'degen-roast-secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '../public')));
@@ -145,6 +157,11 @@ app.use((req, res) => {
   });
 });
 
+// Any other routes should serve the index
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Start the server
 const server = app.listen(PORT, () => {
   const startTime = new Date().toLocaleTimeString();
@@ -155,6 +172,8 @@ const server = app.listen(PORT, () => {
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('---------------------------------------------\n');
+  console.log(`📊 API available at http://localhost:${PORT}/api`);
+  console.log(`�� Frontend available at http://localhost:${PORT}`);
 });
 
 // Graceful shutdown

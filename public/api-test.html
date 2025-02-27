@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEGEN ROAST 3000 - API Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #0f1620;
+            color: #f0f0f0;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #f7931a;
+        }
+        .card {
+            background-color: #1a202c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .result {
+            background-color: #0d1117;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            font-family: monospace;
+            min-height: 100px;
+            overflow-wrap: break-word;
+        }
+        button {
+            background-color: #f7931a;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #e67e22;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #2d3748;
+            background-color: #171e2e;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .success {
+            background-color: #00cc66;
+            color: #fff;
+        }
+        .error {
+            background-color: #ff3366;
+            color: #fff;
+        }
+        .request-info {
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>DEGEN ROAST 3000 - API Test</h1>
+    
+    <div class="card">
+        <h2>1. Get Session Info</h2>
+        <button id="get-session">Test Session API</button>
+        <div id="session-status"></div>
+        <div class="result" id="session-result">// Results will appear here</div>
+    </div>
+    
+    <div class="card">
+        <h2>2. Generate Roast</h2>
+        <label for="message">Message:</label>
+        <textarea id="message" placeholder="Enter your message here..." rows="3">My crypto portfolio is down 90%</textarea>
+        
+        <label for="level">Roast Level (1-5):</label>
+        <input type="number" id="level" min="1" max="5" value="3">
+        
+        <button id="generate-roast">Generate Roast</button>
+        <div id="roast-status"></div>
+        <div class="result" id="roast-result">// Results will appear here</div>
+    </div>
+    
+    <div class="card">
+        <h2>3. Update Roast Level</h2>
+        <label for="new-level">New Level (1-5):</label>
+        <input type="number" id="new-level" min="1" max="5" value="4">
+        
+        <button id="update-level">Update Level</button>
+        <div id="level-status"></div>
+        <div class="result" id="level-result">// Results will appear here</div>
+    </div>
+    
+    <script>
+        // Helper function to format JSON
+        function formatJSON(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+        
+        // Set status
+        function setStatus(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<span class="status ${success ? 'success' : 'error'}">${message}</span>`;
+        }
+        
+        // Display result
+        function displayResult(elementId, data, requestDetails = null) {
+            const element = document.getElementById(elementId);
+            
+            let content = formatJSON(data);
+            
+            if (requestDetails) {
+                content += `\n\n<div class="request-info">Request time: ${requestDetails.time}ms | ${new Date().toLocaleTimeString()}</div>`;
+            }
+            
+            element.innerHTML = content;
+        }
+        
+        // Test session API
+        document.getElementById('get-session').addEventListener('click', async () => {
+            setStatus('session-status', true, 'Sending request...');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch('/api/session', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                const endTime = performance.now();
+                const requestTime = Math.round(endTime - startTime);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setStatus('session-status', false, `Error: ${response.status}`);
+                    displayResult('session-result', errorData, { time: requestTime });
+                    return;
+                }
+                
+                const data = await response.json();
+                setStatus('session-status', true, 'Success!');
+                displayResult('session-result', data, { time: requestTime });
+            } catch (error) {
+                setStatus('session-status', false, `Error: ${error.message}`);
+                displayResult('session-result', { error: error.message });
+            }
+        });
+        
+        // Generate roast
+        document.getElementById('generate-roast').addEventListener('click', async () => {
+            const message = document.getElementById('message').value.trim();
+            const level = parseInt(document.getElementById('level').value);
+            
+            if (!message) {
+                setStatus('roast-status', false, 'Error: Message is required');
+                return;
+            }
+            
+            setStatus('roast-status', true, 'Generating roast...');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch('/api/roast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ message, level }),
+                    credentials: 'same-origin'
+                });
+                
+                const endTime = performance.now();
+                const requestTime = Math.round(endTime - startTime);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setStatus('roast-status', false, `Error: ${response.status}`);
+                    displayResult('roast-result', errorData, { time: requestTime });
+                    return;
+                }
+                
+                const data = await response.json();
+                setStatus('roast-status', true, 'Roast generated!');
+                displayResult('roast-result', data, { time: requestTime });
+            } catch (error) {
+                setStatus('roast-status', false, `Error: ${error.message}`);
+                displayResult('roast-result', { error: error.message });
+            }
+        });
+        
+        // Update level
+        document.getElementById('update-level').addEventListener('click', async () => {
+            const level = parseInt(document.getElementById('new-level').value);
+            
+            setStatus('level-status', true, 'Updating level...');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch('/api/level', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ level }),
+                    credentials: 'same-origin'
+                });
+                
+                const endTime = performance.now();
+                const requestTime = Math.round(endTime - startTime);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setStatus('level-status', false, `Error: ${response.status}`);
+                    displayResult('level-result', errorData, { time: requestTime });
+                    return;
+                }
+                
+                const data = await response.json();
+                setStatus('level-status', true, 'Level updated!');
+                displayResult('level-result', data, { time: requestTime });
+            } catch (error) {
+                setStatus('level-status', false, `Error: ${error.message}`);
+                displayResult('level-result', { error: error.message });
+            }
+        });
+    </script>
+</body>
+</html> 

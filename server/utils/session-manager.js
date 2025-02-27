@@ -40,8 +40,8 @@ function generateSessionId() {
  * @returns {object} New session object
  */
 function createSession() {
-  const now = Date.now();
   const sessionId = generateSessionId();
+  const now = Date.now();
   
   const session = {
     ...DEFAULT_SESSION,
@@ -53,137 +53,140 @@ function createSession() {
   
   sessions.set(sessionId, session);
   
-  console.log(`Created new session: ${sessionId}`);
+  console.log(`Created new session: ${sessionId}. Total active sessions: ${sessions.size}`);
+  
   return session;
 }
 
 /**
- * Get a session by ID, create if not exists
+ * Get a session by ID, or create a new one if not found
  * @param {string} sessionId - Session ID
  * @returns {object} Session object
  */
 function getSession(sessionId) {
-  if (!sessionId || !sessions.has(sessionId)) {
+  // If no session ID, create a new session
+  if (!sessionId) {
     return createSession();
   }
   
-  const session = sessions.get(sessionId);
-  
-  // Check if session has expired
-  if (Date.now() > session.expiry) {
-    sessions.delete(sessionId);
-    return createSession();
+  // If session exists, return it with updated expiry
+  if (sessions.has(sessionId)) {
+    const session = sessions.get(sessionId);
+    
+    // Update last interaction and expiry
+    session.lastInteraction = Date.now();
+    session.expiry = Date.now() + SESSION_EXPIRY;
+    
+    return session;
   }
+  
+  // If session ID not found, create a new one
+  return createSession();
+}
+
+/**
+ * Update session data
+ * @param {string} sessionId - Session ID
+ * @param {object} updates - Data to update
+ * @returns {object} Updated session
+ */
+function updateSession(sessionId, updates) {
+  // Get or create session
+  const session = getSession(sessionId);
+  
+  // Apply updates
+  Object.assign(session, updates);
+  
+  // Update last interaction time
+  session.lastInteraction = Date.now();
+  
+  // Update session in storage
+  sessions.set(sessionId, session);
   
   return session;
 }
 
 /**
- * Update a session
+ * Add a message to session history
  * @param {string} sessionId - Session ID
- * @param {object} updates - Updates to apply to the session
- * @returns {object} Updated session
- */
-function updateSession(sessionId, updates) {
-  const session = getSession(sessionId);
-  
-  const updatedSession = {
-    ...session,
-    ...updates,
-    lastInteraction: Date.now(),
-    expiry: Date.now() + SESSION_EXPIRY
-  };
-  
-  sessions.set(sessionId, updatedSession);
-  return updatedSession;
-}
-
-/**
- * Add a message to the session history
- * @param {string} sessionId - Session ID
- * @param {string} role - Message role (user or assistant)
+ * @param {string} role - Message role ('user' or 'assistant')
  * @param {string} content - Message content
  * @returns {object} Updated session
  */
 function addMessage(sessionId, role, content) {
+  // Get session
   const session = getSession(sessionId);
   
-  const updatedHistory = [
-    ...session.history,
-    {
-      role,
-      content,
-      timestamp: Date.now()
-    }
-  ];
-  
-  // Limit history to last 50 messages
-  if (updatedHistory.length > 50) {
-    updatedHistory.shift();
-  }
-  
-  const updatedSession = {
-    ...session,
-    history: updatedHistory,
-    messageCount: session.messageCount + 1,
-    lastInteraction: Date.now(),
-    expiry: Date.now() + SESSION_EXPIRY
+  // Create message object
+  const message = {
+    role,
+    content,
+    timestamp: Date.now()
   };
   
-  // Increase roast level based on message count
-  if (role === 'user') {
-    const newRoastLevel = Math.min(5, 1 + Math.floor(updatedSession.messageCount / 3));
-    updatedSession.roastLevel = newRoastLevel;
+  // Add to history
+  session.history.push(message);
+  
+  // Cap history at 50 messages
+  if (session.history.length > 50) {
+    session.history.shift();
   }
   
-  sessions.set(sessionId, updatedSession);
-  return updatedSession;
+  // Increment message count
+  session.messageCount++;
+  
+  // Auto-increment roast level based on message count
+  // Every 5 messages, increase roast level (up to 5)
+  if (role === 'user' && session.messageCount % 5 === 0 && session.roastLevel < 5) {
+    session.roastLevel++;
+    console.log(`Auto-increasing roast level to ${session.roastLevel} for session ${sessionId}`);
+  }
+  
+  // Update session in storage
+  sessions.set(sessionId, session);
+  
+  return session;
 }
 
 /**
  * Update user preferences
  * @param {string} sessionId - Session ID
- * @param {object} preferences - User preferences
+ * @param {object} preferences - Preference updates
  * @returns {object} Updated session
  */
 function updatePreferences(sessionId, preferences) {
+  // Get session
   const session = getSession(sessionId);
   
-  const updatedSession = {
-    ...session,
-    preferences: {
-      ...session.preferences,
-      ...preferences
-    },
-    lastInteraction: Date.now(),
-    expiry: Date.now() + SESSION_EXPIRY
+  // Apply preference updates
+  session.preferences = {
+    ...session.preferences,
+    ...preferences
   };
   
-  sessions.set(sessionId, updatedSession);
-  return updatedSession;
+  // Update session in storage
+  sessions.set(sessionId, session);
+  
+  return session;
 }
 
 /**
- * Add topics to a session
+ * Add topics to session
  * @param {string} sessionId - Session ID
  * @param {Array<string>} newTopics - Topics to add
  * @returns {object} Updated session
  */
 function addTopics(sessionId, newTopics) {
+  // Get session
   const session = getSession(sessionId);
   
-  const updatedTopics = new Set([...session.topics]);
-  newTopics.forEach(topic => updatedTopics.add(topic));
+  // Add topics to set
+  newTopics.forEach(topic => session.topics.add(topic));
   
-  const updatedSession = {
-    ...session,
-    topics: updatedTopics,
-    lastInteraction: Date.now(),
-    expiry: Date.now() + SESSION_EXPIRY
-  };
+  // Update session in storage
+  sessions.set(sessionId, session);
   
-  sessions.set(sessionId, updatedSession);
-  return updatedSession;
+  return session;
 }
 
 /**
@@ -214,5 +217,6 @@ module.exports = {
   updateSession,
   addMessage,
   updatePreferences,
-  addTopics
+  addTopics,
+  cleanupSessions
 }; 

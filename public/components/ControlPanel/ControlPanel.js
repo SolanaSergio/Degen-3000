@@ -17,6 +17,9 @@ class ControlPanel extends ComponentBase {
       showStonksMode: true,
       showAiMode: true,
       showSettingsSection: true,
+      showRoastLevelControl: true,
+      initialLevel: 3,
+      maxLevel: 5,
       defaultTheme: 'crypto',
       availableThemes: ['crypto', 'hacker', 'gamer', 'meme'],
       themeLabels: {
@@ -38,7 +41,8 @@ class ControlPanel extends ComponentBase {
       showDebugInfo: false,
       soundEnabled: true,
       notificationsEnabled: true,
-      animationsEnabled: true
+      animationsEnabled: true,
+      currentLevel: options.initialLevel || 3
     });
     
     // Initialize component
@@ -66,6 +70,14 @@ class ControlPanel extends ComponentBase {
     // Load saved theme
     if (localStorage.getItem('theme')) {
       this.setState({ currentTheme: localStorage.getItem('theme') });
+    }
+    
+    // Load saved roast level
+    if (localStorage.getItem('roastLevel')) {
+      const level = parseInt(localStorage.getItem('roastLevel'), 10);
+      if (!isNaN(level) && level >= 1 && level <= (this.state.options.maxLevel || 5)) {
+        this.setState({ currentLevel: level });
+      }
     }
     
     // Load stonks mode state
@@ -148,7 +160,11 @@ class ControlPanel extends ComponentBase {
       showAiMode,
       showSettingsSection,
       availableThemes,
-      themeLabels
+      themeLabels,
+      showRoastLevelControl,
+      initialLevel,
+      maxLevel,
+      defaultTheme
     } = this.state.options;
     
     // Generate HTML
@@ -203,6 +219,26 @@ class ControlPanel extends ComponentBase {
             ` : ''}
           </div>
           
+          ${this.state.options.showRoastLevelControl ? `
+            <div class="control-section level-section">
+              <h4 class="section-title">Roast Level: ${this.state.currentLevel || 3} ${this.getRoastLevelEmoji(this.state.currentLevel || 3)}</h4>
+              <div class="level-controls">
+                <button class="level-button decrease" id="decrease-level" ${(this.state.currentLevel || 3) <= 1 ? 'disabled' : ''}>
+                  ➖
+                </button>
+                <div class="level-display">
+                  ${this.renderLevelIndicators(this.state.currentLevel || 3, this.state.options.maxLevel || 5)}
+                </div>
+                <button class="level-button increase" id="increase-level" ${(this.state.currentLevel || 3) >= (this.state.options.maxLevel || 5) ? 'disabled' : ''}>
+                  ➕
+                </button>
+              </div>
+              <div class="level-description">
+                ${this.getRoastLevelDescription(this.state.currentLevel || 3)}
+              </div>
+            </div>
+          ` : ''}
+          
           ${showSettingsSection ? `
             <div class="control-section settings-section ${settingsExpanded ? 'expanded' : 'collapsed'}">
               <h4 class="section-title">Settings</h4>
@@ -254,6 +290,7 @@ class ControlPanel extends ComponentBase {
             <div class="debug-item">Theme: ${currentTheme}</div>
             <div class="debug-item">Stonks Mode: ${isStonksModeActive}</div>
             <div class="debug-item">AI Mode: ${isAiModeAdvanced ? 'Advanced' : 'Basic'}</div>
+            <div class="debug-item">Roast Level: ${this.state.currentLevel || 3} of ${this.state.options.maxLevel || 5}</div>
             <div class="debug-item">Settings Expanded: ${settingsExpanded}</div>
             <div class="debug-item">localStorage items: ${Object.keys(localStorage).length}</div>
           </div>
@@ -294,6 +331,22 @@ class ControlPanel extends ComponentBase {
     if (aiModeToggle) {
       this.addListener(aiModeToggle, 'change', () => {
         this.toggleAiMode(aiModeToggle.checked);
+      });
+    }
+    
+    // Level increase button
+    const increaseButton = this.container.querySelector('#increase-level');
+    if (increaseButton) {
+      this.addListener(increaseButton, 'click', () => {
+        this.increaseLevel();
+      });
+    }
+    
+    // Level decrease button
+    const decreaseButton = this.container.querySelector('#decrease-level');
+    if (decreaseButton) {
+      this.addListener(decreaseButton, 'click', () => {
+        this.decreaseLevel();
       });
     }
     
@@ -576,12 +629,103 @@ class ControlPanel extends ComponentBase {
   }
   
   /**
+   * Get emoji for a roast level
+   * @param {number} level - Roast level (1-5)
+   * @returns {string} - Emoji representing the level
+   */
+  getRoastLevelEmoji(level) {
+    const emojis = ['🥱', '😏', '🔥', '💀', '☢️'];
+    // Level is 1-based, arrays are 0-based
+    return emojis[Math.min(Math.max(0, level - 1), emojis.length - 1)];
+  }
+  
+  /**
+   * Render level indicator dots/flames
+   * @param {number} currentLevel - Current level
+   * @param {number} maxLevel - Maximum level
+   * @returns {string} - HTML for level indicators
+   */
+  renderLevelIndicators(currentLevel, maxLevel) {
+    let html = '';
+    for (let i = 1; i <= maxLevel; i++) {
+      const icon = i <= currentLevel ? this.getRoastLevelEmoji(i) : '⚪';
+      html += `<span class="level-indicator ${i <= currentLevel ? 'active' : ''}">${icon}</span>`;
+    }
+    return html;
+  }
+  
+  /**
+   * Get description for a roast level
+   * @param {number} level - Roast level (1-5)
+   * @returns {string} - Description of the level
+   */
+  getRoastLevelDescription(level) {
+    const descriptions = [
+      'Mild: Light teasing, newbie-friendly roasts',
+      'Medium: Standard crypto mockery, somewhat spicy',
+      'Spicy: No-holds-barred roasting, will hurt feelings',
+      'Savage: Brutal honesty, soul-crushing critique',
+      'Nuclear: Existential crisis-inducing devastation'
+    ];
+    // Level is 1-based, arrays are 0-based
+    return descriptions[Math.min(Math.max(0, level - 1), descriptions.length - 1)];
+  }
+  
+  /**
+   * Increase the roast level
+   */
+  increaseLevel() {
+    const currentLevel = this.state.currentLevel || this.state.options.initialLevel || 3;
+    const maxLevel = this.state.options.maxLevel || 5;
+    
+    if (currentLevel < maxLevel) {
+      const newLevel = currentLevel + 1;
+      this.setState({ currentLevel: newLevel });
+      localStorage.setItem('roastLevel', newLevel);
+      
+      // Emit level changed event
+      this.emit('roastLevelChanged', { level: newLevel, source: 'controlPanel' });
+      
+      // Play sound
+      this.playSound('levelUp');
+    }
+  }
+  
+  /**
+   * Decrease the roast level
+   */
+  decreaseLevel() {
+    const currentLevel = this.state.currentLevel || this.state.options.initialLevel || 3;
+    
+    if (currentLevel > 1) {
+      const newLevel = currentLevel - 1;
+      this.setState({ currentLevel: newLevel });
+      localStorage.setItem('roastLevel', newLevel);
+      
+      // Emit level changed event
+      this.emit('roastLevelChanged', { level: newLevel, source: 'controlPanel' });
+      
+      // Play sound
+      this.playSound('select');
+    }
+  }
+  
+  /**
    * Update component after state changes
    */
   update() {
     if (this.rendered) {
       this.render();
     }
+  }
+
+  /**
+   * Get the current roast level
+   * @returns {number} - Current roast level (1-5)
+   */
+  getCurrentLevel() {
+    // Return the current level from state or options
+    return this.state.currentLevel || this.state.options.initialLevel || 3;
   }
 }
 

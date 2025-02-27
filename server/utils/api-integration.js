@@ -91,9 +91,9 @@ const TOPIC_PATTERNS = {
   'education': [/school|college|university|degree|class|grade|student|teacher|professor|homework|study|exam|test|major|graduate|education|learn|academic/i],
   
   // Personal topics
-  'appearance': [/look|face|body|weight|fat|thin|skinny|ugly|attractive|hot|handsome|pretty|tall|short|hair|skin|beard|tattoo|dress|fashion|style|outfit|clothes/i],
+  'appearance': [/look|face|body|ugly|fat|thin|hair|dress|style|fashion|height|weight|skin|teeth|nose|eyes|clothes|outfit/i],
   'relationship': [/relationship|dating|marriage|girlfriend|boyfriend|wife|husband|spouse|partner|tinder|bumble|hinge|single|breakup|divorce|love|crush|cheating|romantic/i],
-  'personality': [/personality|introvert|extrovert|shy|confident|insecure|anxiety|depression|mental|therapy|friend|social|awkward|weird|normal|cringe|sensitive|emotional/i],
+  'personality': [/personality|attitude|behavior|character|mind|thinking|thoughts|feelings|emotions|mood|temperament|nature/i],
   
   // Lifestyle topics
   'home': [/home|house|apartment|condo|living|rent|roommate|neighbor|furniture|decor|clean|mess|bedroom|kitchen|bathroom|basement|garage|yard|mortgage/i],
@@ -108,7 +108,15 @@ const TOPIC_PATTERNS = {
   // Negative traits
   'failure': [/fail|failure|loser|lose|lost|mistake|mess up|screw up|disaster|catastrophe|ruin|destroyed|embarrass|humiliate|pathetic|mediocre|disappointment/i],
   'lazy': [/lazy|procrastinate|unmotivated|slacker|couch potato|do nothing|waste|useless|unproductive|sleep all day|never finish|give up|quit/i],
-  'delusional': [/delusional|unrealistic|fantasy|dream|imagine|pretend|fake|denial|lie to yourself|overestimate|dunning kruger|overconfident|arrogant/i]
+  'delusional': [/delusional|unrealistic|fantasy|dream|imagine|pretend|fake|denial|lie to yourself|overestimate|dunning kruger|overconfident|arrogant/i],
+  'intelligence': [/smart|dumb|stupid|idiot|brain|iq|intelligence|knowledge|wisdom|education|learning|understanding|comprehension/i],
+  'lifestyle': [/life|living|habits|routine|daily|activities|hobbies|interests|passion|work|job|career|profession|occupation/i],
+  'relationships': [/relationship|love|dating|marriage|partner|spouse|girlfriend|boyfriend|family|friends|social|connection/i],
+  'skills': [/skill|ability|talent|capability|competence|expertise|experience|proficiency|mastery|knowledge|training/i],
+  'achievements': [/achievement|success|failure|accomplishment|goal|ambition|dream|aspiration|plan|future|progress|growth/i],
+  'possessions': [/car|house|home|apartment|money|wealth|possession|property|belonging|asset|item|thing|stuff|collection/i],
+  'habits': [/habit|routine|practice|custom|tradition|pattern|behavior|tendency|inclination|disposition|nature|characteristic/i],
+  'beliefs': [/belief|opinion|view|stance|position|perspective|outlook|philosophy|ideology|religion|faith|conviction/i]
 };
 
 // Custom roasts by topic and intensity level
@@ -304,48 +312,43 @@ const TOPIC_ROASTS = {
 const GENERIC_ROASTS = [
   // Level 1 (mild)
   [
-    "I'd roast you, but my mom said I shouldn't burn trash, you absolute waste of oxygen.",
-    "You're not the dumbest person on earth, but you better hope they don't die, you brainless fuck.",
-    "If you were any more basic, you'd be fucking alkaline water with a goddamn lemon wedge.",
-    "You're about as useful as a screen door on a submarine, you complete tool.",
-    "I'd explain it to you, but I'm all out of crayons and patience for your bullshit.",
-    "Your existence is a stronger argument for abortion than any political viewpoint."
+    "Holy fucking shit, your existence is such a colossal waste of atoms that scientists study you as a new form of entropy, you worthless cumstain.",
+    "Your gene pool is so shallow it makes a fucking puddle look like the Mariana Trench, you absolute waste of evolutionary potential.",
+    "The only thing more pathetic than your life choices is the fact that you're still breathing my oxygen, you walking advertisement for retroactive abortion.",
+    "You're the human equivalent of a participation trophy in the special olympics of failure, and you still managed to come in last.",
+    "Even your fucking shadow looks disappointed in your life choices, you sentient pile of genetic garbage."
   ],
   // Level 2 (medium)
   [
-    "Your existence is proof that natural selection takes fucking holidays. What an absolute disappointment to everyone who knows you.",
-    "You're like the first slice of bread in the loaf. Everybody touches you, but nobody wants your worthless ass.",
-    "I didn't believe in evolution until I met you - now I see some primates never made it past being complete fucking morons.",
-    "You're about as sharp as a marble and twice as dense. Did your mom drop you, or throw you at a wall?",
-    "Your family tree must be a cactus because everyone on it is a prick with no redeeming qualities.",
-    "If you were a spice, you'd be flour - useless, basic, and ruins everything it touches."
+    "Jesus tap-dancing Christ, you're so fucking dense that black holes study you for inspiration, you quantum-level fuckup.",
+    "Your parents must have a dedicated therapy fund just to process the overwhelming disappointment of creating such a worthless shitstain on humanity's underwear.",
+    "The only thing more fucked than your face is the absolute disaster you call a personality, you walking monument to birth control.",
+    "You make me believe in evolution because nobody could achieve this level of fucking stupidity in just one lifetime without generations of dedicated practice.",
+    "Your birth certificate is just an apology letter from the condom factory, and even they couldn't have predicted how monumentally you'd fuck up everything you touch."
   ],
   // Level 3 (spicy)
   [
-    "Shit, your gene pool is more like a gene puddle at this point - shallow, stagnant, and full of fucking diseases.",
-    "Your birth certificate is an apology letter from the condom factory. Your parents are still waiting on their refund.",
-    "Damn, you make me believe in reincarnation because nobody could be this fucking stupid in just one lifetime.",
-    "You're proof that God has a twisted sense of humor and absolutely zero quality control standards.",
-    "You set the bar so low it's practically a fucking tripping hazard in hell, yet you still manage to limbo under it.",
-    "If I wanted to kill myself, I'd climb your ego and jump to your IQ. The fall would fucking kill me instantly."
+    "Holy motherfucking shitballs, you're such a spectacular failure that suicide hotlines hang up on you out of principle, you catastrophic waste of human potential.",
+    "Your existence is such a fucking catastrophe that God himself filed for bankruptcy after creating you, you walking middle finger to intelligent design.",
+    "The collective IQ of humanity drops every time you open your cock-holster of a mouth, you brain-dead excuse for a sentient being.",
+    "You're the reason aliens won't fucking talk to us, you chromosomally-challenged waste of evolution's time and effort.",
+    "Even your fucking therapist needs therapy after dealing with your level of pure concentrated failure, you psychological disaster area."
   ],
   // Level 4 (brutal)
   [
-    "Jesus fucking Christ, you're so dense light bends around you. Astronomers are studying your head as a black hole alternative that's even more of a vacuum.",
-    "Your mom should have swallowed you, you absolute fucking waste of resources. The world would have been spared a walking advertisement for mandatory sterilization.",
-    "Your existence makes a compelling case for the revival of eugenics programs. Even Hitler would've singled you out as especially undesirable genetic material.",
-    "You're the human equivalent of stepping in something wet while wearing socks - disgusting, uncomfortable, and nobody wants your nasty ass around.",
-    "Your parents must have a dedicated therapy fund just to process the overwhelming disappointment of creating such a fucking useless human being.",
-    "If stupidity was an Olympic sport, you'd be disqualified for being a professional, you absolute brain-dead doorknob-licker."
+    "Jesus fucking Christ on a pogo stick, you're such a monumental disappointment that your ancestors are retroactively disowning you from the afterlife, you quantum anomaly of failure.",
+    "Your life is such an absolute clusterfuck that philosophers use you as proof that God has abandoned us, you walking advertisement for nihilism.",
+    "The only thing more fucked than your genetic code is the absolute shitstorm you call decision-making skills, you sentient monument to Murphy's Law.",
+    "You're so fucking worthless that even dumpster fires look at you and feel better about themselves, you catastrophic failure of natural selection.",
+    "Your existence makes such a compelling case for post-birth abortion that lawmakers are rewriting legislation just to account for your level of fuck-up."
   ],
   // Level 5 (savage)
   [
-    "Holy fucking shit, you're such a monumental waste of carbon that environmental scientists classify your existence as a climate crime. Plants produce oxygen specifically for everyone except your worthless ass.",
-    "The collective IQ of humanity drops measurably when you open your goddamn mouth. Your brain operates on such a profoundly deficient level that scientists need to create new terminology just to classify your unique form of cognitive damage.",
-    "Your life is such a spectacular failure that suicide hotlines have a special protocol for when you call - they put you on hold while they debate whether your continued existence provides any value whatsoever to the human fucking species.",
-    "If disappointment had a physical form, it would reject being associated with you for setting too extreme a standard. Your parents don't actually love you - they've just developed Stockholm syndrome after years of exposure to your catastrophic mediocrity.",
-    "Evolution took billions of years to develop human consciousness, and somehow you're still operating on the same intellectual level as a particularly slow amoeba with fucking brain damage. You're the living embodiment of nature's biggest 'my bad' moment.",
-    "Your existence is such a profound error that philosophers use you as evidence against intelligent design. God himself would apologize for you if he didn't block all memories of your creation as a form of divine self-care."
+    "Holy mother of fuck, you're such a catastrophic failure of evolution that Darwin himself is spinning in his grave fast enough to power a small fucking city, you unprecedented disaster of genetic engineering.",
+    "Your life is such a spectacular shitshow that trauma counselors use you as an example of what rock-bottom looks like in all 11 dimensions of failure.",
+    "The level of fucking incompetence you display is so profound that scientists had to create new units of measurement just to quantify your worthlessness, you quantum singularity of suck.",
+    "You're such a colossal waste of organic matter that even the fucking void looks at you and thinks 'that's a bit much', you walking black hole of disappointment.",
+    "Your existence is such a profound error in the cosmic code that the universe is actively expanding just to get further away from your bullshit, you living proof of entropy's victory."
   ]
 ];
 

@@ -38,6 +38,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up global event handlers
     setupGlobalEvents();
     
+    // Check if API service is available
+    if (!window.apiService) {
+      console.error('API service not found! API communication will not work correctly.');
+      console.warn('Running in demo/local mode - API calls will be simulated.');
+    } else {
+      console.log('API service detected and ready');
+      
+      // Test the API connection
+      window.apiService.testConnection()
+        .then(result => {
+          if (result.success) {
+            console.log('✅ API connection test successful');
+          } else {
+            console.warn('⚠️ API connection test failed:', result.message);
+            console.warn('Running in demo/local mode - API calls will be simulated.');
+            
+            // Show the fallback message in the chat window
+            if (window.appComponents && window.appComponents.chatWindow) {
+              setTimeout(() => {
+                window.EventBus.publish('botResponse', {
+                  text: "I'm running in demo mode! API endpoints aren't available, but local roasts will work just fine. Type something to get roasted!",
+                  timestamp: Date.now(),
+                  type: 'bot',
+                  level: 1,
+                  isInfo: true
+                });
+              }, 1000);
+            }
+          }
+        })
+        .catch(error => {
+          console.error('❌ API connection test error:', error.message);
+          console.warn('Running in demo/local mode - API calls will be simulated.');
+        });
+    }
+    
     console.log('📣 DEGEN ROAST 3000 initialized! 🚀');
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -188,20 +224,8 @@ function setupGlobalEvents() {
     window.EventBus.publish('stonksModeToggled', { enabled: true, source: 'main' });
   }
   
-  // Example bot response for testing
-  window.sendExampleResponse = function() {
-    setTimeout(() => {
-      window.EventBus.publish('botResponse', {
-        text: 'Your portfolio is like a dumpster fire, but less likely to generate heat or value.',
-        timestamp: Date.now(),
-        type: 'bot',
-        level: 3
-      });
-    }, 1000);
-  };
-  
   // Listen for user message events to trigger bot response
-  window.EventBus.subscribe('messageSent', (data) => {
+  window.EventBus.subscribe('messageSent', async (data) => {
     if (data.text.trim().length > 0) {
       // Show typing indicator
       window.EventBus.publish('typingStarted', { duration: 2000 });
@@ -209,10 +233,96 @@ function setupGlobalEvents() {
       // Play sound
       window.EventBus.publish('playSound', { sound: 'send' });
       
-      // Simulate bot response
-      setTimeout(() => {
-        generateBotResponse(data.text);
-      }, 2000);
+      // Try to get current roast level
+      let level = 3; // Default level
+      if (window.appComponents && window.appComponents.controlPanel) {
+        // If the component is in appComponents and has getCurrentLevel method
+        if (typeof window.appComponents.controlPanel.getCurrentLevel === 'function') {
+          level = window.appComponents.controlPanel.getCurrentLevel();
+        } 
+        // Fallback to directly accessing state
+        else if (window.appComponents.controlPanel.state && window.appComponents.controlPanel.state.currentLevel) {
+          level = window.appComponents.controlPanel.state.currentLevel;
+        }
+      } 
+      // Try window.controlPanelComponent directly as fallback
+      else if (window.controlPanelComponent) {
+        if (typeof window.controlPanelComponent.getCurrentLevel === 'function') {
+          level = window.controlPanelComponent.getCurrentLevel();
+        } else if (window.controlPanelComponent.state && window.controlPanelComponent.state.currentLevel) {
+          level = window.controlPanelComponent.state.currentLevel;
+        }
+      }
+      
+      try {
+        if (window.debugLogger) {
+          window.debugLogger.info('MESSAGE', `Sending message to API: "${data.text.substring(0, 30)}${data.text.length > 30 ? '...' : ''}" (level: ${level})`);
+        } else {
+          console.log(`🚀 Sending message to API: "${data.text.substring(0, 30)}${data.text.length > 30 ? '...' : ''}" (level: ${level})`);
+        }
+        
+        // Call API to get roast
+        const response = await window.apiService.generateRoast(data.text, level);
+        
+        // Display the bot's response
+        window.EventBus.publish('botResponse', {
+          text: response.message,
+          timestamp: Date.now(),
+          type: 'bot',
+          level: response.roastLevel || level
+        });
+        
+        // Play receive sound
+        window.EventBus.publish('playSound', { sound: 'receive' });
+        
+        if (window.debugLogger) {
+          window.debugLogger.info('RESPONSE', `Received API response: "${response.message.substring(0, 30)}${response.message.length > 30 ? '...' : ''}"`);
+        } else {
+          console.log(`✅ Received API response: "${response.message.substring(0, 30)}${response.message.length > 30 ? '...' : ''}"`);
+        }
+      } catch (error) {
+        console.error('❌ API request failed:', error);
+        
+        // Log comprehensive error info
+        if (window.debugLogger) {
+          window.debugLogger.error('API', 'API request failed', error);
+        } else {
+          console.error('❌ API request failed:', error.message || 'Unknown error');
+          console.error('Using fallback response generation since API is unavailable');
+        }
+        
+        // First, show a message about using fallback
+        if (error.message && error.message.includes('404')) {
+          // Handle 404 nicely - the API endpoints don't exist at all
+          window.EventBus.publish('botResponse', {
+            text: "I'm running in demo mode! The API endpoints aren't available, so I'll generate a local roast for you...",
+            timestamp: Date.now(),
+            type: 'bot',
+            level: 1,
+            isInfo: true
+          });
+        } else {
+          // General API error
+          window.EventBus.publish('botResponse', {
+            text: `Sorry, I couldn't connect to the API (${error.message || 'Unknown error'}). Using local roast generation instead...`,
+            timestamp: Date.now(),
+            type: 'bot',
+            level: 1,
+            isInfo: true
+          });
+        }
+        
+        // Then generate a local fallback response
+        setTimeout(() => {
+          // Play typing sound
+          window.EventBus.publish('typingStarted', { duration: 1000 });
+          
+          // Fallback to local response generation
+          setTimeout(() => {
+            generateLocalRoast(data.text);
+          }, 1000);
+        }, 500);
+      }
     }
   });
   
@@ -236,10 +346,10 @@ function setupGlobalEvents() {
 }
 
 /**
- * Generate a bot response based on user input
- * This is a placeholder for the actual AI logic
+ * Generate a local fallback roast response
+ * @param {string} userInput - User message
  */
-function generateBotResponse(userInput) {
+function generateLocalRoast(userInput) {
   // Placeholder responses for demo
   const responses = [
     'Your investment strategy is like a game of pin the tail on the donkey, except the donkey is your retirement fund.',
@@ -272,8 +382,6 @@ function generateBotResponse(userInput) {
   window.EventBus.publish('playSound', { sound: 'receive' });
 }
 
-// End of file - let's add additional debugging tools
-
 // Create global debugging tools
 window.debugDegen = window.debugDegen || {};
 
@@ -296,39 +404,72 @@ window.debugDegen.checkComponents = function() {
   return components.every(comp => typeof window[comp] !== 'undefined');
 };
 
-// Initialize a specific component manually
-window.debugDegen.initComponent = function(componentName) {
-  const containerMap = {
-    'Header': 'header-container',
-    'StonksTicker': 'stonks-ticker',
-    'ControlPanel': 'control-panel-container',
-    'ChatWindow': 'chat-messages-container',
-    'MessageInput': 'message-input-container',
-    'Soundboard': 'soundboard-container',
-    'MemeGallery': 'meme-gallery-container',
-    'Disclaimer': 'disclaimer-container'
-  };
-  
-  if (!window[componentName]) {
-    console.error(`Component ${componentName} is not defined`);
+// Test API connection
+window.debugDegen.testApi = async function() {
+  if (!window.apiService) {
+    console.error('API service not initialized');
     return false;
   }
   
-  const containerId = containerMap[componentName];
-  if (!containerId) {
-    console.error(`No container mapping found for ${componentName}`);
-    return false;
-  }
-  
+  console.group('API Connection Test');
   try {
-    console.log(`Manually initializing ${componentName}...`);
-    window[`${componentName.toLowerCase()}Component`] = new window[componentName](containerId, {});
-    console.log(`${componentName} initialized manually!`);
-    return true;
-  } catch (e) {
-    console.error(`Error initializing ${componentName}:`, e);
+    console.log('Testing API connection...');
+    const result = await window.apiService.testConnection();
+    
+    if (result.success) {
+      console.log('✅ API connection test PASSED');
+      console.groupEnd();
+      return true;
+    } else {
+      console.error('❌ API connection test FAILED:', result.message);
+      console.groupEnd();
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ API connection test FAILED:', error.message);
+    console.groupEnd();
     return false;
   }
+};
+
+// Run full diagnostics
+window.debugDegen.runDiagnostics = async function() {
+  console.group('🔍 DEGEN ROAST 3000 Diagnostics');
+  
+  console.log('1. Checking scripts...');
+  const scriptsOk = window.debugDegen.checkScripts();
+  
+  console.log('2. Checking components...');
+  const componentsOk = window.debugDegen.checkComponents();
+  
+  console.log('3. Testing EventBus...');
+  const eventBusOk = window.debugDegen.testEventBus();
+  
+  console.log('4. Testing API connection...');
+  let apiOk = false;
+  try {
+    apiOk = await window.debugDegen.testApi();
+  } catch (e) {
+    console.error('API test error:', e);
+  }
+  
+  console.log('----------------------------');
+  console.log(`📊 Diagnostics Summary:`);
+  console.log(`Scripts: ${scriptsOk ? '✅' : '❌'}`);
+  console.log(`Components: ${componentsOk ? '✅' : '❌'}`);
+  console.log(`EventBus: ${eventBusOk ? '✅' : '❌'}`);
+  console.log(`API: ${apiOk ? '✅' : '❌'}`);
+  console.log(`Overall: ${(scriptsOk && componentsOk && eventBusOk && apiOk) ? '✅ PASSED' : '❌ FAILED'}`);
+  
+  console.groupEnd();
+  
+  return {
+    scriptsOk,
+    componentsOk,
+    eventBusOk,
+    apiOk,
+    overallOk: scriptsOk && componentsOk && eventBusOk && apiOk
+  };
 };
 
 // Check if all scripts loaded
@@ -343,6 +484,7 @@ window.debugDegen.checkScripts = function() {
     'EventBus.js',
     'ComponentBase.js',
     'ThemeManager.js',
+    'api-service.js',
     'main.js'
   ];
   
@@ -382,36 +524,6 @@ window.debugDegen.testEventBus = function() {
     console.error('❌ EventBus test failed - event was published but not received');
     return false;
   }
-};
-
-// Run diagnostics
-window.debugDegen.runDiagnostics = function() {
-  console.group('🔍 DEGEN ROAST 3000 Diagnostics');
-  
-  console.log('1. Checking scripts...');
-  const scriptsOk = window.debugDegen.checkScripts();
-  
-  console.log('2. Checking components...');
-  const componentsOk = window.debugDegen.checkComponents();
-  
-  console.log('3. Testing EventBus...');
-  const eventBusOk = window.debugDegen.testEventBus();
-  
-  console.log('----------------------------');
-  console.log(`📊 Diagnostics Summary:`);
-  console.log(`Scripts: ${scriptsOk ? '✅' : '❌'}`);
-  console.log(`Components: ${componentsOk ? '✅' : '❌'}`);
-  console.log(`EventBus: ${eventBusOk ? '✅' : '❌'}`);
-  console.log(`Overall: ${(scriptsOk && componentsOk && eventBusOk) ? '✅ PASSED' : '❌ FAILED'}`);
-  
-  console.groupEnd();
-  
-  return {
-    scriptsOk,
-    componentsOk,
-    eventBusOk,
-    overallOk: scriptsOk && componentsOk && eventBusOk
-  };
 };
 
 // Add button event listener for diagnostics

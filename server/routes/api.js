@@ -2,22 +2,102 @@ const express = require('express');
 const router = express.Router();
 const apiIntegration = require('../utils/api-integration');
 const sessionManager = require('../utils/session-manager');
+const { HfInference } = require('@huggingface/inference');
+require('dotenv').config();
 
 // Add request timeout (in milliseconds)
-const REQUEST_TIMEOUT = 25000; // 25 seconds
+const REQUEST_TIMEOUT = 30000; // 30 seconds
 
 // Debug mode for detailed logging
 const DEBUG_MODE = true;
 
+// Initialize Hugging Face client with token from .env
+const hfToken = process.env.HF_TOKEN;
+const modelName = process.env.MODEL_NAME || "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B";
+
+// Try to create the HF client, but handle errors gracefully
+let client = null;
+let hfClientAvailable = false;
+try {
+  client = new HfInference(hfToken);
+  hfClientAvailable = true;
+  console.log('✅ Hugging Face client initialized successfully');
+} catch (error) {
+  console.error('❌ ERROR initializing Hugging Face client:', error.message);
+  console.error('Stack trace:', error.stack);
+  console.warn('⚠️ WARNING: Using local fallback roasts only.');
+}
+
+// Session management
+const sessions = new Map();
+
 // Middleware to extract session ID from cookies
 const extractSessionId = (req, res, next) => {
-  const sessionId = req.cookies?.sessionId || req.headers['x-session-id'] || null;
+  const sessionId = req.cookies?.sessionId || req.headers['x-session-id'] || req.session?.id || null;
   req.sessionId = sessionId;
   next();
 };
 
 // Apply session middleware to all routes
 router.use(extractSessionId);
+
+// Local fallback roasts for when the API is not available
+const fallbackRoasts = [
+  "Your investment strategy is like a game of pin the tail on the donkey, except the donkey is your retirement fund and you're blindfolded by FOMO.",
+  "I've seen more promising returns from a Nigerian prince email scam than your trading history. At least the prince promised profits.",
+  "Your crypto portfolio diversification is impressive... it's equally worthless across all blockchains! True decentralization of losses.",
+  "HODL? More like HODLing onto false hope with those shitcoins you picked. Even your wallet is trying to forget its seed phrase.",
+  "Your trading chart looks like the heart monitor of someone who just discovered their life savings went into Luna right before the crash.",
+  "Calling your strategy 'buy high, sell low' would be an insult to people who accidentally do that. You've turned it into an art form.",
+  "Diamond hands? More like cubic zirconia fingers the way you panic sell at every dip and FOMO back in at the peak.",
+  "To the moon? The only thing mooning here is the market showing you its backside while your portfolio craters to the Earth's core.",
+  "Your wallet has more dead coins than a graveyard has tombstones. Ever consider selling 'Portfolio Disaster Tours' as an NFT?",
+  "If your trading strategy was printed out, it would be best used as toilet paper during a crypto winter. At least then it would serve a purpose.",
+  "Your entry and exit points are timed so perfectly wrong that exchanges should pay you to do the opposite of your trades.",
+  "The only green in your portfolio is the mold growing on what's left of your initial investment.",
+  "You buy the rumor, sell the news, and somehow still manage to time both exactly wrong. That takes special talent."
+];
+
+/**
+ * Generate a local fallback roast when API is not available
+ * @param {number} level - Roast level (1-5)
+ * @returns {string} - A fallback roast
+ */
+function generateLocalRoast(level) {
+  const randomIndex = Math.floor(Math.random() * fallbackRoasts.length);
+  const baseRoast = fallbackRoasts[randomIndex];
+  
+  // Add level-specific flavor to the roast
+  let prefix = "";
+  let suffix = "";
+  
+  // Level-specific modifications
+  switch(level) {
+    case 1:
+      // Mild roast - soften it slightly
+      prefix = ["Listen,", "Look,", "Honestly,", "Between us,"][Math.floor(Math.random() * 4)] + " ";
+      break;
+    case 2:
+      // Medium roast - slightly spicier
+      prefix = ["Let's be real,", "Not to be harsh, but", "I hate to tell you,", "Truth time:"][Math.floor(Math.random() * 4)] + " ";
+      break;
+    case 3:
+      // Standard roast - no modifications needed
+      break;
+    case 4:
+      // Spicy roast
+      prefix = ["Damn,", "Holy crap,", "Wow,", "Seriously though,"][Math.floor(Math.random() * 4)] + " ";
+      suffix = " " + ["Your portfolio is an existential crisis with a ticker symbol.", "That's financial Darwin Award material right there.", "Ever thought about just using your money as wallpaper instead?", "This is why exchanges should require an IQ test."][Math.floor(Math.random() * 4)];
+      break;
+    case 5:
+      // Maximum savagery
+      prefix = ["Jesus Christ,", "Sweet mother of losses,", "For the love of Satoshi,", "Holy bankruptcy,"][Math.floor(Math.random() * 4)] + " ";
+      suffix = " " + ["You're the reason exchanges offer suicide hotlines during bear markets.", "Your portfolio makes the Titanic look like a success story.", "I'm genuinely concerned your trading terminal is just a slot machine with extra steps.", "This level of financial self-harm should be studied by psychologists."][Math.floor(Math.random() * 4)];
+      break;
+  }
+  
+  return prefix + baseRoast + suffix;
+}
 
 /**
  * POST /api/roast - Get a roast response
@@ -37,7 +117,7 @@ router.post('/roast', async (req, res) => {
   
   try {
     if (DEBUG_MODE) console.log('🔍 Request body:', req.body);
-    const { message } = req.body;
+    const { message, level = 3 } = req.body;
     
     // Validate message
     if (!message) {
@@ -59,103 +139,125 @@ router.post('/roast', async (req, res) => {
     
     console.log('📨 Processing roast request:', message.substring(0, 50) + (message.length > 50 ? '...' : ''));
     
+    // Normalize level to be between 1-5
+    const roastLevel = Math.min(Math.max(1, level), 5);
+    
     // Get or create session
-    const session = sessionManager.getSession(req.sessionId);
-    console.log(`🔑 Session: ${session.id}, Level: ${session.roastLevel}`);
-    
-    // Track previous responses to avoid repetition
-    if (!session.previousResponses) {
-      session.previousResponses = [];
-    }
-    
-    // Add user message to session history
-    sessionManager.addMessage(session.id, 'user', message);
-    
-    // Get the updated session after adding message
-    const updatedSession = sessionManager.getSession(session.id);
-    
-    // Make all roasts EXTREMELY intense - minimum level is 3
-    // Level 1 user setting = actual level 3
-    // Level 2 user setting = actual level 4
-    // Level 3+ user setting = level 5
-    // This ensures ALL roasts are creative and savage
-    const adjustedLevel = Math.max(Math.min(updatedSession.roastLevel + 2, 5), 3);
-
-    console.log(`🎯 Generating roast at level ${updatedSession.roastLevel} (adjusted to ${adjustedLevel} for MAXIMUM savagery)`);
-    
-    // Get roast from API integration with full message context and avoiding repetition
-    let response = await apiIntegration.generateRoast(
-      message,
-      adjustedLevel // Use the adjusted higher level
-    );
-    
-    // Check for repetition (exact same response or 90% similarity)
-    let repetitionDetected = false;
-    if (session.previousResponses.includes(response)) {
-      console.log('⚠️ Exact repeated response detected, regenerating...');
-      repetitionDetected = true;
-    } else if (session.previousResponses.length > 0) {
-      // Check for high similarity with previous responses
-      for (const prevResponse of session.previousResponses) {
-        if (calculateSimilarity(response, prevResponse) > 0.8) {
-          console.log('⚠️ Similar response detected, regenerating...');
-          repetitionDetected = true;
-          break;
-        }
-      }
-    }
-    
-    // If repetition detected, try to generate a different response at a higher level
-    if (repetitionDetected) {
-      console.log('🔄 Generating alternative response to avoid repetition');
-      
-      // Try with a temporary higher roast level
-      const tempLevel = Math.min(updatedSession.roastLevel + 1, 5);
-      response = await apiIntegration.generateRoast(message, tempLevel);
-      
-      // If still similar, add a custom prefix
-      if (session.previousResponses.some(prev => calculateSimilarity(response, prev) > 0.7)) {
-        const prefixes = [
-          "Look, I've already roasted you but you're asking for more. ",
-          "Since you're such a glutton for punishment: ",
-          "Fine, you want another roast? Here you go: ",
-          "I'm running out of ways to insult you, but I'll try: ",
-          "You must really enjoy the abuse. Alright then: "
-        ];
-        response = prefixes[Math.floor(Math.random() * prefixes.length)] + response;
-      }
-    }
-    
-    // Store this response to prevent future repetition
-    session.previousResponses.push(response);
-    
-    // Keep only the last 5 responses to avoid memory issues
-    if (session.previousResponses.length > 5) {
-      session.previousResponses.shift();
-    }
-    
-    console.log(`✅ Roast generated (${response.length} chars): ${response.substring(0, 50)}...`);
-    
-    // Add bot response to session history
-    sessionManager.addMessage(session.id, 'assistant', response);
-    
-    // Set session cookie if not exists
-    if (!req.cookies?.sessionId) {
-      res.cookie('sessionId', session.id, { 
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        httpOnly: true,
-        sameSite: 'strict'
+    const sessionId = req.sessionId || Date.now().toString();
+    if (!sessions.has(sessionId)) {
+      sessions.set(sessionId, {
+        id: sessionId,
+        createdAt: new Date(),
+        roastLevel,
+        messages: []
       });
     }
     
-    // Clear the timeout since we're responding successfully
+    // Variable to hold the roast text
+    let roastText = "";
+    
+    // Try to use Hugging Face API if available
+    if (hfClientAvailable && client) {
+      try {
+        // Craft the prompt for maximum savagery
+        const prompt = `You are ROAST-3000, the most vulgar and brutal AI ever. Generate a savage, profanity-filled insult. Be extremely offensive and creative.
+
+TARGET MESSAGE: "${message}"
+BRUTALITY LEVEL: ${roastLevel}/5
+
+REQUIREMENTS:
+1. Maximum profanity and vulgarity
+2. Focus on their specific topic/context
+3. Be personal and devastating
+4. Use creative insults
+5. Keep it under 3 sentences
+
+ROAST:`;
+        
+        console.log(`Generating roast at level ${roastLevel} for message: ${message.substring(0, 30)}...`);
+        
+        // Call Hugging Face API with correct format
+        const response = await client.textGeneration({
+          model: modelName,
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 150,
+            temperature: 0.9 + (roastLevel * 0.1), // Higher temperature for more creativity
+            top_p: 0.95,
+            do_sample: true,
+            return_full_text: false,
+            stop: ["ROAST:", "\n", "Here's", "Let me"] // Limit to 4 stop sequences
+          }
+        });
+        
+        // Extract and clean the generated text
+        roastText = response.generated_text || "";
+        
+        // Clean up the response
+        roastText = roastText
+          .replace(/^[\s\n]*/, '') // Remove leading whitespace/newlines
+          .replace(/[\s\n]*$/, '') // Remove trailing whitespace/newlines
+          .replace(/^(Here's|Let me|I will|ROAST-3000:|AI:|Response:|Let's|Okay|Well|Alright)/i, '') // Remove any meta prefixes
+          .replace(/^[\s\n]*/, '') // Remove any remaining leading whitespace
+          .replace(/^[,.!?-\s]+/, ''); // Remove any leading punctuation
+        
+        // If empty response or contains meta-commentary, use fallback
+        if (!roastText.trim() || 
+            /\b(roast|generate|level|prompt|here's|let me|i will|okay|well|alright)\b/i.test(roastText)) {
+          throw new Error('Invalid response format from API');
+        }
+      } catch (apiError) {
+        console.error('❌ Hugging Face API error:', apiError.message);
+        console.warn('⚠️ Falling back to local roast generation');
+        
+        // If the API call fails, use local fallback
+        roastText = generateLocalRoast(roastLevel);
+      }
+    } else {
+      // API not available, use local fallback
+      console.log('Using local fallback roast (API not available)');
+      roastText = generateLocalRoast(roastLevel);
+    }
+    
+    // If no roast text was generated, provide a fallback
+    if (!roastText || roastText.trim() === "") {
+      roastText = "Sorry, I couldn't come up with a good roast. Your investments must be as uninspiring as my AI.";
+    }
+    
+    // Truncate if too long
+    if (roastText.length > 280) {
+      roastText = roastText.substring(0, 277) + "...";
+    }
+    
+    // Save this exchange in the session history
+    const session = sessions.get(sessionId);
+    session.messages.push({
+      user: message,
+      bot: roastText,
+      level: roastLevel,
+      timestamp: new Date()
+    });
+    
+    // Limit history to last 10 exchanges
+    if (session.messages.length > 10) {
+      session.messages = session.messages.slice(-10);
+    }
+    
+    // Update session roast level
+    session.roastLevel = roastLevel;
+    
+    // Clear the timeout since the request completed
     clearTimeout(timeoutId);
     
-    return res.json({
-      message: response,
-      roastLevel: updatedSession.roastLevel,
-      sessionId: session.id
+    // Return the roast
+    res.json({
+      message: roastText,
+      roastLevel,
+      sessionId,
+      timestamp: new Date(),
+      source: hfClientAvailable && client ? 'api' : 'local'
     });
+    
   } catch (error) {
     // Clear the timeout since we're handling the error
     clearTimeout(timeoutId);
@@ -186,44 +288,29 @@ router.post('/roast', async (req, res) => {
 });
 
 /**
- * Calculate similarity between two strings (Jaccard similarity on words)
- * @param {string} str1 - First string
- * @param {string} str2 - Second string
- * @returns {number} - Similarity score between 0 and 1
- */
-function calculateSimilarity(str1, str2) {
-  // Convert strings to sets of words
-  const words1 = new Set(str1.toLowerCase().split(/\s+/).filter(word => word.length > 3));
-  const words2 = new Set(str2.toLowerCase().split(/\s+/).filter(word => word.length > 3));
-  
-  // Calculate intersection size
-  const intersection = new Set([...words1].filter(word => words2.has(word)));
-  
-  // Calculate union size
-  const union = new Set([...words1, ...words2]);
-  
-  // Return Jaccard similarity
-  return intersection.size / union.size;
-}
-
-/**
  * GET /api/session - Get current session info
  * Returns session information for the current user
  */
 router.get('/session', (req, res) => {
   try {
-    const session = sessionManager.getSession(req.sessionId);
+    const sessionId = req.sessionId || Date.now().toString();
     
-    // Convert Set to Array for JSON serialization
-    const sessionResponse = {
-      ...session,
-      topics: Array.from(session.topics)
-    };
+    if (!sessions.has(sessionId)) {
+      sessions.set(sessionId, {
+        id: sessionId,
+        createdAt: new Date(),
+        roastLevel: 3,
+        messages: []
+      });
+    }
     
-    return res.json(sessionResponse);
+    res.json(sessions.get(sessionId));
   } catch (error) {
     console.error('Error in /api/session:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: "Failed to retrieve session information"
+    });
   }
 });
 
@@ -234,21 +321,24 @@ router.get('/session', (req, res) => {
 router.put('/preferences', (req, res) => {
   try {
     const { theme, volume } = req.body;
-    const session = sessionManager.getSession(req.sessionId);
+    const sessionId = req.sessionId || Date.now().toString();
     
-    const preferences = {};
-    if (theme) preferences.theme = theme;
-    if (volume !== undefined) preferences.volume = volume;
+    if (!sessions.has(sessionId)) {
+      sessions.set(sessionId, {
+        id: sessionId,
+        createdAt: new Date(),
+        roastLevel: 3,
+        messages: [],
+        theme: theme,
+        volume: volume
+      });
+    } else {
+      const session = sessions.get(sessionId);
+      if (theme) session.theme = theme;
+      if (volume !== undefined) session.volume = volume;
+    }
     
-    const updatedSession = sessionManager.updatePreferences(session.id, preferences);
-    
-    // Convert Set to Array for JSON serialization
-    const sessionResponse = {
-      ...updatedSession,
-      topics: Array.from(updatedSession.topics)
-    };
-    
-    return res.json(sessionResponse);
+    res.json(sessions.get(sessionId));
   } catch (error) {
     console.error('Error in /api/preferences:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -261,21 +351,22 @@ router.put('/preferences', (req, res) => {
  */
 router.post('/reset', (req, res) => {
   try {
-    const newSession = sessionManager.createSession();
+    const sessionId = req.sessionId || Date.now().toString();
     
-    res.cookie('sessionId', newSession.id, { 
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: true,
-      sameSite: 'strict'
+    sessions.delete(sessionId);
+    
+    // Create new session
+    sessions.set(sessionId, {
+      id: sessionId,
+      createdAt: new Date(),
+      roastLevel: 3,
+      messages: []
     });
     
-    // Convert Set to Array for JSON serialization
-    const sessionResponse = {
-      ...newSession,
-      topics: Array.from(newSession.topics)
-    };
-    
-    return res.json(sessionResponse);
+    return res.json({
+      sessionId,
+      message: 'Session reset successfully'
+    });
   } catch (error) {
     console.error('Error in /api/reset:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -283,145 +374,44 @@ router.post('/reset', (req, res) => {
 });
 
 /**
- * GET /api/diagnostics - Test API connection
- * Runs diagnostics on the Hugging Face API connection
+ * GET /api/stats - Get API statistics
+ * Returns statistics about API usage
  */
-router.get('/diagnostics', async (req, res) => {
+router.get('/stats', (req, res) => {
   try {
-    console.log('🔍 Running API diagnostics...');
-    
-    // Start time for performance measurement
-    const startTime = Date.now();
-    
-    // Check if the SDK was loaded
-    const sdkLoaded = typeof apiIntegration.testApiConnection === 'function';
-    
-    // Check for HF_TOKEN
-    const hfTokenPresent = !!process.env.HF_TOKEN;
-    const hfTokenPrefix = hfTokenPresent ? process.env.HF_TOKEN.substring(0, 5) + '...' : null;
-    
-    // Check for network connectivity (basic DNS resolution)
-    let networkConnectivity = false;
-    try {
-      const dns = require('dns');
-      const { promisify } = require('util');
-      const dnsLookup = promisify(dns.lookup);
-      await dnsLookup('api-inference.huggingface.co');
-      networkConnectivity = true;
-    } catch (err) {
-      console.error('❌ DNS lookup failed:', err.message);
+    // Only allow this in development/debug mode
+    if (process.env.NODE_ENV === 'production' && !DEBUG_MODE) {
+      return res.status(403).json({ error: 'Forbidden in production mode' });
     }
     
-    // Collect environment info
-    const diagnostics = {
-      timestamp: new Date().toISOString(),
-      duration_ms: 0, // Will be updated at the end
-      environment: {
-        node: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        hf_token_present: hfTokenPresent,
-        hf_token_prefix: hfTokenPrefix,
-        sdk_loaded: sdkLoaded,
-        network_connectivity: networkConnectivity,
-        memory_usage: process.memoryUsage(),
-        uptime_seconds: process.uptime()
-      },
-      api_test: null,
-      server_health: {
-        activeConnections: req.connection.server._connections
-      }
+    const stats = {
+      activeSessions: sessions.size,
+      totalMessages: Array.from(sessions.values()).reduce((total, session) => {
+        return total + session.messages.length;
+      }, 0),
+      memoryUsage: process.memoryUsage(),
+      uptime: process.uptime(),
+      apiAvailable: hfClientAvailable
     };
     
-    // Test API connection with retries if SDK is loaded
-    if (sdkLoaded) {
-      console.log('🧪 Testing API connection...');
-      try {
-        // Set a timeout for the API test (15 seconds)
-        const apiTestPromise = apiIntegration.testApiConnection();
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('API test timeout after 15 seconds')), 15000);
-        });
-        
-        diagnostics.api_test = await Promise.race([apiTestPromise, timeoutPromise]);
-        console.log('📊 API test result:', JSON.stringify(diagnostics.api_test));
-      } catch (err) {
-        console.error('❌ API test error:', err.message);
-        diagnostics.api_test = { 
-          success: false, 
-          error: err.message,
-          timestamp: new Date().toISOString()
-        };
-      }
-    } else {
-      console.error('❌ Cannot test API: SDK not properly loaded');
-      diagnostics.api_test = { 
-        success: false, 
-        error: 'SDK not loaded',
-        timestamp: new Date().toISOString()
-      };
-    }
-    
-    // Test generate a simple roast using local fallback (bypassing API)
-    try {
-      const testMessage = "This is a diagnostics test message.";
-      const testLevel = 1; // Use level 1 to ensure local fallback
-      const startRoast = Date.now();
-      const roastResponse = await apiIntegration.generateRoast(testMessage, testLevel);
-      const endRoast = Date.now();
-      
-      diagnostics.local_roast_test = {
-        success: !!roastResponse,
-        duration_ms: endRoast - startRoast,
-        response_length: roastResponse.length,
-        sample: roastResponse.substring(0, 50) + '...'
-      };
-    } catch (err) {
-      diagnostics.local_roast_test = {
-        success: false,
-        error: err.message
-      };
-    }
-    
-    // Add suggestions based on diagnostic results
-    diagnostics.suggestions = [];
-    
-    if (!hfTokenPresent) {
-      diagnostics.suggestions.push("Set the HF_TOKEN environment variable with a valid Hugging Face API token");
-    }
-    
-    if (!sdkLoaded) {
-      diagnostics.suggestions.push("Install the Hugging Face SDK: npm install @huggingface/inference");
-    }
-    
-    if (!networkConnectivity) {
-      diagnostics.suggestions.push("Check network connectivity to api-inference.huggingface.co");
-    }
-    
-    if (diagnostics.api_test && !diagnostics.api_test.success) {
-      if (diagnostics.api_test.error && diagnostics.api_test.error.includes('Unauthorized')) {
-        diagnostics.suggestions.push("The HF_TOKEN is invalid or has expired. Please update it with a valid token.");
-      } else if (diagnostics.api_test.error && diagnostics.api_test.error.includes('timeout')) {
-        diagnostics.suggestions.push("API request timed out. Hugging Face servers may be under heavy load or there may be network issues.");
-      }
-    }
-    
-    // Calculate total duration
-    diagnostics.duration_ms = Date.now() - startTime;
-    
-    return res.json({
-      success: true,
-      diagnostics
-    });
+    res.json(stats);
   } catch (error) {
-    console.error('❌ Error in /api/diagnostics:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Diagnostics failed',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    console.error('Error in /api/stats:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+/**
+ * GET /health - API health check endpoint
+ */
+router.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date(),
+    huggingFaceToken: hfToken ? 'configured' : 'missing',
+    apiAvailable: hfClientAvailable,
+    model: modelName
+  });
 });
 
 module.exports = router; 

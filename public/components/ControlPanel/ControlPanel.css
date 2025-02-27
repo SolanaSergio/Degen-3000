@@ -308,4 +308,97 @@ input:focus + .slider {
     width: 100%;
     justify-content: flex-end;
   }
+}
+
+/* Level section */
+.level-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background-color: rgba(20, 25, 35, 0.7);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--space-sm);
+}
+
+.level-section .section-title {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-xs);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.level-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.level-button {
+  background-color: var(--button-secondary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.level-button:hover:not(:disabled) {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.level-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex: 1;
+  justify-content: center;
+}
+
+.level-indicator {
+  font-size: 1.5rem;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.level-indicator.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.level-description {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  font-style: italic;
+  padding: var(--space-xs);
+  background-color: rgba(30, 35, 45, 0.6);
+  border-radius: var(--border-radius-sm);
+}
+
+/* Stonks mode level styles */
+.control-panel-component.stonks-mode .level-section {
+  border: 1px solid var(--accent-primary);
+  box-shadow: 0 0 10px rgba(var(--accent-primary-rgb), 0.3);
+}
+
+.control-panel-component.stonks-mode .level-indicator.active {
+  text-shadow: 0 0 5px var(--accent-primary);
 } 
