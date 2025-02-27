@@ -9,11 +9,12 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: rgba(20, 26, 40, 0.6);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(20, 26, 40, 0.8);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Messages container */
@@ -25,6 +26,23 @@
   flex-direction: column;
   gap: 1rem;
   scroll-behavior: smooth;
+  min-height: 350px;
+  position: relative;
+}
+
+/* Add a subtle background pattern */
+.messages-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(55, 114, 255, 0.02) 0%, transparent 80%),
+    radial-gradient(circle at 80% 20%, rgba(255, 51, 102, 0.01) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -38,12 +56,12 @@
 }
 
 .messages-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
 
 .messages-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Message styling */
@@ -52,21 +70,23 @@
   flex-direction: column;
   max-width: 85%;
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   position: relative;
   animation: message-fade-in 0.3s ease-out;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .message.bot-message {
   align-self: flex-start;
-  background: rgba(30, 36, 50, 0.8);
-  border-left: 4px solid #3772FF;
+  background: rgba(30, 36, 50, 0.85);
+  border-left: 4px solid var(--accent-primary);
 }
 
 .message.user-message {
   align-self: flex-end;
   background: rgba(55, 114, 255, 0.15);
-  border-right: 4px solid #3772FF;
+  border-right: 4px solid var(--accent-primary);
 }
 
 /* Message content */
@@ -81,9 +101,10 @@
   font-weight: 600;
   font-size: 0.9rem;
   opacity: 0.9;
-  color: #3772FF;
+  color: var(--accent-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
 }
 
 /* Message text */
@@ -100,6 +121,7 @@
   opacity: 0.7;
   align-self: flex-end;
   margin-top: 0.3rem;
+  font-family: var(--font-family-mono);
 }
 
 /* Roast level styling */
@@ -123,6 +145,16 @@
 .message-text.level-5 {
   font-weight: 800;
   text-shadow: 0 0 3px rgba(255, 51, 102, 0.7);
+  animation: text-glow 2s infinite alternate;
+}
+
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(255, 51, 102, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(255, 51, 102, 0.9);
+  }
 }
 
 /* Typing indicator */
@@ -159,6 +191,16 @@
 
 .typing-indicator .dot:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* Add an empty state for the chat */
+.messages-container:empty::before {
+  content: "No messages yet. Start typing below to get roasted! 🔥";
+  display: block;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
 }
 
 /* Stonks mode effects */

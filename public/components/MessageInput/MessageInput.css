@@ -9,9 +9,9 @@
   flex-direction: column;
   width: 100%;
   background: rgba(20, 26, 40, 0.8);
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
   padding: 1.2rem;
 }
 
@@ -32,21 +32,24 @@
 /* Input field */
 .input-field {
   width: 100%;
-  background: rgba(10, 15, 25, 0.5);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(10, 15, 25, 0.7);
+  color: rgba(255, 255, 255, 0.95);
   border: 2px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0.5rem;
-  padding: 0.8rem 1rem;
+  border-radius: 0.75rem;
+  padding: 1rem;
   font-family: inherit;
   font-size: 1.1rem;
   resize: none;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-height: 60px;
+  max-height: 150px;
 }
 
 .input-field:focus {
-  border-color: #3772FF;
-  box-shadow: 0 0 0 2px rgba(55, 114, 255, 0.25);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .input-field::placeholder {
@@ -56,19 +59,31 @@
 /* Character counter */
 .char-counter {
   position: absolute;
-  bottom: 0.5rem;
-  right: 0.8rem;
+  bottom: 0.7rem;
+  right: 1rem;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.6);
   background: rgba(0, 0, 0, 0.3);
   padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
   transition: all 0.2s ease;
+  font-family: var(--font-family-mono);
 }
 
 .char-counter.near-limit {
   color: #FFD600;
   font-weight: 600;
+}
+
+.char-counter.at-limit {
+  color: #FF3366;
+  font-weight: 700;
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
 }
 
 /* Quick phrases */
@@ -77,15 +92,25 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  max-width: 100%;
+  -ms-overflow-style: none;  /* Hide scrollbar in IE and Edge */
+  scrollbar-width: none;  /* Hide scrollbar in Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.quick-phrases::-webkit-scrollbar {
+  display: none;
 }
 
 .quick-phrase-button {
   display: flex;
   align-items: center;
-  background: rgba(10, 15, 25, 0.5);
+  background: rgba(10, 15, 25, 0.7);
   color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.25rem;
+  border-radius: 1.5rem;
   padding: 0.5rem 0.8rem;
   font-size: 0.9rem;
   cursor: pointer;
@@ -94,11 +119,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+  flex-shrink: 0;
 }
 
 .quick-phrase-button:hover {
-  background: rgba(55, 114, 255, 0.15);
-  border-color: rgba(55, 114, 255, 0.3);
+  background: rgba(var(--accent-primary-rgb), 0.15);
+  border-color: rgba(var(--accent-primary-rgb), 0.3);
   transform: translateY(-2px);
 }
 
@@ -107,7 +133,7 @@
 }
 
 .quick-phrase-button.active {
-  background: rgba(55, 114, 255, 0.25);
+  background: rgba(var(--accent-primary-rgb), 0.25);
   transform: scale(0.95);
 }
 
@@ -119,7 +145,7 @@
 /* Button row */
 .button-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.8rem;
 }
 
@@ -130,17 +156,35 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.7rem 1.2rem;
-  border-radius: 0.4rem;
+  border-radius: 0.75rem;
   font-weight: 600;
   font-size: 1rem;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   min-width: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: all 0.5s ease;
+}
+
+.action-button:hover::before {
+  left: 100%;
 }
 
 .action-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .action-button:active {
@@ -148,18 +192,19 @@
 }
 
 .send-button {
-  background: #3772FF;
+  background: var(--accent-primary);
   color: white;
-  box-shadow: 0 4px 8px rgba(55, 114, 255, 0.3);
+  box-shadow: 0 4px 8px rgba(var(--accent-primary-rgb), 0.3);
+  flex-grow: 1;
 }
 
 .send-button:hover {
-  background: #4A85FF;
-  box-shadow: 0 6px 12px rgba(55, 114, 255, 0.4);
+  background: var(--accent-primary-hover);
+  box-shadow: 0 6px 12px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .send-button:disabled {
-  background: rgba(55, 114, 255, 0.3);
+  background: rgba(var(--accent-primary-rgb), 0.3);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -270,18 +315,23 @@
   
   .input-field {
     font-size: 1rem;
-    padding: 0.7rem 0.9rem;
+    padding: 0.8rem;
+    min-height: 50px;
   }
   
   .action-button {
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
-    min-width: 100px;
+    min-width: auto;
   }
   
   .quick-phrase-button {
     padding: 0.4rem 0.7rem;
     font-size: 0.8rem;
+  }
+
+  .button-row {
+    flex-wrap: wrap;
   }
 }
 
@@ -291,17 +341,22 @@
   }
   
   .button-row {
-    flex-direction: column;
     gap: 0.5rem;
   }
   
-  .action-button {
+  .send-button, .clear-button {
     width: 100%;
+    padding: 0.8rem;
   }
   
   .char-counter {
     font-size: 0.7rem;
     bottom: 0.4rem;
-    right: 0.6rem;
+    right: 0.8rem;
+  }
+
+  .input-field {
+    min-height: 45px;
+    padding: 0.7rem;
   }
 } 

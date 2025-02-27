@@ -6,19 +6,20 @@
 /* Stonks ticker component container */
 .stonks-ticker-component {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(10, 15, 25, 0.7);
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  margin: 1.5rem 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  overflow: hidden;
 }
 
 /* Ticker grid */
 .ticker-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.8rem;
   width: 100%;
 }
 
@@ -30,13 +31,15 @@
   padding: 0.5rem 0.8rem;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 0.4rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .ticker-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Ticker symbol */
@@ -44,16 +47,18 @@
   font-weight: bold;
   font-family: 'JetBrains Mono', monospace;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
 }
 
 /* Ticker price */
 .ticker-price {
   font-weight: bold;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 1rem;
   position: relative;
   transition: transform 0.2s ease;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .ticker-item.price-up .ticker-price {
@@ -64,16 +69,36 @@
   color: #ff3366;
 }
 
+/* Add crypto icon */
+.ticker-item::before {
+  content: '₿';
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+.ticker-item[data-symbol="ETH"]::before {
+  content: 'Ξ';
+}
+
+.ticker-item[data-symbol="DOGE"]::before {
+  content: 'Ð';
+}
+
+.ticker-item[data-symbol="SHIB"]::before {
+  content: 'Ϟ';
+}
+
 /* Price flash animation */
 @keyframes price-flash-up {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #00ff88; }
+  50% { transform: scale(1.2); color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.8); }
   100% { transform: scale(1); }
 }
 
 @keyframes price-flash-down {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #ff3366; }
+  50% { transform: scale(1.2); color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8); }
   100% { transform: scale(1); }
 }
 
@@ -136,25 +161,25 @@
 /* Animation for theme specific flashes */
 @keyframes price-flash-up-crypto {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #f7931a; }
+  50% { transform: scale(1.2); color: #f7931a; text-shadow: 0 0 10px rgba(247, 147, 26, 0.8); }
   100% { transform: scale(1); }
 }
 
 @keyframes price-flash-up-hacker {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #00ff66; }
+  50% { transform: scale(1.2); color: #00ff66; text-shadow: 0 0 10px rgba(0, 255, 102, 0.8); }
   100% { transform: scale(1); }
 }
 
 @keyframes price-flash-up-gamer {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #ff00ff; }
+  50% { transform: scale(1.2); color: #ff00ff; text-shadow: 0 0 10px rgba(255, 0, 255, 0.8); }
   100% { transform: scale(1); }
 }
 
 @keyframes price-flash-up-meme {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #ffce00; }
+  50% { transform: scale(1.2); color: #ffce00; text-shadow: 0 0 10px rgba(255, 206, 0, 0.8); }
   100% { transform: scale(1); }
 }
 
@@ -188,8 +213,8 @@
   }
   
   .stonks-ticker-component {
-    padding: 0.8rem;
-    margin: 1rem 0;
+    padding: 0.6rem;
+    margin: 0.5rem 0;
   }
   
   .ticker-item {
@@ -198,6 +223,6 @@
   
   .ticker-symbol,
   .ticker-price {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 } 

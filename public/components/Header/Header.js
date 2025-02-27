@@ -2,7 +2,7 @@
  * Header.js
  * 
  * Header component for DEGEN ROAST 3000
- * Manages title, subtitle, and warning banner
+ * Manages title, subtitle, and banner
  */
 class Header extends ComponentBase {
   /**
@@ -13,21 +13,21 @@ class Header extends ComponentBase {
   constructor(containerId, options = {}) {
     // Default options
     const defaultOptions = {
-      showWarningBanner: true,        // Show the warning banner
-      warningText: "⚠️ WARNING: BRUTAL ROASTS AHEAD - NOT FOR THE EASILY OFFENDED ⚠️",
-      title: "DEGEN ROAST",
-      titleBadge: "3000",
-      subtitle: "The most savage AI roast generator on the internet",
-      animateTitle: true,             // Whether to animate the title on hover
-      titleAnimation: "wiggle"        // Animation type: "wiggle", "pulse", "shake"
+      title: 'DEGEN ROAST',
+      titleBadge: '3000',
+      subtitle: 'Ultimate AI-Powered Crypto Roast Generator',
+      showWarningBanner: true,
+      warningText: '⚠️ WARNING: BRUTAL ROASTS AHEAD - NOT FOR THE EASILY OFFENDED ⚠️',
+      animateTitle: true,
+      titleAnimation: 'pulse'  // pulse, wiggle, or shake
     };
     
-    // Initialize base component with merged options and initial state
+    // Initialize base component with merged options
     super(containerId, {
       options: { ...defaultOptions, ...options },
-      currentTheme: typeof ThemeManager !== 'undefined' ? 
-        ThemeManager.getCurrentTheme() : 'crypto',
-      isWarningVisible: true
+      currentTheme: typeof window.ThemeManager !== 'undefined' ? 
+        window.ThemeManager.getCurrentTheme() : 'crypto',
+      isStonksModeActive: false
     });
     
     // Initialize component
@@ -50,150 +50,137 @@ class Header extends ComponentBase {
    */
   setupEventListeners() {
     // Listen for theme changes
-    if (typeof EventBus !== 'undefined') {
-      this.on('themeChanged', (data) => {
-        this.setState({ currentTheme: data.theme });
-      });
-    }
+    this.on('themeChanged', (data) => {
+      this.setState({ currentTheme: data.theme });
+    });
+    
+    // Listen for stonks mode changes
+    this.on('stonksModeToggled', (data) => {
+      this.setState({ isStonksModeActive: data.enabled });
+    });
   }
   
   /**
    * Render the component
    */
   render() {
-    const { currentTheme, isWarningVisible } = this.state;
+    const { currentTheme, isStonksModeActive } = this.state;
     const { 
-      showWarningBanner, 
-      warningText, 
       title, 
       titleBadge, 
-      subtitle,
-      animateTitle
+      subtitle, 
+      showWarningBanner, 
+      warningText,
+      animateTitle,
+      titleAnimation 
     } = this.state.options;
     
     // Generate HTML
     this.container.innerHTML = `
-      <div class="header-component theme-${currentTheme}">
+      <div class="header-component theme-${currentTheme} ${isStonksModeActive ? 'stonks-mode' : ''}">
         ${showWarningBanner ? `
-          <div id="warning-banner" class="warning-banner ${isWarningVisible ? '' : 'hidden'}">
+          <div class="warning-banner">
             <span>${warningText}</span>
-            <button class="close-warning" aria-label="Close warning">×</button>
+            <button class="close-banner" aria-label="Close warning">×</button>
           </div>
         ` : ''}
         
-        <header class="header-area">
-          <h1 class="title ${animateTitle ? 'animated' : ''}">
+        <div class="header-content">
+          <h1 class="title ${animateTitle ? `animate-${titleAnimation}` : ''}">
             ${title} <span class="title-badge">${titleBadge}</span>
           </h1>
           <p class="subtitle">${subtitle}</p>
-        </header>
+        </div>
       </div>
     `;
     
-    // Get references to key elements
-    this.headerElement = this.container.querySelector('.header-component');
-    this.warningBanner = this.container.querySelector('#warning-banner');
-    this.closeWarningButton = this.container.querySelector('.close-warning');
-    
-    // Set up DOM event listeners
-    this.setupDomEventListeners();
+    // Add event listeners to elements
+    this.addListeners();
     
     // Mark as rendered
     this.rendered = true;
   }
   
   /**
-   * Set up DOM event listeners
+   * Add event listeners to DOM elements
    */
-  setupDomEventListeners() {
-    // Add listener for closing warning banner
-    if (this.closeWarningButton) {
-      this.addListener(this.closeWarningButton, 'click', this.hideWarningBanner);
+  addListeners() {
+    const closeButton = this.container.querySelector('.close-banner');
+    if (closeButton) {
+      this.addListener(closeButton, 'click', this.hideWarningBanner);
     }
   }
   
   /**
    * Hide the warning banner
-   * @param {Event} event - Click event
    */
-  hideWarningBanner(event) {
-    this.setState({ isWarningVisible: false });
-    
-    // Store preference in localStorage to keep it hidden on refresh
-    localStorage.setItem('warningBannerHidden', 'true');
-    
-    // Emit event for other components to adjust layout
-    this.emit('warningBannerHidden', {});
+  hideWarningBanner() {
+    const banner = this.container.querySelector('.warning-banner');
+    if (banner) {
+      banner.style.display = 'none';
+      
+      // Store in localStorage to remember user preference
+      localStorage.setItem('warningBannerClosed', 'true');
+      
+      // Emit event so other components know the banner is hidden
+      this.emit('warningBannerHidden', {});
+    }
   }
   
   /**
-   * Show the warning banner
+   * Update title text
+   * @param {string} newTitle - New title text
    */
-  showWarningBanner() {
-    this.setState({ isWarningVisible: true });
+  setTitle(newTitle) {
+    this.state.options.title = newTitle;
     
-    // Update localStorage
-    localStorage.removeItem('warningBannerHidden');
-    
-    // Emit event for other components to adjust layout
-    this.emit('warningBannerShown', {});
+    // Update DOM if rendered
+    if (this.rendered) {
+      const titleElement = this.container.querySelector('.title');
+      if (titleElement) {
+        // Keep the badge, just update the title text
+        const badge = titleElement.querySelector('.title-badge');
+        titleElement.textContent = newTitle + ' ';
+        if (badge) {
+          titleElement.appendChild(badge);
+        }
+      } else {
+        this.render();
+      }
+    }
   }
   
   /**
-   * Update component after state changes
+   * Update subtitle text
+   * @param {string} newSubtitle - New subtitle text
+   */
+  setSubtitle(newSubtitle) {
+    this.state.options.subtitle = newSubtitle;
+    
+    // Update DOM if rendered
+    if (this.rendered) {
+      const subtitleElement = this.container.querySelector('.subtitle');
+      if (subtitleElement) {
+        subtitleElement.textContent = newSubtitle;
+      } else {
+        this.render();
+      }
+    }
+  }
+  
+  /**
+   * Update component when state changes
    */
   update() {
-    if (this.headerElement) {
-      // Update theme class
-      this.headerElement.className = `header-component theme-${this.state.currentTheme}`;
-      
-      // Update warning banner visibility
-      if (this.warningBanner) {
-        if (this.state.isWarningVisible) {
-          this.warningBanner.classList.remove('hidden');
-        } else {
-          this.warningBanner.classList.add('hidden');
-        }
-      }
-    } else {
-      // If critical elements don't exist, re-render
-      this.render();
-    }
-  }
-  
-  /**
-   * Set a new title
-   * @param {string} title - New title text
-   */
-  setTitle(title) {
-    this.state.options.title = title;
-    const titleElement = this.container.querySelector('.title');
-    if (titleElement) {
-      // Update just the text, preserving the badge
-      const badge = titleElement.querySelector('.title-badge');
-      if (badge) {
-        titleElement.innerHTML = `${title} `;
-        titleElement.appendChild(badge);
+    if (this.rendered) {
+      const header = this.container.querySelector('.header-component');
+      if (header) {
+        // Update theme and stonks mode classes
+        header.className = `header-component theme-${this.state.currentTheme} ${this.state.isStonksModeActive ? 'stonks-mode' : ''}`;
       } else {
-        titleElement.textContent = title;
+        // If header element doesn't exist, re-render
+        this.render();
       }
-    } else {
-      // Re-render if title element doesn't exist
-      this.render();
-    }
-  }
-  
-  /**
-   * Set a new subtitle
-   * @param {string} subtitle - New subtitle text
-   */
-  setSubtitle(subtitle) {
-    this.state.options.subtitle = subtitle;
-    const subtitleElement = this.container.querySelector('.subtitle');
-    if (subtitleElement) {
-      subtitleElement.textContent = subtitle;
-    } else {
-      this.render();
     }
   }
 }
