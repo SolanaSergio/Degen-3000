@@ -1,0 +1,624 @@
+/**
+ * mobile-enhanced.css
+ * Enhanced mobile styles for DEGEN ROAST 3000
+ * This file follows a Mobile-Last approach - desktop styles come first in the CSS architecture,
+ * and this file provides overrides for different screen sizes.
+ */
+
+/* -------------------------------------------------------------------------- */
+/*                   RESPONSIVE DESIGN SYSTEM ARCHITECTURE                    */
+/* -------------------------------------------------------------------------- */
+/* 
+   Our responsive design follows these principles:
+   1. We use a desktop-first approach in our CSS loading order
+   2. Mobile styles override desktop styles with simple selectors
+   3. We use standard breakpoints consistently:
+      - Large Desktop: 1200px+
+      - Desktop: 992px - 1199px
+      - Tablet: 768px - 991px
+      - Mobile: 576px - 767px
+      - Small Mobile: < 576px
+   4. For special devices like iPads we use specific media queries
+*/
+
+/* -------------------------------------------------------------------------- */
+/*                              SHARED UTILITIES                              */
+/* -------------------------------------------------------------------------- */
+/* These utility classes will be available to all screen sizes */
+
+/* Class-based device targeting - used by JavaScript */
+html.mobile-view body,
+body.mobile-view {
+  /* Base mobile adjustments */
+  max-width: 100%;
+  overflow-x: hidden;
+  font-size: 14px;
+  touch-action: manipulation;
+}
+
+html.tablet-view body,
+body.tablet-view {
+  /* Base tablet adjustments */
+  max-width: 100%;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+html.ipad-view body,
+body.ipad-view {
+  /* Base iPad adjustments */
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  font-size: 16px;
+}
+
+html.ipad-mini-view body,
+body.ipad-mini-view {
+  /* Base iPad Mini adjustments */
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  font-size: 15px;
+  overscroll-behavior: none;
+  padding: 0 12px;
+}
+
+/* Style reset utility - use when you need to clear inline styles */
+.style-reset {
+  all: revert !important;
+}
+
+/* Reset element to use CSS rules instead of inline styles */
+[data-css-controlled="true"] {
+  /* Reset styles that may have been set inline */
+  width: initial !important;
+  height: initial !important;
+  display: initial !important;
+  position: initial !important;
+  left: initial !important;
+  top: initial !important;
+  right: initial !important;
+  bottom: initial !important;
+  margin: initial !important;
+  padding: initial !important;
+  transform: initial !important;
+  opacity: initial !important;
+  visibility: initial !important;
+  z-index: initial !important;
+  
+  /* Now CSS rules will take precedence */
+}
+
+/* Touch enhancements for all devices */
+@media (pointer: coarse) {
+  /* Increase hit targets for touch screens */
+  button, 
+  .button, 
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better touch scrolling */
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           BASE TABLET & MOBILE                             */
+/* -------------------------------------------------------------------------- */
+/* Applies to all screen sizes below desktop (1024px and below) */
+
+@media (max-width: 1024px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+  
+  .container.enhanced-ui {
+    max-width: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  /* Basic mobile layout - flex column for content */
+  .content-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    padding: 0;
+  }
+  
+  /* Chat section takes priority */
+  .chat-section {
+    width: 100%;
+    min-height: 75vh;
+    max-height: 80vh;
+    order: 1; /* Show chat first */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  /* Chat window component */
+  .chat-window-component {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  /* Messages container */
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Message input */
+  .message-input-component {
+    width: 100%;
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(26, 32, 44, 0.95);
+    padding: 8px;
+    z-index: 15;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Sidebars below chat */
+  .left-sidebar-wrapper,
+  .right-sidebar-wrapper {
+    width: 100%;
+    order: 2;
+    overflow: hidden;
+  }
+  
+  /* Control panel */
+  .control-panel-component {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: rgba(26, 32, 44, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: height 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* Control panel toggle button */
+  .control-panel-toggle {
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Layouts for control panel components */
+  .theme-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .level-controls {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+  }
+  
+  .theme-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .level-button {
+    width: 100%;
+    padding: 10px 5px;
+    text-align: center;
+  }
+  
+  /* Collapsible control panel */
+  .control-panel-component.collapsed {
+    max-height: 60px;
+    overflow: hidden;
+  }
+  
+  .control-panel-component:not(.collapsed) {
+    max-height: 800px;
+  }
+
+  /* Back to chat button */
+  .back-to-chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #00e676;
+    color: #000;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: none;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .back-to-chat-button.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .back-to-chat-button:hover,
+  .back-to-chat-button:focus {
+    background-color: #00ff88;
+    transform: scale(1.1);
+  }
+  
+  .chat-section-out-of-view .back-to-chat-button {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         SMALL MOBILE ADJUSTMENTS                           */
+/* -------------------------------------------------------------------------- */
+/* For phones with smaller screens (< 576px) */
+
+@media (max-width: 576px) {
+  .chat-section {
+    min-height: 85vh;
+  }
+  
+  .theme-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .level-controls {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .control-panel-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .control-panel-component {
+    padding: 10px;
+  }
+  
+  body.keyboard-open .chat-section {
+    min-height: 40vh;
+    max-height: 45vh;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          TABLET SPECIFIC LAYOUTS                           */
+/* -------------------------------------------------------------------------- */
+/* For tablets and iPad (768px - 1024px) */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .content-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .chat-section {
+    min-height: 60vh;
+    height: 65vh;
+    max-height: 70vh;
+  }
+  
+  .control-panel-component {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: rgba(26, 32, 44, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+  }
+
+  .theme-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .theme-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .level-controls {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+    width: 100%;
+  }
+  
+  /* Tablet landscape mode */
+  @media (orientation: landscape) {
+    .content-grid {
+      grid-template-columns: 350px 1fr;
+      height: calc(100vh - 80px);
+      overflow: hidden;
+    }
+    
+    .left-sidebar-wrapper {
+      overflow-y: auto;
+      height: calc(100vh - 100px);
+      order: 1;
+    }
+    
+    .chat-section {
+      height: calc(100vh - 100px);
+      max-height: none;
+      order: 2;
+    }
+    
+    .right-sidebar-wrapper {
+      display: none;
+    }
+  }
+  
+  /* Improved control panel tabs */
+  .control-panel-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .control-panel-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .control-panel-tab {
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 100px;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    transition: all 0.2s ease;
+  }
+  
+  .control-panel-tab.active {
+    background-color: #00e676;
+    color: #000;
+  }
+  
+  /* Collapsible section animation */
+  .collapsible-section .section-toggle-icon {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  .collapsible-section.collapsed .section-toggle-icon {
+    transform: rotate(180deg);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              IPAD SPECIFIC                                 */
+/* -------------------------------------------------------------------------- */
+/* General iPad styles - before specific iPad models */
+
+.tablet-view .control-panel-component,
+.ipad-view .control-panel-component {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  max-height: none;
+  overflow: visible;
+}
+
+/* iPad Air dimensions */
+@media only screen and (width: 820px) and (height: 1180px),
+       only screen and (width: 834px) and (height: 1194px) {
+  
+  .content-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 20px;
+    padding: 16px;
+  }
+  
+  .chat-section {
+    min-height: 60vh;
+    height: 65vh;
+    max-height: 70vh;
+    order: 1;
+  }
+  
+  .left-sidebar-wrapper {
+    width: 100%;
+    order: 2;
+  }
+  
+  .right-sidebar-wrapper {
+    width: 100%;
+    order: 3;
+  }
+  
+  .control-panel-component {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: rgba(26, 32, 44, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  /* iPad Air landscape */
+  @media (orientation: landscape) {
+    .content-grid {
+      grid-template-columns: 350px 1fr;
+    }
+    
+    .left-sidebar-wrapper {
+      order: 1;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+    
+    .chat-section {
+      order: 2;
+      height: calc(100vh - 120px);
+      max-height: none;
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            IPAD MINI SUPPORT                               */
+/* -------------------------------------------------------------------------- */
+/* Specific styles for iPad Mini (768x1024) */
+
+@media only screen and (width: 768px) and (height: 1024px) {
+  /* Core layout adjustments */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 16px;
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .chat-section {
+    width: 100%;
+    min-height: 60vh;
+    height: 65vh;
+    max-height: 70vh;
+    order: 1;
+    margin-bottom: 16px;
+  }
+  
+  .left-sidebar-wrapper {
+    width: 100%;
+    max-width: 100%;
+    order: 2;
+  }
+  
+  .right-sidebar-wrapper {
+    display: none;
+  }
+  
+  .control-panel-component {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: rgba(26, 32, 44, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    max-height: none;
+    overflow: visible;
+  }
+  
+  .theme-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .level-controls {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+    width: 100%;
+  }
+  
+  .theme-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  /* Landscape mode */
+  @media (orientation: landscape) {
+    .content-grid {
+      grid-template-columns: 350px 1fr;
+    }
+    
+    .chat-section {
+      order: 2;
+      height: calc(100vh - 120px);
+      max-height: none;
+    }
+    
+    .left-sidebar-wrapper {
+      order: 1;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+  }
+}

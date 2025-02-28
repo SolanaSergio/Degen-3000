@@ -20,6 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   
+  // Add desktop detection - Fix for layout issues
+  const isDesktop = window.innerWidth > 1024;
+  if (isDesktop) {
+    document.documentElement.classList.add('desktop-view');
+    document.body.classList.add('desktop-view');
+    document.documentElement.setAttribute('data-device', 'desktop');
+    document.body.setAttribute('data-device', 'desktop');
+    
+    // Make sure fallback content is hidden on desktop 
+    const fallbackContent = document.getElementById('fallback-content');
+    if (fallbackContent) fallbackContent.style.display = 'none';
+    
+    // Force desktop layout application
+    applyDesktopLayout();
+  }
+  
   // Initialize ThemeManager (it's already instantiated in ThemeManager.js)
   if (!window.ThemeManager.initialized) {
     window.ThemeManager.init({
@@ -79,6 +95,249 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Failed to initialize application:', error);
   }
 });
+
+/**
+ * Apply desktop-specific layout fixes
+ */
+function applyDesktopLayout() {
+  console.log('📱 Applying desktop layout fixes');
+  
+  // Get key elements
+  const container = document.querySelector('.container.enhanced-ui');
+  const contentGrid = document.querySelector('.content-grid');
+  const chatSection = document.querySelector('.chat-section');
+  const leftSidebar = document.querySelector('.left-sidebar-wrapper');
+  const rightSidebar = document.querySelector('.right-sidebar-wrapper');
+  const fallbackContent = document.getElementById('fallback-content');
+  
+  // Ensure container has enhanced-ui class
+  if (container && !container.classList.contains('enhanced-ui')) {
+    container.classList.add('enhanced-ui');
+  }
+  
+  // Force desktop classes
+  document.documentElement.classList.add('desktop-view');
+  document.body.classList.add('desktop-view');
+  document.documentElement.setAttribute('data-device', 'desktop');
+  document.body.setAttribute('data-device', 'desktop');
+  
+  // Remove any mobile classes
+  document.documentElement.classList.remove('mobile-view', 'tablet-view', 'ipad-view', 'ipad-mini-view');
+  document.body.classList.remove('mobile-view', 'tablet-view', 'ipad-view', 'ipad-mini-view');
+  
+  // Set correct grid layout for desktop
+  if (contentGrid) {
+    contentGrid.style.display = 'grid';
+    contentGrid.style.gridTemplateColumns = '280px minmax(600px, 1fr) 280px';
+    contentGrid.style.gap = '1.5rem';
+    contentGrid.style.width = '100%';
+    contentGrid.style.maxWidth = '1600px';
+    contentGrid.style.margin = '0 auto';
+    contentGrid.style.height = 'calc(100vh - 180px)';
+    contentGrid.style.minHeight = '500px';
+  }
+  
+  // Ensure all component containers are visible
+  const componentContainers = [
+    'header-container', 
+    'stonks-ticker', 
+    'control-panel-container', 
+    'soundboard-container', 
+    'chat-messages-container', 
+    'message-input-container', 
+    'meme-gallery-container',
+    'disclaimer-container'
+  ];
+  
+  componentContainers.forEach(id => {
+    const container = document.getElementById(id);
+    if (container) {
+      container.style.display = 'block';
+      container.style.visibility = 'visible';
+      container.style.opacity = '1';
+    }
+  });
+  
+  // Ensure chat section is correctly displayed
+  if (chatSection) {
+    chatSection.style.display = 'flex';
+    chatSection.style.flexDirection = 'column';
+    chatSection.style.gap = '1rem';
+    chatSection.style.height = '100%';
+    chatSection.style.maxHeight = 'calc(100vh - 220px)';
+    chatSection.style.order = '';
+    
+    // Style chat window component if it exists inside
+    const chatWindow = chatSection.querySelector('.chat-window-component');
+    if (chatWindow) {
+      chatWindow.style.display = 'flex';
+      chatWindow.style.flexDirection = 'column';
+      chatWindow.style.width = '100%';
+      chatWindow.style.height = '100%';
+      
+      // Style messages container
+      const messagesContainer = chatWindow.querySelector('.messages-container');
+      if (messagesContainer) {
+        messagesContainer.style.display = 'flex';
+        messagesContainer.style.flexDirection = 'column';
+        messagesContainer.style.flex = '1';
+        messagesContainer.style.overflowY = 'auto';
+        messagesContainer.style.padding = '1.5rem';
+        messagesContainer.style.gap = '1rem';
+      }
+    }
+  }
+  
+  // Ensure left sidebar is correctly displayed
+  if (leftSidebar) {
+    leftSidebar.style.display = 'flex';
+    leftSidebar.style.flexDirection = 'column';
+    leftSidebar.style.gap = '1rem';
+    leftSidebar.style.maxWidth = '280px';
+    leftSidebar.style.order = '';
+    leftSidebar.style.height = '100%';
+    leftSidebar.style.maxHeight = 'calc(100vh - 220px)';
+    leftSidebar.style.overflowY = 'auto';
+    
+    // Style control panel if it exists
+    const controlPanel = leftSidebar.querySelector('.control-panel-component');
+    if (controlPanel) {
+      controlPanel.style.padding = '1.5rem';
+      controlPanel.style.borderRadius = '12px';
+      controlPanel.style.background = 'linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9))';
+      controlPanel.style.backdropFilter = 'blur(10px)';
+      controlPanel.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+      
+      // Style theme options
+      const themeOptions = controlPanel.querySelector('.theme-options');
+      if (themeOptions) {
+        themeOptions.style.display = 'grid';
+        themeOptions.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        themeOptions.style.gap = '0.75rem';
+        themeOptions.style.marginBottom = '1.5rem';
+      }
+      
+      // Style level controls
+      const levelControls = controlPanel.querySelector('.level-controls');
+      if (levelControls) {
+        levelControls.style.display = 'flex';
+        levelControls.style.gap = '0.5rem';
+        levelControls.style.marginBottom = '1.5rem';
+      }
+    }
+  }
+  
+  // Ensure right sidebar is correctly displayed
+  if (rightSidebar) {
+    rightSidebar.style.display = 'flex';
+    rightSidebar.style.flexDirection = 'column';
+    rightSidebar.style.gap = '1rem';
+    rightSidebar.style.maxWidth = '280px';
+    rightSidebar.style.order = '';
+    rightSidebar.style.height = '100%';
+    rightSidebar.style.maxHeight = 'calc(100vh - 220px)';
+    rightSidebar.style.overflowY = 'auto';
+    
+    // Style meme gallery if it exists
+    const memeGallery = rightSidebar.querySelector('.meme-gallery-component');
+    if (memeGallery) {
+      memeGallery.style.borderRadius = '12px';
+      memeGallery.style.background = 'linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9))';
+      memeGallery.style.backdropFilter = 'blur(10px)';
+      memeGallery.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+  
+  // Hide fallback content if container has UI
+  if (fallbackContent) {
+    fallbackContent.style.display = 'none';
+  }
+  
+  // If any components failed to initialize, try to reinitialize them
+  setTimeout(reinitializeComponentsIfNeeded, 200);
+  
+  console.log('✅ Desktop layout fixes applied');
+}
+
+/**
+ * Attempt to reinitialize any components that may have failed to load
+ */
+function reinitializeComponentsIfNeeded() {
+  console.log('Checking for components that need reinitialization...');
+  
+  // Check each component container to see if it has content
+  const componentChecks = [
+    { id: 'header-container', component: 'Header' },
+    { id: 'stonks-ticker', component: 'StonksTicker' },
+    { id: 'control-panel-container', component: 'ControlPanel' },
+    { id: 'soundboard-container', component: 'Soundboard' },
+    { id: 'chat-messages-container', component: 'ChatWindow' },
+    { id: 'message-input-container', component: 'MessageInput' },
+    { id: 'meme-gallery-container', component: 'MemeGallery' },
+    { id: 'disclaimer-container', component: 'Disclaimer' }
+  ];
+  
+  let componentsReinitialized = 0;
+  
+  componentChecks.forEach(check => {
+    const container = document.getElementById(check.id);
+    
+    // Check if container exists but is empty
+    if (container && container.innerHTML.trim() === '') {
+      console.warn(`Component container ${check.id} is empty, attempting to reinitialize...`);
+      
+      // Check if component constructor exists
+      if (window[check.component]) {
+        try {
+          // Create new component instance with default options
+          const componentInstance = new window[check.component](check.id, {});
+          
+          // Save to appComponents if it exists
+          if (window.appComponents) {
+            const key = check.component.charAt(0).toLowerCase() + check.component.slice(1);
+            window.appComponents[key] = componentInstance;
+          }
+          
+          console.log(`✅ Successfully reinitialized ${check.component} component`);
+          componentsReinitialized++;
+          
+          // Set display to ensure visibility
+          container.style.display = 'block';
+          container.style.visibility = 'visible';
+          container.style.opacity = '1';
+        } catch (error) {
+          console.error(`❌ Failed to reinitialize ${check.component} component:`, error);
+        }
+      } else {
+        console.error(`❌ Component ${check.component} constructor not found`);
+      }
+    }
+  });
+  
+  // If we reinitialized any components, apply layout fixes again
+  if (componentsReinitialized > 0) {
+    console.log(`Reinitialized ${componentsReinitialized} components, reapplying layout fixes...`);
+    
+    // Slight delay to allow components to render
+    setTimeout(function() {
+      // Apply styles from desktop-layout-fix again
+      const style = document.getElementById('desktop-layout-fix');
+      if (style) {
+        // Force a reflow to reapply the styles
+        style.disabled = true;
+        style.disabled = false;
+      }
+    }, 100);
+  }
+  
+  // Make sure we scroll chat to bottom if needed
+  setTimeout(function() {
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }, 300);
+}
 
 /**
  * Initialize all components in the correct order

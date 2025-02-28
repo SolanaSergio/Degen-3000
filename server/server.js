@@ -9,10 +9,6 @@ const rateLimit = require('express-rate-limit');
 const sessionManager = require('./utils/session-manager');
 const apiRoutes = require('./routes/api');
 const session = require('express-session');
-const { checkEnvironment } = require('./utils/env-check');
-
-// Check environment variables
-const envCheckPassed = checkEnvironment();
 
 // Initialize Express app
 const app = express();
@@ -173,12 +169,11 @@ const server = app.listen(PORT, () => {
   console.log(`🔥 DEGEN ROAST 3000 - SAVAGE EDITION v2.0.0 🔥`);
   console.log('---------------------------------------------');
   console.log(`🚀 Server started at ${startTime}`);
-  console.log(`🌐 URL: ${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`}`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔧 API Mode: ${envCheckPassed ? 'Hugging Face API' : 'Local Fallback'}`);
   console.log('---------------------------------------------\n');
-  console.log(`📊 API available at ${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api` : `http://localhost:${PORT}/api`}`);
-  console.log(` Frontend available at ${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`}`);
+  console.log(`📊 API available at http://localhost:${PORT}/api`);
+  console.log(`�� Frontend available at http://localhost:${PORT}`);
 });
 
 // Graceful shutdown

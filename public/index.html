@@ -9,6 +9,428 @@
     <meta property="og:image" content="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
     <meta property="og:type" content="website">
     
+    <!-- CRITICAL iPad Mini Fix - Must be loaded first -->
+    <style id="critical-ipad-mini-fix">
+        /* The most aggressive possible CSS for iPad Mini */
+        @media only screen and (width: 768px) and (height: 1024px),
+               only screen and (device-width: 768px) and (device-height: 1024px) {
+            html body .container.enhanced-ui .content-grid {
+                display: grid !important;
+                grid-template-columns: 100% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                gap: 16px !important;
+                padding: 16px !important;
+                margin: 0 !important;
+            }
+            
+            html body .container.enhanced-ui .content-grid .chat-section {
+                width: 100% !important;
+                min-height: 60vh !important; 
+                height: 65vh !important;
+                max-height: 70vh !important;
+                order: 1 !important;
+            }
+            
+            html body .container.enhanced-ui .content-grid .left-sidebar-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                order: 2 !important;
+            }
+            
+            html body .container.enhanced-ui .content-grid .control-panel-component,
+            html body .container.enhanced-ui #control-panel-container .control-panel-component {
+                width: 100% !important;
+                max-width: none !important;
+                padding: 20px !important;
+                border-radius: 12px !important;
+                background-color: rgba(26, 32, 44, 0.95) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                margin-bottom: 20px !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            
+            html body .container.enhanced-ui .theme-options,
+            html body .control-panel-component .theme-options {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 12px !important;
+                margin-bottom: 20px !important;
+            }
+            
+            html body .container.enhanced-ui .level-controls,
+            html body .control-panel-component .level-controls {
+                display: grid !important;
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 10px !important;
+                margin: 16px 0 !important;
+                width: 100% !important;
+            }
+            
+            html body .container.enhanced-ui .theme-button,
+            html body .control-panel-component .theme-button {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 90px !important;
+                padding: 12px !important;
+                border-radius: 8px !important;
+            }
+            
+            /* Force right sidebar hidden */
+            html body .container.enhanced-ui .right-sidebar-wrapper {
+                display: none !important;
+            }
+            
+            /* Landscape override */
+            @media (orientation: landscape) {
+                .content-grid {
+                    grid-template-columns: 350px 1fr !important;
+                }
+                
+                .chat-section {
+                    order: 2 !important;
+                    height: calc(100vh - 120px) !important;
+                    max-height: none !important;
+                }
+                
+                .left-sidebar-wrapper {
+                    order: 1 !important;
+                    height: calc(100vh - 120px) !important;
+                    overflow-y: auto !important;
+                }
+            }
+        }
+        
+        /* Mobile-first layout for all devices */
+        @media (max-width: 1024px) {
+            /* Force chat to take priority */
+            .content-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            
+            .chat-section {
+                width: 100% !important;
+                order: 1 !important;
+                min-height: 75vh !important;
+            }
+            
+            .left-sidebar-wrapper,
+            .right-sidebar-wrapper {
+                width: 100% !important;
+                order: 2 !important;
+            }
+        }
+    </style>
+    
+    <!-- Desktop Layout Fix (NEW) -->
+    <style id="desktop-layout-fix">
+        /* Fix for desktop layout issues */
+        @media only screen and (min-width: 1025px) {
+            /* Container structure */
+            html body .container.enhanced-ui {
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 100vh !important;
+                background-color: var(--bg-primary) !important;
+                background-image: 
+                    radial-gradient(circle at 20% 35%, rgba(55, 114, 255, 0.1) 0%, transparent 30%),
+                    radial-gradient(circle at 80% 10%, rgba(255, 51, 102, 0.05) 0%, transparent 20%) !important;
+                padding: 1rem !important;
+                overflow: hidden !important;
+            }
+            
+            /* Header styling */
+            html body #header-container {
+                width: 100% !important;
+                margin-bottom: 1rem !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Stonks ticker styling */
+            html body #stonks-ticker {
+                width: 100% !important;
+                margin-bottom: 1rem !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+                overflow: hidden !important;
+                background: rgba(20, 30, 50, 0.8) !important;
+                backdrop-filter: blur(5px) !important;
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Main grid layout */
+            html body .container.enhanced-ui .content-grid {
+                display: grid !important;
+                grid-template-columns: 280px minmax(600px, 1fr) 280px !important;
+                gap: 1.5rem !important;
+                padding: 0 1rem !important;
+                width: 100% !important;
+                max-width: 1600px !important;
+                margin: 0 auto !important;
+                height: calc(100vh - 180px) !important;
+                min-height: 500px !important;
+            }
+            
+            /* Left sidebar styling */
+            html body .container.enhanced-ui .content-grid .left-sidebar-wrapper {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                height: 100% !important;
+                max-height: calc(100vh - 220px) !important;
+                overflow-y: auto !important;
+                order: initial !important;
+                width: auto !important;
+                max-width: 280px !important;
+            }
+            
+            /* Control panel styling */
+            html body #control-panel-container {
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                overflow: hidden !important;
+                transition: all 0.3s ease !important;
+                flex: 0 0 auto !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                max-height: none !important;
+                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            
+            /* Soundboard styling */
+            html body #soundboard-container {
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                overflow: hidden !important;
+                transition: all 0.3s ease !important;
+                flex: 1 1 auto !important;
+                min-height: 200px !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            
+            /* Chat section styling */
+            html body .container.enhanced-ui .content-grid .chat-section {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                height: 100% !important;
+                max-height: calc(100vh - 220px) !important;
+                position: relative !important;
+                order: initial !important;
+                width: auto !important;
+                min-height: unset !important;
+            }
+            
+            /* Chat messages container */
+            html body #chat-messages-container {
+                flex: 1 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2) !important;
+                overflow: hidden !important;
+                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                transition: all 0.3s ease !important;
+                min-height: 400px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Message input styling */
+            html body #message-input-container {
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                overflow: hidden !important;
+                background: rgba(20, 30, 50, 0.8) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                transition: all 0.3s ease !important;
+                flex: 0 0 auto !important;
+                min-height: 100px !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Right sidebar styling */
+            html body .container.enhanced-ui .content-grid .right-sidebar-wrapper {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                height: 100% !important;
+                max-height: calc(100vh - 220px) !important;
+                overflow-y: auto !important;
+                order: initial !important;
+                width: auto !important;
+                max-width: 280px !important;
+            }
+            
+            /* Meme gallery styling */
+            html body #meme-gallery-container {
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                overflow: hidden !important;
+                transition: all 0.3s ease !important;
+                flex: 1 !important;
+                min-height: 400px !important;
+                max-height: calc(100vh - 220px) !important;
+                overflow-y: auto !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            
+            /* Disclaimer component */
+            html body #disclaimer-container {
+                width: 100% !important;
+                margin-top: auto !important;
+                box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Fix for chat messages display */
+            html body .chat-window-component {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            
+            html body .messages-container {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding: 1.5rem !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                scroll-behavior: smooth !important;
+                min-height: 350px !important;
+            }
+            
+            /* Message styling */
+            html body .message {
+                max-width: 85% !important;
+                padding: 1rem !important;
+                border-radius: 0.5rem !important;
+                animation: message-fade-in 0.3s ease-out !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            html body .message.bot-message {
+                align-self: flex-start !important;
+                background: rgba(30, 36, 50, 0.8) !important;
+                border-left: 4px solid var(--accent-primary) !important;
+            }
+            
+            html body .message.user-message {
+                align-self: flex-end !important;
+                background: rgba(55, 114, 255, 0.15) !important;
+                border-right: 4px solid var(--accent-primary) !important;
+            }
+            
+            /* Message input component */
+            html body .message-input-component {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                padding: 1rem !important;
+            }
+            
+            /* Control panel component */
+            html body .control-panel-component {
+                padding: 1.5rem !important;
+                display: block !important;
+            }
+            
+            html body .control-panel-header {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            html body .theme-options {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            html body .theme-button {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border-radius: 8px !important;
+                padding: 1rem !important;
+                transition: all 0.3s ease !important;
+                background: rgba(30, 36, 50, 0.5) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                cursor: pointer !important;
+            }
+            
+            html body .theme-button.active {
+                border: 1px solid var(--accent-primary) !important;
+                box-shadow: 0 0 10px rgba(55, 114, 255, 0.3) !important;
+            }
+            
+            html body .level-controls {
+                display: flex !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            html body .level-button {
+                flex: 1 !important;
+                padding: 0.75rem !important;
+                border-radius: 6px !important;
+                background: rgba(30, 36, 50, 0.5) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                text-align: center !important;
+            }
+            
+            html body .level-button.active {
+                border: 1px solid var(--accent-primary) !important;
+                background: rgba(55, 114, 255, 0.15) !important;
+            }
+
+            /* Hide fallback content */
+            html body .container.enhanced-ui .fallback-content {
+                display: none !important; 
+            }
+        }
+    </style>
+    
     <!-- EventBus Protection - Prevents EventBus from being used as a constructor -->
     <script>
         // This ensures even if someone uses 'new EventBus()', it won't crash the page
@@ -95,14 +517,20 @@
     <link rel="icon" href="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
     <link rel="apple-touch-icon" href="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
     
-    <!-- Base CSS -->
+    <!-- CSS Architecture - Properly Layered -->
+    <!-- 1. CSS Reset - Normalize browser defaults -->
     <link rel="stylesheet" href="css/reset.css">
+    
+    <!-- 2. Variables and Base Styles - Define design tokens and elements base styles -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/enhanced-ui.css">
-    <link rel="stylesheet" href="css/app-layout.css">
     
-    <!-- Component CSS -->
+    <!-- 3. Core Layout - Desktop First Approach -->
+    <link rel="stylesheet" href="css/app-layout.css">
+    <link rel="stylesheet" href="css/enhanced-ui.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- 4. Components Styles -->
     <link rel="stylesheet" href="components/Header/Header.css">
     <link rel="stylesheet" href="components/StonksTicker/StonksTicker.css">
     <link rel="stylesheet" href="components/ControlPanel/ControlPanel.css">
@@ -112,84 +540,38 @@
     <link rel="stylesheet" href="components/MemeGallery/MemeGallery.css">
     <link rel="stylesheet" href="components/Disclaimer/Disclaimer.css">
     
-    <style>
-        .fallback-content {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .fallback-content h2 {
-            color: #ff3366;
-            margin-bottom: 10px;
-        }
-        
-        .fallback-content p {
-            color: white;
-            margin-bottom: 15px;
-        }
-        
-        .debug-button {
-            background-color: #3772ff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
-        
-        .debug-button:hover {
-            background-color: #4a85ff;
-            transform: translateY(-2px);
-        }
-        
-        /* Loading animation */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(20, 26, 40, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
-        }
-        
-        .loading-spinner {
-            border: 6px solid rgba(55, 114, 255, 0.2);
-            border-top: 6px solid #3772ff;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        .loading-text {
-            color: white;
-            font-size: 1.5rem;
-            margin-top: 20px;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Fade out animation */
-        .fade-out {
-            opacity: 0;
-            pointer-events: none;
+    <!-- 5. Responsive and Mobile Overrides - These come LAST to override desktop styles -->
+    <link rel="stylesheet" href="css/mobile-enhanced.css">
+    
+    <!-- Emergency fix for iPad Air layout in DevTools -->
+    <style id="ipad-air-fix">
+        @media only screen and (width: 820px) and (height: 1180px),
+               only screen and (width: 834px) and (height: 1194px),
+               only screen and (width: 768px) and (height: 1024px),
+               only screen and (width: 1180px) and (height: 820px),
+               only screen and (width: 1194px) and (height: 834px),
+               only screen and (width: 1024px) and (height: 768px) {
+            
+            /* Force grid layout */
+            .content-grid {
+                display: grid !important;
+                grid-template-columns: 100% !important;
+                gap: 16px !important;
+                padding: 16px !important;
+            }
+            
+            /* Force chat section to top */
+            .chat-section {
+                width: 100% !important;
+                order: 1 !important;
+                min-height: 75vh !important;
+            }
+            
+            .left-sidebar-wrapper,
+            .right-sidebar-wrapper {
+                width: 100% !important;
+                order: 2 !important;
+            }
         }
     </style>
     
@@ -225,6 +607,27 @@
     <script defer src="js/api-debug.js"></script>
 </head>
 <body class="theme-crypto">
+    <!-- iPad Mini Emergency Fix -->
+    <script>
+        console.log("🔍 iPad Mini Debug - Window dimensions:", window.innerWidth, "x", window.innerHeight);
+        
+        // Immediately detect iPad Mini and add CSS classes
+        if (window.innerWidth === 768 && window.innerHeight === 1024) {
+            console.log("✅ APPLYING CSS CLASSES FOR IPAD MINI!");
+            
+            // Mark document with data attribute and classes for CSS targeting
+            document.documentElement.setAttribute('data-device', 'ipad-mini');
+            document.documentElement.classList.add('ipad-mini-view', 'tablet-view');
+            document.body.setAttribute('data-device', 'ipad-mini');
+            document.body.classList.add('ipad-mini-view', 'tablet-view');
+            
+            // Also add orientation info for more specific CSS targeting
+            const orientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+            document.documentElement.classList.add(`orientation-${orientation}`);
+            document.body.classList.add(`orientation-${orientation}`);
+        }
+    </script>
+
     <!-- Loading overlay -->
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-spinner"></div>
@@ -287,13 +690,36 @@
     <script defer src="components/MemeGallery/MemeGallery.js"></script>
     <script defer src="components/Disclaimer/Disclaimer.js"></script>
     
-    <!-- Main initialization script - must be loaded last -->
+    <!-- Mobile enhancements -->
+    <script defer src="js/mobile-enhancements.js"></script>
+    
+    <!-- Main application initialization -->
     <script defer src="js/main.js"></script>
     
     <!-- Show fallback content if components don't load after timeout -->
     <script>
         // Hide loading screen after everything is loaded
         window.addEventListener('load', function() {
+            // First check if we're on desktop
+            const isDesktop = window.innerWidth > 1024;
+            
+            // If on desktop, immediately apply desktop classes and hide fallback
+            if (isDesktop) {
+                console.log("Detected desktop - applying desktop layout");
+                document.documentElement.classList.add('desktop-view');
+                document.body.classList.add('desktop-view');
+                document.documentElement.setAttribute('data-device', 'desktop');
+                document.body.setAttribute('data-device', 'desktop');
+                
+                // Remove any tablet/mobile classes that might have been erroneously applied
+                document.documentElement.classList.remove('mobile-view', 'tablet-view', 'ipad-view', 'ipad-mini-view');
+                document.body.classList.remove('mobile-view', 'tablet-view', 'ipad-view', 'ipad-mini-view');
+                
+                // Hide fallback immediately
+                const fallbackContent = document.getElementById('fallback-content');
+                if (fallbackContent) fallbackContent.style.display = 'none';
+            }
+            
             setTimeout(function() {
                 const loadingOverlay = document.getElementById('loading-overlay');
                 if (loadingOverlay) {
@@ -302,7 +728,99 @@
                         loadingOverlay.style.display = 'none';
                     }, 500);
                 }
-            }, 2000); // Wait 2 seconds after load to hide
+                
+                // Force desktop layout if needed
+                if (isDesktop) {
+                    console.log("Applying desktop layout fixes...");
+                    
+                    // Try to apply desktop layout if function exists
+                    if (typeof applyDesktopLayout === 'function') {
+                        applyDesktopLayout();
+                        
+                        // Run it again after a short delay to ensure everything is properly styled
+                        setTimeout(applyDesktopLayout, 500);
+                    } else {
+                        console.log('Manual layout fix applied');
+                        
+                        // Force display of all components
+                        const componentContainers = [
+                            'header-container', 
+                            'stonks-ticker', 
+                            'control-panel-container', 
+                            'soundboard-container', 
+                            'chat-messages-container', 
+                            'message-input-container', 
+                            'meme-gallery-container',
+                            'disclaimer-container'
+                        ];
+                        
+                        componentContainers.forEach(id => {
+                            const container = document.getElementById(id);
+                            if (container) {
+                                container.style.display = 'block';
+                                container.style.visibility = 'visible';
+                                container.style.opacity = '1';
+                            }
+                        });
+                        
+                        // Manual desktop layout fix
+                        const container = document.querySelector('.container.enhanced-ui');
+                        const contentGrid = document.querySelector('.content-grid');
+                        
+                        if (container) {
+                            container.style.display = 'flex';
+                            container.style.flexDirection = 'column';
+                            container.style.minHeight = '100vh';
+                        }
+                        
+                        if (contentGrid) {
+                            contentGrid.style.display = 'grid';
+                            contentGrid.style.gridTemplateColumns = '280px minmax(600px, 1fr) 280px';
+                            contentGrid.style.gap = '1.5rem';
+                            contentGrid.style.width = '100%';
+                            contentGrid.style.maxWidth = '1600px';
+                            contentGrid.style.margin = '0 auto';
+                            contentGrid.style.height = 'calc(100vh - 180px)';
+                            contentGrid.style.minHeight = '500px';
+                        }
+                        
+                        // Style chat section
+                        const chatSection = document.querySelector('.chat-section');
+                        if (chatSection) {
+                            chatSection.style.display = 'flex';
+                            chatSection.style.flexDirection = 'column';
+                            chatSection.style.gap = '1rem';
+                            chatSection.style.height = '100%';
+                            chatSection.style.maxHeight = 'calc(100vh - 220px)';
+                        }
+                        
+                        // Style sidebars
+                        const leftSidebar = document.querySelector('.left-sidebar-wrapper');
+                        if (leftSidebar) {
+                            leftSidebar.style.display = 'flex';
+                            leftSidebar.style.flexDirection = 'column';
+                            leftSidebar.style.gap = '1rem';
+                            leftSidebar.style.maxWidth = '280px';
+                        }
+                        
+                        const rightSidebar = document.querySelector('.right-sidebar-wrapper');
+                        if (rightSidebar) {
+                            rightSidebar.style.display = 'flex';
+                            rightSidebar.style.flexDirection = 'column';
+                            rightSidebar.style.gap = '1rem';
+                            rightSidebar.style.maxWidth = '280px';
+                        }
+                    }
+                    
+                    // Specifically force the desktop layout CSS to be applied
+                    const desktopLayoutStyle = document.getElementById('desktop-layout-fix');
+                    if (desktopLayoutStyle) {
+                        // Force reflow to ensure styles are applied
+                        desktopLayoutStyle.disabled = true;
+                        desktopLayoutStyle.disabled = false;
+                    }
+                }
+            }, 1000); // Wait 1 second after load to hide
         });
         
         // Set up debug button handlers
@@ -341,4 +859,177 @@
         }, 15000); // Increased timeout to 15 seconds to allow for slower loading
     </script>
 </body>
+<script>
+    // Immediate mobile viewport and layout fix script
+    (function() {
+        // Fix viewport meta tag immediately
+        let viewport = document.querySelector('meta[name="viewport"]');
+        if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.head.appendChild(viewport);
+        }
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+        
+        // Detect mobile immediately
+        const isMobile = window.innerWidth <= 768;
+        const isSmallMobile = window.innerWidth <= 480;
+        
+        // Add classes to html element for immediate CSS targeting
+        if (isMobile) {
+            document.documentElement.classList.add('mobile-view');
+            if (isSmallMobile) {
+                document.documentElement.classList.add('small-mobile-view');
+            }
+        }
+        
+        // Fix for DevTools being open
+        if (window.innerHeight < window.outerHeight * 0.75) {
+            document.documentElement.classList.add('devtools-open');
+        }
+        
+        // Fix layout issues on mobile
+        if (isMobile) {
+            // Helper function to fix common layout issues
+            function fixLayout() {
+                // Force container to full width
+                const containers = document.querySelectorAll('.container');
+                containers.forEach(container => {
+                    container.style.width = '100%';
+                    container.style.maxWidth = '100%';
+                    container.style.margin = '0';
+                    container.style.boxSizing = 'border-box';
+                });
+                
+                // Ensure chat section has proper height
+                const chatSection = document.querySelector('.chat-section');
+                if (chatSection) {
+                    chatSection.style.minHeight = '70vh';
+                    chatSection.style.display = 'flex';
+                    chatSection.style.flexDirection = 'column';
+                }
+                
+                // Fix chat window component
+                const chatWindow = document.querySelector('.chat-window-component');
+                if (chatWindow) {
+                    chatWindow.style.flex = '1';
+                    chatWindow.style.display = 'flex';
+                    chatWindow.style.flexDirection = 'column';
+                    chatWindow.style.height = '100%';
+                }
+                
+                // Fix messages container
+                const messagesContainer = document.querySelector('.messages-container');
+                if (messagesContainer) {
+                    messagesContainer.style.flex = '1';
+                    messagesContainer.style.display = 'flex';
+                    messagesContainer.style.flexDirection = 'column';
+                    messagesContainer.style.height = '100%';
+                    
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+                
+                // Hide debug elements
+                const debugElements = document.querySelectorAll('.debug-button, #debug-button');
+                debugElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+            }
+            
+            // Run immediately
+            fixLayout();
+            
+            // And again after a short delay to ensure DOM is ready
+            setTimeout(fixLayout, 100);
+            
+            // And again after all content is likely loaded
+            setTimeout(fixLayout, 1000);
+        }
+    })();
+</script>
+
+<!-- Special iPad Mini Layout Diagnostic - this helps debug layout issues -->
+<script>
+    // Wait for everything to be fully loaded 
+    window.addEventListener('load', function() {
+        // Only run on iPad Mini dimensions
+        if (window.innerWidth === 768 && window.innerHeight === 1024) {
+            console.log("🔍 iPad Mini Layout Diagnostic Running...");
+            
+            // Create diagnostic overlay
+            function createDiagnosticOverlay() {
+                const overlay = document.createElement('div');
+                overlay.id = 'ipad-mini-diagnostic';
+                overlay.style.cssText = `
+                    position: fixed;
+                    bottom: 10px;
+                    right: 10px;
+                    background: rgba(0,0,0,0.8);
+                    color: lime;
+                    padding: 10px;
+                    border-radius: 5px;
+                    font-family: monospace;
+                    font-size: 12px;
+                    z-index: 99999;
+                    max-width: 250px;
+                    max-height: 200px;
+                    overflow: auto;
+                `;
+                
+                document.body.appendChild(overlay);
+                return overlay;
+            }
+            
+            // Check layout and update overlay
+            function checkLayout() {
+                const overlay = document.getElementById('ipad-mini-diagnostic') || createDiagnosticOverlay();
+                
+                // Get important layout elements
+                const contentGrid = document.querySelector('.content-grid');
+                const chatSection = document.querySelector('.chat-section');
+                const leftSidebar = document.querySelector('.left-sidebar-wrapper');
+                const controlPanel = document.querySelector('.control-panel-component');
+                
+                // Get computed styles
+                const gridStyle = contentGrid ? getComputedStyle(contentGrid) : null;
+                const chatStyle = chatSection ? getComputedStyle(chatSection) : null;
+                const sidebarStyle = leftSidebar ? getComputedStyle(leftSidebar) : null;
+                const panelStyle = controlPanel ? getComputedStyle(controlPanel) : null;
+                
+                // Update diagnostic overlay
+                overlay.innerHTML = `
+                    <div><b>iPad Mini Layout:</b></div>
+                    <div>Grid: ${gridStyle ? gridStyle.display + ' / ' + gridStyle.gridTemplateColumns + ' / ' + gridStyle.width : 'N/A'}</div>
+                    <div>Chat: ${chatStyle ? chatStyle.width + ' / order: ' + chatStyle.order : 'N/A'}</div>
+                    <div>Sidebar: ${sidebarStyle ? sidebarStyle.width + ' / order: ' + sidebarStyle.order : 'N/A'}</div>
+                    <div>Panel: ${panelStyle ? panelStyle.display + ' / ' + panelStyle.width : 'N/A'}</div>
+                    <button id="fix-layout-now" style="margin-top:5px;background:lime;color:black;border:0;padding:5px;border-radius:3px;width:100%;">Fix Layout Now</button>
+                `;
+                
+                // Add fix button event
+                document.getElementById('fix-layout-now').addEventListener('click', function() {
+                    // Call our layout fix directly
+                    if (typeof forceIPadMiniLayout === 'function') {
+                        forceIPadMiniLayout();
+                        setTimeout(checkLayout, 500); // Update after fixing
+                    } else {
+                        // Apply direct layout fixes
+                        if (contentGrid) {
+                            contentGrid.style.cssText = 'display:grid !important; grid-template-columns:100% !important; width:100% !important;';
+                            
+                            if (chatSection) chatSection.style.cssText = 'width:100% !important; order:1 !important;';
+                            if (leftSidebar) leftSidebar.style.cssText = 'width:100% !important; order:2 !important;';
+                        }
+                        setTimeout(checkLayout, 500);
+                    }
+                });
+            }
+            
+            // Run diagnostic immediately and periodically
+            checkLayout();
+            setInterval(checkLayout, 3000);
+        }
+    });
+</script>
 </html>
