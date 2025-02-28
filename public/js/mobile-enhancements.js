@@ -3,16 +3,105 @@
  * Mobile-specific JavaScript enhancements for DEGEN ROAST 3000
  */
 
+// IMMEDIATE EXECUTION ZONE - Runs before anything else
+(function() {
+  // Quick mobile detection
+  const isMobile = window.innerWidth <= 1024 || 
+                  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                  ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 0);
+  
+  if (isMobile) {
+    console.log("🚨 IMMEDIATE MOBILE DETECTION - Adding basic mobile classes");
+    // Add classes ASAP
+    document.documentElement.classList.add('mobile-view');
+    if (document.body) document.body.classList.add('mobile-view');
+    
+    // Add viewport meta immediately if not present
+    if (!document.querySelector('meta[name="viewport"]')) {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+      document.head.appendChild(meta);
+    }
+    
+    // Add basic mobile stylesheet ASAP
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Immediate mobile styles */
+      .mobile-view .content-grid, body.mobile-view .content-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+      }
+      .mobile-view .chat-section, body.mobile-view .chat-section {
+        width: 100% !important;
+        order: 1 !important;
+      }
+      .mobile-view .left-sidebar-wrapper, body.mobile-view .left-sidebar-wrapper {
+        width: 100% !important;
+        order: 2 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Enhanced device detection with more robust iPad detection
-  const isMobile = window.innerWidth <= 1024; // Include tablets in "mobile" category
-  const isSmallMobile = window.innerWidth <= 480;
-  const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
-  const isDesktop = window.innerWidth > 1024;
+  console.log("📱 Mobile enhancements script loaded - starting device detection");
+  
+  // ENHANCED DEVICE DETECTION - More robust for browser emulators
+  // Get accurate dimensions regardless of zoom level or dev tools
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // Enhanced detection rules - Check multiple factors
+  const isMobileByWidth = viewportWidth <= 1024;
+  const isMobileByUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobileByTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const isMobileByScreenWidth = screenWidth <= 1024;
+  
+  // Combined detection - If ANY of these are true, consider it mobile
+  const isMobile = isMobileByWidth || isMobileByUserAgent || isMobileByTouchPoints || isMobileByScreenWidth;
+  
+  const isSmallMobile = viewportWidth <= 480;
+  const isTablet = viewportWidth >= 768 && viewportWidth <= 1024;
+  const isDesktop = viewportWidth > 1024 && !isMobileByUserAgent && !isMobileByTouchPoints;
+  
+  // Log detection details for debugging
+  console.log("📊 Enhanced device detection details:", {
+    screenWidth,
+    screenHeight,
+    viewportWidth,
+    viewportHeight,
+    isMobileByWidth,
+    isMobileByUserAgent,
+    isMobileByTouchPoints,
+    isMobileByScreenWidth,
+    isMobile,
+    isSmallMobile,
+    isTablet,
+    isDesktop,
+    userAgent: navigator.userAgent,
+    maxTouchPoints: navigator.maxTouchPoints || 0
+  });
+  
+  // ALWAYS ensure proper viewport meta tag - force it even if it exists
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (!viewportMeta) {
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    document.head.appendChild(meta);
+  } else {
+    // Update existing viewport meta tag to ensure correct settings
+    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+  }
   
   // Skip mobile enhancements entirely on desktop
-  if (isDesktop) {
-    console.log('📱 Desktop detected, skipping mobile enhancements');
+  if (isDesktop && !isMobile) {
+    console.log('🖥️ Desktop detected, skipping mobile enhancements');
     
     // Add desktop classes
     document.documentElement.classList.add('desktop-view');
@@ -27,6 +116,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Return early - don't apply any mobile enhancements
     return;
   }
+  
+  // If we get here, we're on mobile - log this
+  console.log('📱 Mobile device detected - applying mobile enhancements');
+  
+  // Force mobile classes immediately
+  document.documentElement.classList.add('mobile-view');
+  document.body.classList.add('mobile-view');
+  
+  // Add debugging indicator for troubleshooting
+  const mobileIndicator = document.createElement('div');
+  mobileIndicator.className = 'mobile-debug-indicator';
+  mobileIndicator.style.position = 'fixed';
+  mobileIndicator.style.bottom = '5px';
+  mobileIndicator.style.right = '5px';
+  mobileIndicator.style.background = 'rgba(0,0,0,0.5)';
+  mobileIndicator.style.color = 'white';
+  mobileIndicator.style.padding = '5px';
+  mobileIndicator.style.fontSize = '10px';
+  mobileIndicator.style.zIndex = '9999';
+  mobileIndicator.style.borderRadius = '3px';
+  mobileIndicator.textContent = `Mobile View (${viewportWidth}x${viewportHeight})`;
+  document.body.appendChild(mobileIndicator);
   
   // ============================================================
   // RESPONSIVE ARCHITECTURE - DEVICE DETECTION
@@ -47,10 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
     desktop: 1200
   };
   
-  // Device dimension info
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  
   // Enhanced iPad/tablet detection - more robust checking for various iPad models
   // iPad Air dimensions can be 820x1180, 768x1024, or various other sizes
   const iPadDimensions = [
@@ -62,11 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
   ];
   
   // Specific flag for iPad Mini
-  const isIPadMini = window.innerWidth === 768 && window.innerHeight === 1024;
+  const isIPadMini = viewportWidth === 768 && viewportHeight === 1024;
   
   const isIPadByDimensions = iPadDimensions.some(dim => 
-    (Math.abs(window.innerWidth - dim.width) < 10 && Math.abs(window.innerHeight - dim.height) < 10) || 
-    (Math.abs(window.innerHeight - dim.width) < 10 && Math.abs(window.innerWidth - dim.height) < 10) // Account for orientation
+    (Math.abs(viewportWidth - dim.width) < 10 && Math.abs(viewportHeight - dim.height) < 10) || 
+    (Math.abs(viewportHeight - dim.width) < 10 && Math.abs(viewportWidth - dim.height) < 10) // Account for orientation
   );
   
   const isDevToolsIPad = isIPadByDimensions;
@@ -75,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const isIPad = isIPadByDimensions || 
                 (navigator.userAgent.match(/iPad/i)) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
-                (navigator.userAgent.match(/Mac/i) && 'ontouchend' in document && window.innerWidth >= 768 && window.innerWidth <= 1024);
+                (navigator.userAgent.match(/Mac/i) && 'ontouchend' in document && viewportWidth >= 768 && viewportWidth <= 1024);
   
   // ============================================================
   // ADD DEVICE CLASSES - This enables CSS targeting
@@ -164,8 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
   addDeviceClasses();
 
   console.log("Enhanced Device detection:", { 
-    width: window.innerWidth, 
-    height: window.innerHeight,
+    width: viewportWidth, 
+    height: viewportHeight,
     isIPadMini: isIPadMini,
     isIPadByDimensions: isIPadByDimensions,
     isDevToolsIPad: isDevToolsIPad,
@@ -226,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // 7. DevTools Detection
-  if (window.innerHeight < window.outerHeight * 0.75) {
+  if (viewportHeight < window.outerHeight * 0.75) {
     document.body.classList.add('devtools-open');
   }
 });
@@ -273,285 +380,1072 @@ function createBackToChatButton() {
   }
 }
 
+// Create and inject mobile-specific CSS that will override desktop styles
+function injectMobileCSS() {
+  // Don't add if already exists
+  if (document.querySelector('#mobile-override-css')) return;
+  
+  console.log("💉 Injecting mobile-specific CSS overrides");
+  
+  const css = `
+    /* Mobile-specific CSS that will override desktop styles */
+    @media (max-width: 1024px) {
+      .mobile-view .content-grid,
+      .tablet-view .content-grid,
+      body.mobile-view .content-grid,
+      html.mobile-view .content-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+      }
+      
+      .mobile-view .container,
+      body.mobile-view .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+      }
+      
+      .mobile-view .chat-section,
+      body.mobile-view .chat-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        order: 1 !important;
+      }
+      
+      .mobile-view .left-sidebar-wrapper,
+      body.mobile-view .left-sidebar-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        order: 2 !important;
+      }
+      
+      .mobile-view .right-sidebar-wrapper,
+      body.mobile-view .right-sidebar-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        order: 3 !important;
+      }
+      
+      /* Hide elements that shouldn't appear on mobile */
+      .mobile-view .desktop-only,
+      body.mobile-view .desktop-only {
+        display: none !important;
+      }
+      
+      /* Mobile debug indicator */
+      .mobile-debug-indicator {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 9999 !important;
+      }
+      
+      /* Ensure back-to-chat button is visible */
+      .back-to-chat-button.visible {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        z-index: 9999 !important;
+        background: rgba(0,0,0,0.7) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 50px !important;
+        height: 50px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+      }
+    }
+    
+    /* Tablet-specific overrides */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .tablet-view .content-grid,
+      body.tablet-view .content-grid {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      /* Landscape orientation for tablets */
+      @media (orientation: landscape) {
+        .tablet-view .content-grid,
+        body.tablet-view .content-grid,
+        .tablet-view[data-tablet-orientation="landscape"] .content-grid,
+        body.tablet-view[data-tablet-orientation="landscape"] .content-grid {
+          display: grid !important;
+          grid-template-columns: 350px 1fr !important;
+          padding: 16px !important;
+          gap: 20px !important;
+        }
+        
+        .tablet-view .chat-section,
+        body.tablet-view .chat-section {
+          order: 2 !important;
+        }
+        
+        .tablet-view .left-sidebar-wrapper,
+        body.tablet-view .left-sidebar-wrapper {
+          order: 1 !important;
+        }
+      }
+    }
+  `;
+  
+  // Create style element
+  const style = document.createElement('style');
+  style.id = 'mobile-override-css';
+  style.textContent = css;
+  
+  // Add to document head
+  document.head.appendChild(style);
+  
+  // Add enhanced UI styles for better visual appearance
+  enhanceMobileUIAndLayout();
+}
+
+// Function to enhance mobile UI with better visual styling and space usage
+function enhanceMobileUIAndLayout() {
+  // Don't add if already enhanced
+  if (document.querySelector('#enhanced-mobile-ui-css')) return;
+  
+  console.log("✨ Enhancing mobile UI for better aesthetics and space usage");
+  
+  // Create enhanced mobile UI stylesheet
+  const css = `
+    /* Enhanced Mobile UI with better spacing and visuals */
+    
+    /* General improvements */
+    body.mobile-view {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+    }
+    
+    /* Improve container spacing */
+    .mobile-view .container {
+      padding: 10px !important;
+    }
+    
+    /* Chat section improvements */
+    .mobile-view .chat-section {
+      border-radius: 12px !important;
+      background: rgba(30, 30, 50, 0.8) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+      margin-bottom: 10px !important;
+      overflow: hidden !important;
+    }
+    
+    /* Messages container improvements */
+    .mobile-view .messages-container {
+      padding: 12px !important;
+    }
+    
+    /* Message styling */
+    .mobile-view .user-message,
+    .mobile-view .bot-message {
+      border-radius: 18px !important;
+      padding: 12px 15px !important;
+      margin-bottom: 10px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      max-width: 85% !important;
+      position: relative !important;
+      overflow-wrap: break-word !important;
+    }
+    
+    .mobile-view .user-message {
+      background: linear-gradient(135deg, #2c5364, #203a43) !important;
+      margin-left: auto !important;
+      border-bottom-right-radius: 5px !important;
+    }
+    
+    .mobile-view .bot-message {
+      background: linear-gradient(135deg, #5c2774, #410d62) !important;
+      margin-right: auto !important;
+      border-bottom-left-radius: 5px !important;
+    }
+    
+    /* Improve chat input area */
+    .mobile-view .chat-input-container {
+      padding: 10px !important;
+      background: rgba(25, 25, 40, 0.9) !important;
+      border-top: 1px solid rgba(100, 100, 140, 0.3) !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    
+    .mobile-view .chat-input,
+    .mobile-view textarea.chat-input,
+    .mobile-view input.chat-input {
+      border-radius: 18px !important;
+      padding: 12px 16px !important;
+      background: rgba(40, 40, 60, 0.6) !important;
+      border: 1px solid rgba(100, 100, 140, 0.3) !important;
+      flex-grow: 1 !important;
+      margin: 0 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+      font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+    
+    .mobile-view .send-button {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important; /* Mobile touch target */
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: linear-gradient(135deg, #ff2e63, #ff0844) !important;
+      box-shadow: 0 2px 8px rgba(255, 50, 100, 0.4) !important;
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Control panel improvements */
+    .mobile-view .control-panel-component {
+      border-radius: 12px !important;
+      background: rgba(30, 30, 50, 0.8) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      margin-bottom: 20px !important;
+    }
+    
+    /* Control panel toggle styling */
+    .mobile-view .control-panel-toggle {
+      padding: 12px 15px !important;
+      background: rgba(40, 40, 70, 0.9) !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      font-weight: bold !important;
+      border-bottom: 1px solid rgba(100, 100, 140, 0.3) !important;
+    }
+    
+    /* Collapsed control panel */
+    .mobile-view .control-panel-component.collapsed .control-panel-section,
+    .mobile-view .control-panel-component.collapsed .theme-section,
+    .mobile-view .control-panel-component.collapsed .level-section,
+    .mobile-view .control-panel-component.collapsed .mode-section {
+      display: none !important;
+    }
+    
+    /* Theme section improvements */
+    .mobile-view .theme-section {
+      padding: 12px !important;
+    }
+    
+    .mobile-view .theme-options {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 8px !important;
+      margin-top: 10px !important;
+    }
+    
+    .mobile-view .theme-button {
+      aspect-ratio: 1/1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 10px !important;
+      font-size: 0.9em !important;
+      padding: 5px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+      border: 2px solid transparent !important;
+    }
+    
+    .mobile-view .theme-button.active {
+      border-color: #ff2e63 !important;
+      box-shadow: 0 0 15px rgba(255, 46, 99, 0.4) !important;
+    }
+    
+    /* Level controls improvements */
+    .mobile-view .level-section {
+      padding: 12px !important;
+    }
+    
+    .mobile-view .level-controls {
+      display: grid !important;
+      grid-template-columns: repeat(5, 1fr) !important;
+      gap: 5px !important;
+      margin-top: 10px !important;
+    }
+    
+    .mobile-view .level-button {
+      padding: 10px 5px !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+      font-size: 0.9em !important;
+      border: 2px solid transparent !important;
+    }
+    
+    .mobile-view .level-button.active {
+      border-color: #ff2e63 !important;
+      box-shadow: 0 0 10px rgba(255, 46, 99, 0.4) !important;
+    }
+    
+    /* Section headers */
+    .mobile-view .control-panel-section-title,
+    .mobile-view .section-title {
+      padding: 10px 5px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      font-weight: bold !important;
+    }
+    
+    /* Mode section improvements */
+    .mobile-view .mode-section {
+      padding: 12px !important;
+    }
+    
+    /* Stonks ticker improvements */
+    .mobile-view #stonks-ticker {
+      border-radius: 8px !important;
+      overflow: hidden !important;
+      background: rgba(25, 25, 40, 0.8) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+      margin: 8px 0 !important;
+    }
+    
+    /* Header improvements */
+    .mobile-view #header-container {
+      padding: 10px !important;
+      margin-bottom: 10px !important;
+      border-radius: 12px !important;
+      background: rgba(25, 25, 40, 0.8) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* Back to chat button improvements */
+    .mobile-view .back-to-chat-button.visible {
+      background: linear-gradient(145deg, #ff2e63, #ff0844) !important;
+      box-shadow: 0 3px 15px rgba(255, 46, 99, 0.5) !important;
+      border: none !important;
+      animation: pulseBeat 2s infinite !important;
+    }
+    
+    @keyframes pulseBeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Smooth transitions */
+    .mobile-view * {
+      transition: all 0.2s ease-out !important;
+    }
+    
+    /* Add quick action buttons floating bar */
+    .mobile-view .quick-actions-bar {
+      position: fixed !important;
+      bottom: 20px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      gap: 10px !important;
+      background: rgba(30, 30, 50, 0.8) !important;
+      backdrop-filter: blur(5px) !important;
+      -webkit-backdrop-filter: blur(5px) !important;
+      padding: 8px 12px !important;
+      border-radius: 25px !important;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3) !important;
+      z-index: 9998 !important;
+    }
+    
+    .mobile-view .quick-action-button {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(60, 60, 80, 0.8) !important;
+      color: white !important;
+      font-size: 18px !important;
+      border: none !important;
+    }
+    
+    /* Visible scrollbar styling */
+    .mobile-view ::-webkit-scrollbar {
+      width: 6px !important;
+      height: 6px !important;
+    }
+    
+    .mobile-view ::-webkit-scrollbar-track {
+      background: rgba(30, 30, 50, 0.3) !important;
+      border-radius: 10px !important;
+    }
+    
+    .mobile-view ::-webkit-scrollbar-thumb {
+      background: rgba(255, 46, 99, 0.5) !important;
+      border-radius: 10px !important;
+    }
+    
+    /* Loading indicator improvement */
+    .mobile-view .loading-indicator {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 10px !important;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .mobile-view .user-message,
+    .mobile-view .bot-message {
+      animation: fadeIn 0.3s ease-out !important;
+    }
+  `;
+  
+  // Create and add stylesheet
+  const style = document.createElement('style');
+  style.id = 'enhanced-mobile-ui-css';
+  style.textContent = css;
+  document.head.appendChild(style);
+  
+  // Add quick action buttons to enhance mobile experience
+  addQuickActionButtons();
+  
+  // Add interactive animations and features
+  enhanceInteractiveElements();
+}
+
+// Add quick action buttons bar for easy access to common functions
+function addQuickActionButtons() {
+  // Wait for DOM to fully load
+  setTimeout(() => {
+    // Only add if doesn't exist already
+    if (!document.querySelector('.quick-actions-bar')) {
+      console.log("📱 Adding quick action buttons for mobile");
+      
+      // Create quick actions bar
+      const quickActionsBar = document.createElement('div');
+      quickActionsBar.className = 'quick-actions-bar';
+      
+      // Clear chat button
+      const clearButton = document.createElement('button');
+      clearButton.className = 'quick-action-button clear-chat';
+      clearButton.innerHTML = '🗑️';
+      clearButton.setAttribute('aria-label', 'Clear conversation');
+      clearButton.setAttribute('title', 'Clear conversation');
+      
+      // Toggle theme button
+      const themeButton = document.createElement('button');
+      themeButton.className = 'quick-action-button toggle-theme';
+      themeButton.innerHTML = '🌙';
+      themeButton.setAttribute('aria-label', 'Toggle theme');
+      themeButton.setAttribute('title', 'Toggle theme');
+      
+      // Scroll to top button
+      const scrollTopButton = document.createElement('button');
+      scrollTopButton.className = 'quick-action-button scroll-top';
+      scrollTopButton.innerHTML = '⬆️';
+      scrollTopButton.setAttribute('aria-label', 'Scroll to top');
+      scrollTopButton.setAttribute('title', 'Scroll to top');
+      
+      // Add buttons to bar
+      quickActionsBar.appendChild(clearButton);
+      quickActionsBar.appendChild(themeButton);
+      quickActionsBar.appendChild(scrollTopButton);
+      
+      // Add bar to document
+      document.body.appendChild(quickActionsBar);
+      
+      // Add event listeners
+      clearButton.addEventListener('click', function() {
+        // Find and click existing clear button if available
+        const existingClearButton = document.querySelector('.clear-chat-button, button[data-action="clear"]');
+        if (existingClearButton) {
+          existingClearButton.click();
+        } else {
+          // If no existing button, try to clear via JavaScript
+          const messagesContainer = document.querySelector('.messages-container');
+          if (messagesContainer) {
+            // Keep first greeting message if exists
+            const messages = messagesContainer.querySelectorAll('.message-bubble, .user-message, .bot-message');
+            if (messages.length > 1) {
+              const firstMessage = messages[0];
+              while (messagesContainer.firstChild) {
+                messagesContainer.removeChild(messagesContainer.firstChild);
+              }
+              messagesContainer.appendChild(firstMessage);
+            }
+          }
+        }
+        
+        // Show confirmation
+        showMobileToast('Conversation cleared');
+      });
+      
+      themeButton.addEventListener('click', function() {
+        // Try to find theme buttons and toggle between first two
+        const themeButtons = document.querySelectorAll('.theme-button');
+        if (themeButtons.length > 1) {
+          // Find active button
+          const activeButton = document.querySelector('.theme-button.active');
+          const activeIndex = Array.from(themeButtons).indexOf(activeButton);
+          const nextIndex = (activeIndex + 1) % themeButtons.length;
+          
+          // Click next button
+          themeButtons[nextIndex].click();
+          
+          // Show confirmation
+          showMobileToast(`Theme changed`);
+        }
+      });
+      
+      scrollTopButton.addEventListener('click', function() {
+        // Scroll chat to top
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+          messagesContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Scroll page to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      
+      // Initially hide the bar when chat is in view
+      updateQuickActionsVisibility();
+      
+      // Listen for scroll to show/hide the bar
+      window.addEventListener('scroll', updateQuickActionsVisibility);
+    }
+  }, 1500);
+}
+
+// Update quick actions bar visibility based on scroll position
+function updateQuickActionsVisibility() {
+  const quickActionsBar = document.querySelector('.quick-actions-bar');
+  const backButton = document.querySelector('.back-to-chat-button');
+  
+  if (quickActionsBar) {
+    // Hide when back button is visible (prevents overlap)
+    if (backButton && backButton.classList.contains('visible')) {
+      quickActionsBar.style.opacity = '0';
+      quickActionsBar.style.pointerEvents = 'none';
+    } else {
+      quickActionsBar.style.opacity = '1';
+      quickActionsBar.style.pointerEvents = 'auto';
+    }
+  }
+}
+
+// Show toast notification on mobile
+function showMobileToast(message, duration = 2000) {
+  // Remove existing toast if present
+  const existingToast = document.querySelector('.mobile-toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  // Create new toast
+  const toast = document.createElement('div');
+  toast.className = 'mobile-toast';
+  toast.textContent = message;
+  
+  // Style the toast
+  toast.style.position = 'fixed';
+  toast.style.bottom = '80px';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.background = 'rgba(40, 40, 60, 0.9)';
+  toast.style.color = 'white';
+  toast.style.padding = '10px 20px';
+  toast.style.borderRadius = '20px';
+  toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+  toast.style.zIndex = '10000';
+  toast.style.textAlign = 'center';
+  toast.style.fontSize = '14px';
+  toast.style.animation = 'fadeIn 0.3s ease-out';
+  
+  // Add to document
+  document.body.appendChild(toast);
+  
+  // Remove after duration
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%, 20px)';
+    toast.style.transition = 'all 0.3s ease-out';
+    
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, duration);
+}
+
+// Enhance interactive elements for better mobile experience
+function enhanceInteractiveElements() {
+  // Make sure control panel toggle is improved
+  setTimeout(() => {
+    const controlPanelToggle = document.querySelector('.control-panel-toggle');
+    if (controlPanelToggle) {
+      if (!controlPanelToggle.querySelector('.toggle-text')) {
+        // Improve toggle with better text
+        controlPanelToggle.innerHTML = `
+          <span class="toggle-text">Control Panel</span>
+          <span class="toggle-icon">▼</span>
+        `;
+      }
+    }
+    
+    // Improve theme buttons with color indicators
+    const themeButtons = document.querySelectorAll('.theme-button');
+    themeButtons.forEach(button => {
+      // Add hover effect for touch feedback
+      button.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      });
+      
+      button.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      });
+    });
+    
+    // Improve level buttons with better indicators
+    const levelButtons = document.querySelectorAll('.level-button');
+    levelButtons.forEach((button, index) => {
+      // Add hover effect for touch feedback
+      button.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.95)';
+      });
+      
+      button.addEventListener('touchend', function() {
+        this.style.transform = 'scale(1)';
+      });
+    });
+  }, 1000);
+}
+
 // Update the load event handler to implement the new mobile-focused layout
 window.addEventListener('load', function() {
+  // Get current dimensions for layout calculations
+  const currentViewportWidth = window.innerWidth;
+  const currentViewportHeight = window.innerHeight;
+  
+  // Enhanced detection rules for load event
+  const isMobileByWidth = currentViewportWidth <= 1024;
+  const isMobileByUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobileByTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const isMobileByScreenWidth = window.screen.width <= 1024;
+  
+  // Combined detection - If ANY of these are true, consider it mobile
+  const isMobileDevice = isMobileByWidth || isMobileByUserAgent || isMobileByTouchPoints || isMobileByScreenWidth;
+  
+  console.log("📱 Load event - Mobile detection:", isMobileDevice, "Width:", currentViewportWidth);
+  
   // Make sure viewport is properly set
-  if (!document.querySelector('meta[name="viewport"]')) {
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (!viewportMeta) {
     const meta = document.createElement('meta');
     meta.name = 'viewport';
     meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
     document.head.appendChild(meta);
+  } else {
+    // Force update existing viewport meta
+    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
   }
   
-  // Enhanced detection for iPad/tablets with improved logic
-  const iPadDimensions = [
-    {width: 820, height: 1180}, // iPad Air in DevTools
-    {width: 768, height: 1024}, // Common iPad dimension
-    {width: 834, height: 1112}, // iPad Air (3rd gen, 10.5-inch)
-    {width: 810, height: 1080}, // Some iPad Air configurations
-    {width: 834, height: 1194}  // iPad Air (4th/5th gen, 10.9-inch)
-  ];
-  
-  // Specific check for iPad Mini dimensions
-  const isIPadMini = window.innerWidth === 768 && window.innerHeight === 1024;
-  
-  const isIPadByDimensions = iPadDimensions.some(dim => 
-    (Math.abs(window.innerWidth - dim.width) < 10 && Math.abs(window.innerHeight - dim.height) < 10) || 
-    (Math.abs(window.innerHeight - dim.width) < 10 && Math.abs(window.innerWidth - dim.height) < 10)
-  );
-  
-  // Better iPad detection
-  const isDevToolsIPad = isIPadByDimensions;
-  const isIPad = isIPadByDimensions || 
-                (navigator.userAgent.match(/iPad/i)) || 
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
-                (navigator.userAgent.match(/Mac/i) && 'ontouchend' in document && window.innerWidth >= 768 && window.innerWidth <= 1024);
-  const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
-  const isMobile = window.innerWidth <= 1024;
-  
-  // Log detection for debugging
-  console.log("Enhanced device detection on load:", { 
-    width: window.innerWidth, 
-    height: window.innerHeight,
-    isIPadMini: isIPadMini,
-    isIPadByDimensions: isIPadByDimensions,
-    isDevToolsIPad: isDevToolsIPad,
-    isIPad: isIPad, 
-    isTablet: isTablet,
-    userAgent: navigator.userAgent,
-    platform: navigator.platform,
-    maxTouchPoints: navigator.maxTouchPoints || 0
-  });
-  
-  // Add classes for CSS targeting
-  if (isMobile) {
-    document.body.classList.add('mobile-view');
+  // FORCE MOBILE MODE for certain devices regardless of any other detection
+  // This is our fallback to ensure mobile devices get mobile layout
+  if (isMobileDevice || currentViewportWidth <= 1024) {
+    console.log("🚨 FORCING MOBILE MODE - Width detection or user agent indicates mobile device");
+    
+    // Inject mobile-specific CSS
+    injectMobileCSS();
+    
+    // Force mobile classes
     document.documentElement.classList.add('mobile-view');
-  }
-  
-  if (isTablet) {
-    document.body.classList.add('tablet-view');
-    document.documentElement.classList.add('tablet-view');
-  }
-  
-  if (isIPad) {
-    document.body.classList.add('ipad-view');
-    document.documentElement.classList.add('ipad-view');
+    document.body.classList.add('mobile-view');
+    document.documentElement.setAttribute('data-device', 'mobile');
+    document.body.setAttribute('data-device', 'mobile');
     
-    // Add data attribute for more robust targeting
-    document.body.setAttribute('data-device', 'ipad');
+    // Remove desktop classes
+    document.documentElement.classList.remove('desktop-view');
+    document.body.classList.remove('desktop-view');
     
-    // Check if specifically iPad Air by dimensions
-    if (isIPadByDimensions) {
-      document.body.classList.add('ipad-air-view');
-      document.body.setAttribute('data-device', 'ipad-air');
-      console.log("✅ Detected iPad Air - Applied specific styles");
+    // Check for tablet/iPad specifically
+    const isTabletDevice = currentViewportWidth >= 768 && currentViewportWidth <= 1024;
+    if (isTabletDevice) {
+      document.documentElement.classList.add('tablet-view');
+      document.body.classList.add('tablet-view');
+    }
+    
+    // Apply the mobile-focused layout
+    applyMobileLayout(currentViewportWidth, currentViewportHeight, isTabletDevice);
+  }
+});
+
+// Extract mobile layout application to a separate function for reuse
+function applyMobileLayout(width, height, isTablet) {
+  console.log("📱 Applying mobile layout:", width, "x", height);
+  
+  // Ensure mobile classes are properly applied
+  document.documentElement.classList.add('mobile-view');
+  document.body.classList.add('mobile-view');
+  document.documentElement.classList.remove('desktop-view');
+  document.body.classList.remove('desktop-view');
+  
+  // FORCE mobile layout with !important inline styles
+  document.documentElement.style.setProperty('--is-mobile', 'true', 'important');
+  document.body.style.setProperty('--is-mobile', 'true', 'important');
+  
+  // Set proper heights after all content has loaded
+  const chatSection = document.querySelector('.chat-section');
+  if (chatSection) {
+    // Adjust height based on viewport and other elements
+    const headerHeight = document.getElementById('header-container')?.offsetHeight || 0;
+    const tickerHeight = document.getElementById('stonks-ticker')?.offsetHeight || 0;
+    
+    // For mobile, maximize chat height
+    if (!isTablet) {
+      chatSection.style.height = (height * 0.75) + 'px';
+      chatSection.style.minHeight = (height * 0.7) + 'px';
+      chatSection.style.maxHeight = (height * 0.8) + 'px';
+    } else {
+      // For tablets, use a different approach based on orientation
+      if (height > width) { // portrait
+        chatSection.style.height = (height * 0.65) + 'px'; 
+        chatSection.style.minHeight = (height * 0.6) + 'px';
+      } else { // landscape
+        // In landscape, allocate more space to height
+        chatSection.style.height = (height - headerHeight - tickerHeight - 40) + 'px';
+      }
+    }
+    
+    // Ensure messages container scrolls to bottom
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 100);
     }
   }
   
-  // Special handling for iPad Mini
-  if (isIPadMini) {
-    document.body.classList.add('ipad-mini-view');
-    document.body.setAttribute('data-device', 'ipad-mini');
-    console.log("✅ Detected iPad Mini - Applying immediate fix");
+  // Restructure the DOM for mobile layout with full-width components
+  const contentGrid = document.querySelector('.content-grid');
+  if (contentGrid) {
+    // Make sure content grid fills the screen with !important
+    contentGrid.style.setProperty('width', '100%', 'important');
+    contentGrid.style.setProperty('padding', '0', 'important');
+    contentGrid.style.setProperty('margin', '0 auto', 'important');
+    contentGrid.style.setProperty('max-width', '100%', 'important');
     
-    // Force direct fix for iPad Mini layout
-    setTimeout(forceIPadMiniLayout, 0);
-    // And again after a short delay
-    setTimeout(forceIPadMiniLayout, 300);
-    // And once more after DOM is fully loaded
-    setTimeout(forceIPadMiniLayout, 1000);
-  }
-  
-  // Apply the new mobile-focused layout
-  if (isMobile) {
-    // Set proper heights after all content has loaded
-    const chatSection = document.querySelector('.chat-section');
-    if (chatSection) {
-      // Adjust height based on viewport and other elements
-      const viewportHeight = window.innerHeight;
-      const headerHeight = document.getElementById('header-container')?.offsetHeight || 0;
-      const tickerHeight = document.getElementById('stonks-ticker')?.offsetHeight || 0;
+    // Remove any existing grid/layout styles
+    contentGrid.style.setProperty('display', 'block', 'important');
+    contentGrid.style.setProperty('grid-template-columns', 'none', 'important');
+    contentGrid.style.setProperty('grid-template-rows', 'none', 'important');
+    
+    // For phones (not tablets), stack everything
+    if (!isTablet) {
+      // Ensure chat is first, followed by control panel
+      const chatSection = document.querySelector('.chat-section');
+      const leftSidebar = document.querySelector('.left-sidebar-wrapper');
+      const rightSidebar = document.querySelector('.right-sidebar-wrapper');
       
-      // For mobile, maximize chat height
-      if (!isTablet && !isIPad) {
-        chatSection.style.height = (viewportHeight * 0.75) + 'px';
-        chatSection.style.minHeight = (viewportHeight * 0.7) + 'px';
-        chatSection.style.maxHeight = (viewportHeight * 0.8) + 'px';
-      } else {
-        // For tablets, use a different approach based on orientation
-        if (window.matchMedia('(orientation: portrait)').matches) {
-          chatSection.style.height = (viewportHeight * 0.65) + 'px'; 
-          chatSection.style.minHeight = (viewportHeight * 0.6) + 'px';
-        } else {
-          // In landscape, allocate more space to height
-          chatSection.style.height = (viewportHeight - headerHeight - tickerHeight - 40) + 'px';
+      if (chatSection && leftSidebar) {
+        // Force flex column layout with !important
+        contentGrid.style.setProperty('display', 'flex', 'important');
+        contentGrid.style.setProperty('flex-direction', 'column', 'important');
+        
+        // Set order: chat first, then control panel, then other components
+        chatSection.style.setProperty('order', '1', 'important');
+        chatSection.style.setProperty('width', '100%', 'important');
+        chatSection.style.setProperty('max-width', '100%', 'important');
+        
+        leftSidebar.style.setProperty('order', '2', 'important');
+        leftSidebar.style.setProperty('width', '100%', 'important');
+        leftSidebar.style.setProperty('max-width', '100%', 'important');
+        
+        if (rightSidebar) {
+          rightSidebar.style.setProperty('order', '3', 'important');
+          rightSidebar.style.setProperty('width', '100%', 'important');
+          rightSidebar.style.setProperty('max-width', '100%', 'important');
         }
+        
+        // Add padding below chat section
+        chatSection.style.setProperty('margin-bottom', '10px', 'important');
       }
-      
-      // Ensure messages container scrolls to bottom
-      const messagesContainer = document.querySelector('.messages-container');
-      if (messagesContainer) {
-        setTimeout(() => {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
-      }
-    }
-    
-    // Restructure the DOM for mobile layout with full-width components
-    const contentGrid = document.querySelector('.content-grid');
-    if (contentGrid) {
-      // Make sure content grid fills the screen
-      contentGrid.style.width = '100%';
-      contentGrid.style.padding = '0';
-      
-      // For phones (not tablets), stack everything
-      if (!isTablet && !isIPad) {
-        // Ensure chat is first, followed by control panel
+    } else {
+      // For iPad/tablets, we have specific layouts for portrait/landscape
+      const isPortrait = height > width;
+      if (isPortrait) {
+        // Portrait: Stack layout (chat on top, control panel below)
+        contentGrid.style.setProperty('display', 'grid', 'important');
+        contentGrid.style.setProperty('grid-template-columns', '100%', 'important');
+        contentGrid.style.setProperty('gap', '16px', 'important');
+        contentGrid.style.setProperty('padding', '16px', 'important');
+        
         const chatSection = document.querySelector('.chat-section');
         const leftSidebar = document.querySelector('.left-sidebar-wrapper');
-        const rightSidebar = document.querySelector('.right-sidebar-wrapper');
         
         if (chatSection && leftSidebar) {
-          contentGrid.style.display = 'flex';
-          contentGrid.style.flexDirection = 'column';
-          
-          // Set order: chat first, then control panel, then other components
-          chatSection.style.order = '1';
-          leftSidebar.style.order = '2';
-          if (rightSidebar) rightSidebar.style.order = '3';
-          
-          // Add padding below chat section
-          chatSection.style.marginBottom = '10px';
+          chatSection.style.setProperty('order', '1', 'important');
+          leftSidebar.style.setProperty('order', '2', 'important');
         }
-      } else if (isIPad || isTablet) {
-        // For iPad/tablets, we have specific layouts for portrait/landscape
-        if (window.matchMedia('(orientation: portrait)').matches) {
-          // Portrait: Stack layout (chat on top, control panel below)
-          contentGrid.style.display = 'grid';
-          contentGrid.style.gridTemplateColumns = '100%';
-          contentGrid.style.gap = '16px';
-          contentGrid.style.padding = '16px';
-          
-          const chatSection = document.querySelector('.chat-section');
-          const leftSidebar = document.querySelector('.left-sidebar-wrapper');
-          
-          if (chatSection && leftSidebar) {
-            chatSection.style.order = '1';
-            leftSidebar.style.order = '2';
-          }
-        } else {
-          // Landscape: Side-by-side layout
-          contentGrid.style.display = 'grid';
-          contentGrid.style.gridTemplateColumns = '350px 1fr';
-          contentGrid.style.gap = '20px';
-          contentGrid.style.padding = '16px';
-          
-          const chatSection = document.querySelector('.chat-section');
-          const leftSidebar = document.querySelector('.left-sidebar-wrapper');
-          
-          if (chatSection && leftSidebar) {
-            chatSection.style.order = '2';
-            leftSidebar.style.order = '1';
-            
-            // Set fixed heights
-            const viewportHeight = window.innerHeight;
-            const headerHeight = document.getElementById('header-container')?.offsetHeight || 0;
-            const tickerHeight = document.getElementById('stonks-ticker')?.offsetHeight || 0;
-            const availableHeight = viewportHeight - headerHeight - tickerHeight - 32;
-            
-            chatSection.style.height = availableHeight + 'px';
-            chatSection.style.maxHeight = availableHeight + 'px';
-            leftSidebar.style.height = availableHeight + 'px';
-            leftSidebar.style.overflowY = 'auto';
-          }
-        }
-      }
-    }
-    
-    // Create the "back to chat" button for mobile
-    createBackToChatButton();
-    
-    // Hide the console/debug panel in mobile view
-    setTimeout(() => {
-      const consolePanel = document.querySelector('.panel.console');
-      if (consolePanel) {
-        consolePanel.style.display = 'none';
-      }
-    }, 500);
-    
-    // Add a class when mobile layout is ready
-    document.body.classList.add('mobile-ready');
-  }
-  
-  // Set up orientation change handler
-  window.addEventListener('orientationchange', function() {
-    setTimeout(() => {
-      // Reapply mobile layout after orientation change
-      const isMobile = window.innerWidth <= 1024;
-      const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
-      const isIPad = document.body.classList.contains('ipad-view');
-      
-      if (isMobile) {
-        const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-        const contentGrid = document.querySelector('.content-grid');
+      } else {
+        // Landscape: Side-by-side layout
+        contentGrid.style.setProperty('display', 'grid', 'important');
+        contentGrid.style.setProperty('grid-template-columns', '350px 1fr', 'important');
+        contentGrid.style.setProperty('gap', '20px', 'important');
+        contentGrid.style.setProperty('padding', '16px', 'important');
+        
         const chatSection = document.querySelector('.chat-section');
         const leftSidebar = document.querySelector('.left-sidebar-wrapper');
         
-        if (isTablet || isIPad) {
-          // Different layout for tablet vs phone
-          if (isLandscape) {
-            // Side-by-side in landscape
-            contentGrid.style.display = 'grid';
-            contentGrid.style.gridTemplateColumns = '350px 1fr';
-            
-            if (chatSection && leftSidebar) {
-              chatSection.style.order = '2';
-              leftSidebar.style.order = '1';
-            }
-          } else {
-            // Stacked in portrait
-            contentGrid.style.display = 'grid';
-            contentGrid.style.gridTemplateColumns = '100%';
-            
-            if (chatSection && leftSidebar) {
-              chatSection.style.order = '1';
-              leftSidebar.style.order = '2';
-            }
-          }
-        } else {
-          // Phone always has stacked layout
-          contentGrid.style.display = 'flex';
-          contentGrid.style.flexDirection = 'column';
-        }
-        
-        // Adjust heights after orientation change
-        if (chatSection) {
-          const viewportHeight = window.innerHeight;
+        if (chatSection && leftSidebar) {
+          chatSection.style.setProperty('order', '2', 'important');
+          leftSidebar.style.setProperty('order', '1', 'important');
           
-          if (!isTablet && !isIPad) {
-            // Phone layout
-            chatSection.style.height = (viewportHeight * 0.75) + 'px';
-            chatSection.style.minHeight = (viewportHeight * 0.7) + 'px';
-          } else if (isLandscape) {
-            // Tablet landscape
-            const headerHeight = document.getElementById('header-container')?.offsetHeight || 0;
-            chatSection.style.height = (viewportHeight - headerHeight - 32) + 'px';
-            
-            if (leftSidebar) {
-              leftSidebar.style.height = (viewportHeight - headerHeight - 32) + 'px';
-              leftSidebar.style.overflowY = 'auto';
-            }
-          } else {
-            // Tablet portrait
-            chatSection.style.height = (viewportHeight * 0.65) + 'px';
-            chatSection.style.minHeight = (viewportHeight * 0.6) + 'px';
-          }
+          // Set fixed heights
+          const availableHeight = height - document.getElementById('header-container')?.offsetHeight - 
+                                  document.getElementById('stonks-ticker')?.offsetHeight - 32;
+          
+          chatSection.style.setProperty('height', availableHeight + 'px', 'important');
+          chatSection.style.setProperty('max-height', availableHeight + 'px', 'important');
+          leftSidebar.style.setProperty('height', availableHeight + 'px', 'important');
+          leftSidebar.style.setProperty('overflow-y', 'auto', 'important');
         }
       }
-    }, 300);
+    }
+  }
+  
+  // Force main elements to be visible on mobile
+  const mainElements = [
+    '.chat-section', 
+    '.control-panel-component', 
+    '.left-sidebar-wrapper', 
+    '.content-grid',
+    '.container'
+  ];
+  
+  mainElements.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.style.setProperty('display', selector === '.content-grid' ? 'flex' : 'block', 'important');
+      element.style.setProperty('visibility', 'visible', 'important');
+      element.style.setProperty('opacity', '1', 'important');
+    }
   });
+  
+  // Create the "back to chat" button for mobile
+  createBackToChatButton();
+  
+  // Hide the console/debug panel in mobile view
+  setTimeout(() => {
+    const consolePanel = document.querySelector('.panel.console');
+    if (consolePanel) {
+      consolePanel.style.display = 'none';
+    }
+  }, 500);
+  
+  // Add a class when mobile layout is ready
+  document.body.classList.add('mobile-ready');
+  
+  // Setup appropriate mobile enhancements
+  setTimeout(setupMobileControlPanel, 500);
+  setTimeout(checkChatScroll, 800);
+  
+  // Force reflow to ensure styles are applied
+  void document.body.offsetHeight;
+}
+
+// Add a new function to ensure mobile layout is applied even after 
+// other scripts might have modified the layout
+function forceReapplyMobileLayout() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const isTablet = width >= 768 && width <= 1024;
+  
+  console.log("🔄 Force reapplying mobile layout:", width, "x", height);
+  applyMobileLayout(width, height, isTablet);
+}
+
+// Ensure mobile layout is applied even after DOM changes
+window.addEventListener('DOMContentLoaded', function() {
+  // Initial application
+  setTimeout(function() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    if (width <= 1024) {
+      forceReapplyMobileLayout();
+    }
+  }, 100);
+  
+  // Secondary check after potential JS modifications
+  setTimeout(function() {
+    const width = window.innerWidth;
+    if (width <= 1024) {
+      forceReapplyMobileLayout();
+    }
+  }, 1000);
 });
+
+// Reapply mobile layout periodically to catch any overrides
+window.addEventListener('load', function() {
+  const reapplyInterval = setInterval(function() {
+    const width = window.innerWidth;
+    if (width <= 1024 && !document.body.classList.contains('mobile-ready')) {
+      forceReapplyMobileLayout();
+    }
+  }, 2000); // Check every 2 seconds for first 10 seconds
+  
+  // Clear interval after 10 seconds
+  setTimeout(function() {
+    clearInterval(reapplyInterval);
+  }, 10000);
+});
+
+// Apply one final time after page is fully loaded
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    const width = window.innerWidth;
+    if (width <= 1024) {
+      forceReapplyMobileLayout();
+    }
+  }, 1500);
+});
+
+// Set up enhanced orientation change handler
+window.addEventListener('orientationchange', function() {
+  console.log("📱 Orientation change detected!");
+  
+  // Wait a moment for the browser to adjust
+  setTimeout(() => {
+    // Get new dimensions
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+    const newOrientation = newHeight > newWidth ? 'portrait' : 'landscape';
+    
+    console.log(`📱 New orientation: ${newOrientation} (${newWidth}x${newHeight})`);
+    
+    // Update orientation classes
+    document.documentElement.classList.remove('orientation-portrait', 'orientation-landscape');
+    document.body.classList.remove('orientation-portrait', 'orientation-landscape');
+    document.documentElement.classList.add(`orientation-${newOrientation}`);
+    document.body.classList.add(`orientation-${newOrientation}`);
+    
+    // Set orientation data attribute
+    document.documentElement.setAttribute('data-orientation', newOrientation);
+    document.body.setAttribute('data-orientation', newOrientation);
+    
+    // Force viewport reset (helps on iOS)
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      viewportMeta.content = 'width=device-width, initial-scale=1.0';
+      // Force reflow
+      document.body.style.display = 'none';
+      // Trigger reflow
+      void document.body.offsetHeight;
+      // Restore display
+      document.body.style.display = '';
+      // Reset viewport with no-scale
+      viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    }
+    
+    // Determine if this is a tablet
+    const isTabletDevice = newWidth >= 768 && newWidth <= 1024;
+    
+    // Force reapply mobile layout with new dimensions
+    forceReapplyMobileLayout();
+    
+    // Scroll to top after orientation change
+    window.scrollTo(0, 0);
+    
+    // Update mobile debug indicator if it exists
+    const debugIndicator = document.querySelector('.mobile-debug-indicator');
+    if (debugIndicator) {
+      debugIndicator.textContent = `Mobile View (${newWidth}x${newHeight}) - ${newOrientation}`;
+    }
+  }, 300);
+});
+
+/**
+ * Tablet-specific layout enhancements
+ * Optimizes the layout for tablets (iPad, etc.)
+ */
+function setupTabletSpecificLayout() {
+  console.log("📱 Setting up tablet-specific layout");
+  
+  // Get viewport dimensions
+  const currentViewportWidth = window.innerWidth;
+  const currentViewportHeight = window.innerHeight;
+  const isLandscape = currentViewportWidth > currentViewportHeight;
+  
+  // Add specific class for tablet layout
+  document.documentElement.classList.add('tablet-optimized');
+  document.body.classList.add('tablet-optimized');
+  
+  // Set orientation attribute
+  const orientation = isLandscape ? 'landscape' : 'portrait';
+  document.documentElement.setAttribute('data-tablet-orientation', orientation);
+  document.body.setAttribute('data-tablet-orientation', orientation);
+  
+  // Layout adjustments for tablets
+  const contentGrid = document.querySelector('.content-grid');
+  const chatSection = document.querySelector('.chat-section');
+  const leftSidebar = document.querySelector('.left-sidebar-wrapper');
+  
+  if (contentGrid && chatSection && leftSidebar) {
+    // Different layouts based on orientation
+    if (isLandscape) {
+      // Landscape: Side-by-side layout
+      contentGrid.style.display = 'grid';
+      contentGrid.style.gridTemplateColumns = '350px 1fr';
+      contentGrid.style.gap = '20px';
+      
+      // Adjust element order
+      chatSection.style.order = '2';
+      leftSidebar.style.order = '1';
+      
+      // Set appropriate heights
+      const headerHeight = document.getElementById('header-container')?.offsetHeight || 0;
+      const tickerHeight = document.getElementById('stonks-ticker')?.offsetHeight || 0;
+      const availableHeight = currentViewportHeight - headerHeight - tickerHeight - 32;
+      
+      leftSidebar.style.height = availableHeight + 'px';
+      leftSidebar.style.overflowY = 'auto';
+      chatSection.style.height = availableHeight + 'px';
+    } else {
+      // Portrait: Stacked layout with different proportions
+      contentGrid.style.display = 'grid';
+      contentGrid.style.gridTemplateColumns = '100%';
+      contentGrid.style.gap = '16px';
+      
+      // Adjust element order for portrait
+      chatSection.style.order = '1';
+      leftSidebar.style.order = '2';
+      
+      // Set appropriate heights for portrait
+      chatSection.style.height = (currentViewportHeight * 0.6) + 'px';
+    }
+  }
+  
+  // Optimize button sizes for touch on tablets
+  const buttons = document.querySelectorAll('button, .control-button');
+  buttons.forEach(button => {
+    if (!button.classList.contains('tablet-optimized')) {
+      button.classList.add('tablet-optimized');
+      button.style.minHeight = '44px';
+      button.style.minWidth = '44px';
+    }
+  });
+  
+  // Adjust font sizes for better readability on tablets
+  document.body.style.fontSize = '16px';
+  
+  // Add a class when tablet layout is ready
+  document.body.classList.add('tablet-layout-ready');
+}
 
 // Setup enhanced control panel for mobile devices
 function setupMobileControlPanel() {
@@ -559,6 +1453,9 @@ function setupMobileControlPanel() {
   if (!controlPanel) return;
   
   console.log("📱 Setting up enhanced mobile control panel");
+  
+  // Get current viewport width for this function
+  const currentViewportWidth = window.innerWidth;
   
   // Add toggle button if not already present
   if (!controlPanel.querySelector('.control-panel-toggle')) {
@@ -596,7 +1493,7 @@ function setupMobileControlPanel() {
   }
   
   // Setup tabbed sections for smaller screens
-  const isSmallScreen = window.innerWidth <= 480;
+  const isSmallScreen = currentViewportWidth <= 480;
   if (isSmallScreen) {
     setupTabbedSections(controlPanel);
   } else {
@@ -768,72 +1665,141 @@ function checkChatScroll() {
   }
 }
 
-// Make sure we set up the enhanced mobile experience
-document.addEventListener('DOMContentLoaded', function() {
-  // Detect if we should use mobile enhancements
-  const isMobile = window.innerWidth <= 1024;
+/**
+ * Functions to improve scrolling on mobile devices
+ */
+function improveScrolling() {
+  // Apply smooth scrolling to the whole page
+  document.documentElement.style.scrollBehavior = 'smooth';
   
-  if (isMobile) {
-    // Set up the mobile control panel
-    setTimeout(setupMobileControlPanel, 500);
-    
-    // Check if we need a back-to-chat button
-    setTimeout(checkChatScroll, 1000);
-    
-    // Set up scroll listener to check chat visibility
-    window.addEventListener('scroll', checkChatScroll);
-    
-    // If we're not using our mobile styles, force them
-    if (!document.body.classList.contains('mobile-view')) {
-      document.body.classList.add('mobile-view');
-    }
-  }
-});
-
-// Ensure chat is scrolled to bottom
-setTimeout(checkChatScroll, 500);
-setTimeout(checkChatScroll, 1000);
+  // Fix momentum scrolling on iOS
+  const scrollableElements = document.querySelectorAll('.messages-container, .chat-section, .control-panel-component');
+  scrollableElements.forEach(el => {
+    el.style.webkitOverflowScrolling = 'touch';
+    el.style.overflowY = 'auto';
+  });
+}
 
 /**
- * Resets inline styles on elements and marks them for CSS control
- * Use this when you need to clear existing inline styles and let CSS take over
- * @param {NodeList|Array|Element} elements - Elements to reset styles for
- * @param {boolean} useCssControl - Whether to add the data-css-controlled attribute
+ * Fix common layout issues on mobile devices
  */
-function resetInlineStyles(elements, useCssControl = true) {
-  // Convert single element to array for consistent handling
-  const elementsArray = elements instanceof Element ? [elements] : elements;
-  
-  // Process each element
-  Array.from(elementsArray).forEach(element => {
-    if (element && element instanceof Element) {
-      // Remove all inline styles
-      element.classList.add('style-reset');
-      
-      // Mark for CSS control if requested
-      if (useCssControl) {
-        element.setAttribute('data-css-controlled', 'true');
-      }
-      
-      // Double-check that problematic properties are cleared
-      // This handles cases where the style-reset class might not catch everything
-      const criticalProperties = [
-        'display', 'width', 'height', 'position', 
-        'margin', 'padding', 'visibility', 'opacity'
-      ];
-      
-      criticalProperties.forEach(prop => {
-        if (element.style[prop]) {
-          element.style[prop] = '';
-        }
-      });
-    }
+function fixLayoutIssues() {
+  // Fix any fixed position elements to account for iOS safari viewport issues
+  const fixedElements = document.querySelectorAll('.fixed-element, .fixed-header, .fixed-footer');
+  fixedElements.forEach(el => {
+    // Fix iOS position:fixed inside transform elements issue
+    el.style.transform = 'translateZ(0)';
   });
+  
+  // Fix content overflow issues
+  document.querySelectorAll('pre, code').forEach(el => {
+    el.style.maxWidth = '100%';
+    el.style.overflowX = 'auto';
+    el.style.whiteSpace = 'pre-wrap';
+  });
+}
+
+/**
+ * Handle orientation changes
+ */
+function setupOrientationHandling() {
+  window.addEventListener('orientationchange', function() {
+    // Re-apply styles after orientation change
+    setTimeout(function() {
+      document.documentElement.style.height = '100%';
+      document.body.style.height = '100%';
+      window.scrollTo(0, 0);
+    }, 300);
+  });
+}
+
+/**
+ * Handle back button on mobile devices
+ */
+function setupBackButtonHandling() {
+  // Set up history state for back button handling
+  window.history.pushState({ page: 'roastbot' }, 'Degen Roast 3000');
+  
+  window.addEventListener('popstate', function(e) {
+    // Prevent exit on back button press
+    window.history.pushState({ page: 'roastbot' }, 'Degen Roast 3000');
+    
+    // Show a toast notification
+    const toast = document.createElement('div');
+    toast.className = 'mobile-toast';
+    toast.textContent = 'Use controls to exit Degen Roast 3000';
+    document.body.appendChild(toast);
+    
+    // Remove after delay
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  });
+}
+
+/**
+ * Add double tap detection for mobile
+ */
+function setupDoubleTapDetection() {
+  let lastTap = 0;
+  
+  document.addEventListener('touchend', function(e) {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 500 && tapLength > 0) {
+      // Double tap detected
+      e.preventDefault();
+    }
+    
+    lastTap = currentTime;
+  });
+}
+
+/**
+ * Hide debug elements on mobile
+ */
+function hideDebugElements() {
+  const debugElements = document.querySelectorAll('.debug-only, .debug-panel, .console-output');
+  debugElements.forEach(el => {
+    el.style.display = 'none';
+  });
+}
+
+/**
+ * Setup fullscreen mode for better mobile experience
+ */
+function setupFullscreenMode() {
+  // Add fullscreen button if not present
+  if (!document.querySelector('.fullscreen-toggle')) {
+    const fullscreenBtn = document.createElement('button');
+    fullscreenBtn.className = 'fullscreen-toggle';
+    fullscreenBtn.innerHTML = '⛶';
+    fullscreenBtn.setAttribute('aria-label', 'Toggle fullscreen');
+    document.body.appendChild(fullscreenBtn);
+    
+    fullscreenBtn.addEventListener('click', function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    });
+  }
 }
 
 // Add a new function to force the iPad Mini layout
 function forceIPadMiniLayout() {
   console.log("📱 Enhancing iPad Mini layout - Using CSS-first approach");
+  
+  // Get current dimensions
+  const currentViewportWidth = window.innerWidth;
+  const currentViewportHeight = window.innerHeight;
   
   // Add data attributes and classes for CSS targeting
   // Rather than setting direct styles, we'll let CSS handle most styling
@@ -843,9 +1809,9 @@ function forceIPadMiniLayout() {
   document.body.classList.add('ipad-mini-view', 'tablet-view');
   
   // Add additional data attributes for CSS targeting
-  document.documentElement.setAttribute('data-width', window.innerWidth);
-  document.documentElement.setAttribute('data-height', window.innerHeight);
-  document.documentElement.setAttribute('data-orientation', window.innerWidth < window.innerHeight ? 'portrait' : 'landscape');
+  document.documentElement.setAttribute('data-width', currentViewportWidth);
+  document.documentElement.setAttribute('data-height', currentViewportHeight);
+  document.documentElement.setAttribute('data-orientation', currentViewportWidth < currentViewportHeight ? 'portrait' : 'landscape');
   
   // Get key elements
   const container = document.querySelector('.container.enhanced-ui');
@@ -896,4 +1862,105 @@ function forceIPadMiniLayout() {
   
   // Log success
   console.log("✅ iPad Mini layout enhanced - Using CSS media queries and minimal JS");
+}
+
+/**
+ * Resets inline styles on elements and marks them for CSS control
+ * Use this when you need to clear existing inline styles and let CSS take over
+ * @param {NodeList|Array|Element} elements - Elements to reset styles for
+ * @param {boolean} useCssControl - Whether to add the data-css-controlled attribute
+ */
+function resetInlineStyles(elements, useCssControl = true) {
+  // Convert single element to array for consistent handling
+  const elementsArray = elements instanceof Element ? [elements] : elements;
+  
+  // Process each element
+  Array.from(elementsArray).forEach(element => {
+    if (element && element instanceof Element) {
+      // Remove all inline styles
+      element.classList.add('style-reset');
+      
+      // Mark for CSS control if requested
+      if (useCssControl) {
+        element.setAttribute('data-css-controlled', 'true');
+      }
+      
+      // Double-check that problematic properties are cleared
+      // This handles cases where the style-reset class might not catch everything
+      const criticalProperties = [
+        'display', 'width', 'height', 'position', 
+        'margin', 'padding', 'visibility', 'opacity'
+      ];
+      
+      criticalProperties.forEach(prop => {
+        if (element.style[prop]) {
+          element.style[prop] = '';
+        }
+      });
+    }
+  });
+}
+
+// Add a function to handle mobile input improvements
+function setupMobileInputHandling() {
+  console.log("📱 Setting up mobile input handling");
+  
+  // Find the chat input field
+  const chatInput = document.querySelector('.chat-input textarea, .chat-input input, #chat-input');
+  
+  if (chatInput) {
+    // Improve auto-focus behavior
+    chatInput.addEventListener('focus', function() {
+      // Scroll the page after a short delay to ensure the input is visible
+      setTimeout(() => {
+        const rect = chatInput.getBoundingClientRect();
+        const isInView = (rect.top >= 0 && rect.bottom <= window.innerHeight);
+        
+        if (!isInView) {
+          chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    });
+    
+    // Add blur handler to hide keyboard when done
+    chatInput.addEventListener('blur', function() {
+      // Scroll back to chat area when input loses focus
+      const chatMessages = document.querySelector('.messages-container');
+      if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+    
+    // Prevent zooming when focusing on the input (iOS)
+    chatInput.style.fontSize = '16px'; // Prevents iOS zoom
+  }
+  
+  // Improve buttons for touch interaction
+  const buttons = document.querySelectorAll('button, .control-panel button, .send-button');
+  buttons.forEach(button => {
+    if (!button.classList.contains('touch-enhanced')) {
+      // Increase tap target size for mobile
+      button.style.minHeight = '44px';
+      button.style.minWidth = '44px';
+      
+      // Add tactile feedback class
+      button.classList.add('touch-enhanced');
+      
+      // Prevent double-tap zoom on iOS
+      button.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        // Trigger click after preventing default
+        setTimeout(() => button.click(), 0);
+      });
+    }
+  });
+  
+  // Set up form submits to avoid keyboard issues
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      // Hide keyboard after form submission
+      document.activeElement.blur();
+    });
+  });
 } 
