@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="DEGEN ROAST 3000 - Ultimate AI-Powered Crypto Roast Generator">
     <meta property="og:title" content="DEGEN ROAST 3000">
     <meta property="og:description" content="Get your crypto investments roasted by advanced AI. More brutal than your portfolio losses!">
@@ -964,7 +964,7 @@
             viewport.name = 'viewport';
             document.head.appendChild(viewport);
         }
-        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover';
         
         // Detect mobile immediately
         const isMobile = window.innerWidth <= 768;
@@ -1126,5 +1126,73 @@
             setInterval(checkLayout, 3000);
         }
     });
+</script>
+
+<!-- Add special viewport handling for iOS devices -->
+<script>
+// Viewport and keyboard handling fix for iOS
+(function() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+  if (isIOS) {
+    // Set viewport meta properties that work better for iOS
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    }
+    
+    // Setup keyboard handling once DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fix for iOS keyboard issues
+      document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          // Add class for iOS keyboard
+          document.documentElement.classList.add('ios-keyboard-open');
+          document.body.classList.add('ios-keyboard-open');
+          
+          // Scroll to input field
+          setTimeout(function() {
+            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Additional scroll adjustment 
+            setTimeout(function() {
+              window.scrollTo(0, window.scrollY + 100);
+            }, 300);
+          }, 300);
+        }
+      });
+      
+      document.addEventListener('focusout', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          // Don't remove classes immediately - another input might be focused
+          setTimeout(function() {
+            const newFocusIsInput = document.activeElement && 
+                                  (document.activeElement.tagName === 'INPUT' || 
+                                   document.activeElement.tagName === 'TEXTAREA');
+            
+            if (!newFocusIsInput) {
+              document.documentElement.classList.remove('ios-keyboard-open');
+              document.body.classList.remove('ios-keyboard-open');
+              
+              // Return to normal layout
+              const chatSection = document.querySelector('.chat-section');
+              if (chatSection) {
+                chatSection.style.maxHeight = '80vh';
+                chatSection.style.height = '75vh';
+              }
+              
+              // After keyboard closes, scroll messages to bottom
+              setTimeout(function() {
+                const messagesContainer = document.querySelector('.messages-container');
+                if (messagesContainer) {
+                  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+              }, 300);
+            }
+          }, 100);
+        }
+      });
+    });
+  }
+})();
 </script>
 </html>

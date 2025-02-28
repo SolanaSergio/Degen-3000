@@ -113,6 +113,11 @@ class MessageInput extends ComponentBase {
               placeholder="${placeholder}" 
               maxlength="${maxLength}"
               rows="3"
+              autocapitalize="sentences"
+              autocomplete="off"
+              autocorrect="on"
+              spellcheck="true"
+              style="font-size: 16px; min-height: 44px;"
             >${inputText}</textarea>
             ${showCharCounter ? `<div class="char-counter"><span id="char-count">0</span>/${maxLength}</div>` : ''}
           </div>
@@ -200,11 +205,61 @@ class MessageInput extends ComponentBase {
     // Don't send empty messages
     if (!text) return;
     
-    // Send message
-    this.sendMessage(text);
+    // Emit event
+    this.emit('messageSent', {
+      text,
+      timestamp: Date.now()
+    });
     
     // Clear input
     this.clearInput();
+    
+    // Re-focus the input field after a short delay
+    // This is crucial for mobile UX to ensure the input stays accessible
+    const isMobile = window.innerWidth <= 1024 || 
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                    ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 0);
+    
+    if (isMobile) {
+      // On mobile, use different strategies for iOS vs Android
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      if (isIOS) {
+        // For iOS, use a slightly longer delay and force visibility
+        setTimeout(() => {
+          // Ensure the text area is empty and visible
+          this.inputField.style.height = 'auto';
+          
+          // Set focus on the input field 
+          this.inputField.focus();
+          
+          // Ensure input is visible in viewport using scrollIntoView
+          this.inputField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Additional scroll adjustment for iOS
+          setTimeout(() => {
+            window.scrollTo(0, window.scrollY + 100);
+          }, 200);
+        }, 500);
+      } else {
+        // For Android, use standard approach
+        setTimeout(() => {
+          this.inputField.focus();
+          
+          // Ensure input is visible in viewport
+          const rect = this.inputField.getBoundingClientRect();
+          if (rect.bottom > window.innerHeight) {
+            window.scrollTo({
+              top: window.scrollY + (rect.bottom - window.innerHeight) + 10,
+              behavior: 'smooth'
+            });
+          }
+        }, 300);
+      }
+    } else {
+      // On desktop, re-focus immediately
+      this.inputField.focus();
+    }
   }
   
   /**
@@ -220,6 +275,34 @@ class MessageInput extends ComponentBase {
     
     // Enable/disable send button
     this.toggleSendButton();
+    
+    // For mobile: ensure the input field remains visible when typing
+    const isMobile = window.innerWidth <= 1024 || 
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                    ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 0);
+    
+    if (isMobile) {
+      // Check if the input has overflowed its initial height
+      if (this.inputField.scrollHeight > this.inputField.clientHeight) {
+        // Adjust height to avoid clipping if multi-line
+        this.inputField.style.height = 'auto';
+        this.inputField.style.height = `${this.inputField.scrollHeight}px`;
+      }
+      
+      // Ensure we can see what we're typing by scrolling the input into view
+      const isInputInView = () => {
+        const rect = this.inputField.getBoundingClientRect();
+        const keyboardHeight = window.innerHeight * 0.4; // Estimate keyboard height
+        return rect.bottom < (window.innerHeight - keyboardHeight);
+      };
+      
+      if (!isInputInView()) {
+        // Scroll to make sure the input is visible above the keyboard
+        setTimeout(() => {
+          this.inputField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
     
     // Reset typing flag after a short delay
     clearTimeout(this.typingTimeout);

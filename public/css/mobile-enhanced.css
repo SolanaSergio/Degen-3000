@@ -179,6 +179,102 @@ body.ipad-mini-view {
     padding: 8px;
     z-index: 15;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border-radius: 8px 8px 0 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  /* Better input handling for iOS keyboard issues */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS-specific fixes */
+    body.ios-keyboard-open {
+      /* Stop position:fixed issues with the keyboard */
+      position: relative !important;
+      overflow: visible !important;
+      height: auto !important;
+      min-height: 100% !important;
+      padding-bottom: 40vh !important; /* Add space for keyboard */
+    }
+    
+    /* Prevent content from being covered by keyboard */
+    body.ios-keyboard-open .message-input-component {
+      position: relative !important;
+      bottom: auto !important;
+    }
+    
+    /* When keyboard is open, push everything up */
+    body.ios-keyboard-open .chat-section {
+      max-height: 50vh !important;
+      height: 50vh !important;
+    }
+    
+    /* Reset height when keyboard is closed */
+    body:not(.ios-keyboard-open) .chat-section {
+      height: 75vh !important;
+      max-height: 80vh !important;
+    }
+  }
+  
+  /* Adjustments for active input on mobile (when keyboard is visible) */
+  .input-active .message-input-component {
+    /* No fixed positioning when keyboard is up, to avoid input being pushed off screen */
+    position: relative;
+  }
+  
+  /* Improve input field visibility */
+  .input-field {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    padding: 12px !important; 
+    border-radius: 20px !important;
+    min-height: 44px !important; /* Minimum touch target size */
+  }
+  
+  /* Ensure buttons are easy to tap */
+  .action-button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 22px !important;
+    padding: 12px 16px !important;
+    margin: 4px !important;
+    touch-action: manipulation;
+  }
+  
+  /* Quick phrases scroll horizontally */
+  .quick-phrases {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 0;
+    margin: 0 -8px;
+  }
+  
+  /* Fix iOS input issues */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS specific styles */
+    .message-input-component {
+      /* Padding to account for the home indicator on newer iPhones */
+      padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
+    }
+    
+    /* Fix for iOS keyboard pushing content */
+    .ios-keyboard-open .message-input-component {
+      position: absolute;
+      bottom: 0;
+    }
+    
+    /* Prevent scroll bounce on iOS */
+    html, body {
+      position: fixed;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .messages-container {
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+    }
   }
   
   /* Sidebars below chat */

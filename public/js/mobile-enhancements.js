@@ -310,6 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupBackButtonHandling();
     setupDoubleTapDetection();
     hideDebugElements();
+    setupKeyboardDetection();
   }
   
   // 3. Fullscreen Mode and Exit Button
@@ -1903,40 +1904,157 @@ function resetInlineStyles(elements, useCssControl = true) {
 
 // Add a function to handle mobile input improvements
 function setupMobileInputHandling() {
-  console.log("📱 Setting up mobile input handling");
+  console.log("📱 Setting up enhanced mobile input handling");
   
-  // Find the chat input field
-  const chatInput = document.querySelector('.chat-input textarea, .chat-input input, #chat-input');
+  // Find the chat input field - more comprehensive selector to ensure we find it
+  const chatInput = document.querySelector('.chat-input textarea, .chat-input input, #chat-input, #user-input, .input-field, .message-form textarea');
   
   if (chatInput) {
-    // Improve auto-focus behavior
-    chatInput.addEventListener('focus', function() {
-      // Scroll the page after a short delay to ensure the input is visible
-      setTimeout(() => {
-        const rect = chatInput.getBoundingClientRect();
-        const isInView = (rect.top >= 0 && rect.bottom <= window.innerHeight);
-        
-        if (!isInView) {
-          chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-    });
+    console.log("📱 Found chat input field, enhancing mobile keyboard handling");
     
-    // Add blur handler to hide keyboard when done
-    chatInput.addEventListener('blur', function() {
-      // Scroll back to chat area when input loses focus
-      const chatMessages = document.querySelector('.messages-container');
-      if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Set font size to prevent zoom on iOS
+    chatInput.style.fontSize = '16px';
+    
+    // Is this an iOS device?
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    // Enhanced focus behavior for better keyboard handling
+    chatInput.addEventListener('focus', function() {
+      console.log("📱 Input field focused");
+      
+      // Mark input as active for CSS targeting
+      chatInput.classList.add('active-input');
+      document.body.classList.add('input-focused');
+      
+      // iOS-specific adjustments
+      if (isIOS) {
+        document.body.classList.add('ios-keyboard-open');
+        
+        // Ensure the chat section is visible and sized correctly
+        const chatSection = document.querySelector('.chat-section');
+        if (chatSection) {
+          chatSection.style.maxHeight = '50vh';
+          chatSection.style.height = '50vh';
+        }
+        
+        // Only after a delay to let keyboard appear
+        setTimeout(() => {
+          // Scroll the input into view
+          chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Additional scroll adjustment for iOS
+          setTimeout(() => {
+            window.scrollTo(0, window.scrollY + 100);
+          }, 200);
+        }, 300);
+      } else {
+        // For Android/other devices
+        setTimeout(() => {
+          // Scroll the page to ensure the input is visible
+          const rect = chatInput.getBoundingClientRect();
+          const isInView = (rect.top >= 0 && rect.bottom <= window.innerHeight);
+          
+          if (!isInView) {
+            chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
       }
     });
     
-    // Prevent zooming when focusing on the input (iOS)
-    chatInput.style.fontSize = '16px'; // Prevents iOS zoom
+    // Enhanced blur handler
+    chatInput.addEventListener('blur', function() {
+      console.log("📱 Input field blurred");
+      
+      // Don't remove classes immediately - check if we're focusing another input
+      setTimeout(() => {
+        const stillFocused = document.activeElement === chatInput || 
+                            (document.activeElement && 
+                             (document.activeElement.tagName === 'INPUT' || 
+                              document.activeElement.tagName === 'TEXTAREA'));
+                              
+        if (!stillFocused) {
+          // Not focusing any input - remove active classes
+          chatInput.classList.remove('active-input');
+          document.body.classList.remove('input-focused', 'ios-keyboard-open');
+          
+          // Reset chat section height
+          if (isIOS) {
+            const chatSection = document.querySelector('.chat-section');
+            if (chatSection) {
+              chatSection.style.maxHeight = '80vh';
+              chatSection.style.height = '75vh';
+            }
+          }
+          
+          // Scroll back to chat area when input loses focus
+          const messagesContainer = document.querySelector('.messages-container');
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        }
+      }, 100);
+    });
+    
+    // Enhanced input handler to adjust height as typing occurs
+    chatInput.addEventListener('input', function() {
+      // Auto-resize the textarea to fit content
+      if (chatInput.tagName === 'TEXTAREA') {
+        chatInput.style.height = 'auto';
+        
+        // Limit max height to avoid excessive growth
+        const newHeight = Math.min(chatInput.scrollHeight, 120);
+        chatInput.style.height = newHeight + 'px';
+      }
+      
+      // Ensure input remains visible as content grows
+      setTimeout(() => {
+        chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 0);
+    });
+    
+    // Override form submission to prevent keyboard issues
+    const messageForm = document.querySelector('.message-form, #message-form');
+    if (messageForm) {
+      // Add a special handler just before form submission
+      messageForm.addEventListener('submit', function(e) {
+        console.log("📱 Form submitted");
+        
+        // Store the input text
+        const inputText = chatInput.value.trim();
+        
+        // Only proceed if we have text
+        if (inputText) {
+          // Clear the input field immediately to prevent double-sends
+          chatInput.value = '';
+          
+          // Reset height if it's a textarea
+          if (chatInput.tagName === 'TEXTAREA') {
+            chatInput.style.height = 'auto';
+          }
+          
+          // If this is iOS, we use a special approach
+          if (isIOS) {
+            // Don't refocus immediately - let keyboard dismiss
+            setTimeout(() => {
+              // Only after keyboard is dismissed, refocus the input
+              chatInput.focus();
+              
+              // Scroll to ensure it's visible
+              chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+          } else {
+            // For non-iOS, refocus immediately
+            chatInput.focus();
+          }
+        }
+      });
+    }
+  } else {
+    console.warn("📱 Chat input field not found - can't set up mobile handling");
   }
   
   // Improve buttons for touch interaction
-  const buttons = document.querySelectorAll('button, .control-panel button, .send-button');
+  const buttons = document.querySelectorAll('button, .control-panel button, .send-button, .action-button');
   buttons.forEach(button => {
     if (!button.classList.contains('touch-enhanced')) {
       // Increase tap target size for mobile
@@ -1948,19 +2066,288 @@ function setupMobileInputHandling() {
       
       // Prevent double-tap zoom on iOS
       button.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        // Trigger click after preventing default
-        setTimeout(() => button.click(), 0);
+        // Only prevent default if this is a simple tap, not a scroll or multi-touch
+        if (!this.touchMoved && e.touches.length <= 1) {
+          e.preventDefault();
+          // Trigger click after preventing default
+          setTimeout(() => button.click(), 0);
+        }
+      });
+      
+      // Track if touch moved (to avoid preventing scrolling)
+      button.addEventListener('touchstart', function() {
+        this.touchMoved = false;
+      });
+      
+      button.addEventListener('touchmove', function() {
+        this.touchMoved = true;
       });
     }
   });
+}
+
+// Add keyboard detection and auto-adjustment for mobile devices
+function setupKeyboardDetection() {
+  console.log("📱 Setting up enhanced keyboard detection for mobile");
   
-  // Set up form submits to avoid keyboard issues
-  const forms = document.querySelectorAll('form');
-  forms.forEach(form => {
-    form.addEventListener('submit', function(e) {
-      // Hide keyboard after form submission
-      document.activeElement.blur();
+  // Determine if we're on iOS for special handling
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+  // Use Visual Viewport API if available (modern browsers)
+  if (window.visualViewport) {
+    console.log("📱 Visual Viewport API available - using for keyboard detection");
+    
+    let keyboardVisible = false;
+    let keyboardHeight = 0;
+    let lastViewportHeight = window.visualViewport.height;
+    
+    const viewportHandler = () => {
+      // Get current viewport dimensions
+      const currentHeight = window.visualViewport.height;
+      
+      // More accurate keyboard detection that handles orientation changes
+      if (lastViewportHeight > currentHeight && 
+          (window.innerHeight - currentHeight) > 150) {
+        // Significant height reduction = keyboard is likely visible
+        keyboardVisible = true;
+        keyboardHeight = window.innerHeight - currentHeight;
+        
+        // Apply keyboard open classes
+        document.body.classList.add('keyboard-open');
+        if (isIOS) {
+          document.body.classList.add('ios-keyboard-open');
+        }
+        
+        // Find active input and add classes to parent containers
+        const activeInput = document.activeElement;
+        if (activeInput && (activeInput.tagName === 'INPUT' || activeInput.tagName === 'TEXTAREA')) {
+          // Add class to parent containers for styling
+          let parent = activeInput.parentElement;
+          while (parent && parent !== document.body) {
+            parent.classList.add('input-active');
+            parent = parent.parentElement;
+          }
+          
+          // iOS requires special handling to ensure input is visible
+          if (isIOS) {
+            // Create space at the bottom to push content up
+            document.body.style.paddingBottom = `${keyboardHeight}px`;
+            
+            // Ensure the input is scrolled into view
+            setTimeout(() => {
+              activeInput.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+              });
+            }, 100);
+          }
+        }
+      } 
+      else if (currentHeight > lastViewportHeight || 
+               currentHeight >= window.innerHeight - 50) {
+        // Height increased back to near window height = keyboard likely hidden
+        if (keyboardVisible) {
+          keyboardVisible = false;
+          
+          // Remove keyboard classes
+          document.body.classList.remove('keyboard-open', 'ios-keyboard-open');
+          document.body.style.paddingBottom = '';
+          
+          // Remove active input classes
+          document.querySelectorAll('.input-active').forEach(el => {
+            el.classList.remove('input-active');
+          });
+          
+          // Scroll to bottom of messages after keyboard closes
+          setTimeout(() => {
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+          }, 100);
+        }
+      }
+      
+      // Save current height for next comparison
+      lastViewportHeight = currentHeight;
+      
+      // Special handling for iOS to fix position:fixed elements when keyboard is open
+      if (isIOS && keyboardVisible) {
+        const messageInputComponent = document.querySelector('.message-input-component');
+        if (messageInputComponent) {
+          // Calculate bottom position based on keyboard height
+          const bottomOffset = keyboardHeight;
+          
+          // Only apply if keyboard is definitely showing
+          if (bottomOffset > 100) {
+            // For iOS we need to adjust position differently
+            messageInputComponent.style.position = 'absolute';
+            messageInputComponent.style.bottom = `${bottomOffset}px`;
+            
+            // Force GPU acceleration for smoother transitions
+            messageInputComponent.style.transform = 'translateZ(0)';
+          }
+        }
+      }
+    };
+    
+    // Listen for viewport changes with high sensitivity
+    window.visualViewport.addEventListener('resize', viewportHandler);
+    window.visualViewport.addEventListener('scroll', viewportHandler);
+    
+    // Also listen to window resize as a fallback
+    window.addEventListener('resize', viewportHandler);
+    
+  } else {
+    // Fallback for older browsers
+    console.log("📱 Using enhanced fallback keyboard detection method");
+    
+    // Improved resize-based detection
+    let windowHeight = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+      // Get new height
+      const newHeight = window.innerHeight;
+      
+      // Check for significant height change that would indicate keyboard
+      if (newHeight < windowHeight * 0.8) {
+        // Keyboard likely appeared
+        document.body.classList.add('keyboard-open');
+        if (isIOS) {
+          document.body.classList.add('ios-keyboard-open');
+          
+          // Create space at the bottom for iOS
+          const keyboardHeight = windowHeight - newHeight;
+          document.body.style.paddingBottom = `${keyboardHeight}px`;
+        }
+        
+        // Find any active input
+        const activeInput = document.activeElement;
+        if (activeInput && (activeInput.tagName === 'INPUT' || activeInput.tagName === 'TEXTAREA')) {
+          // Add class to parent containers
+          let parent = activeInput.parentElement;
+          while (parent && parent !== document.body) {
+            parent.classList.add('input-active');
+            parent = parent.parentElement;
+          }
+          
+          // Ensure input is visible
+          setTimeout(() => {
+            activeInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+      } 
+      else if (newHeight > windowHeight * 0.9 || Math.abs(newHeight - window.screen.height) < 100) {
+        // Keyboard likely disappeared
+        document.body.classList.remove('keyboard-open', 'ios-keyboard-open');
+        document.body.style.paddingBottom = '';
+        
+        // Remove input active classes
+        document.querySelectorAll('.input-active').forEach(el => {
+          el.classList.remove('input-active');
+        });
+        
+        // Scroll to messages
+        setTimeout(() => {
+          const messagesContainer = document.querySelector('.messages-container');
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        }, 100);
+      }
+      
+      // Update stored height
+      windowHeight = newHeight;
     });
+  }
+  
+  // Enhanced focus/blur handling for all browsers
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      // For iOS, we want to immediately apply some classes
+      if (isIOS) {
+        document.body.classList.add('ios-keyboard-open');
+      }
+      
+      // Mark the input and its parents as active
+      e.target.classList.add('input-active');
+      let parent = e.target.parentElement;
+      while (parent && parent !== document.body) {
+        parent.classList.add('input-active');
+        parent = parent.parentElement;
+      }
+      
+      // Improved scrolling that works on all browsers
+      setTimeout(() => {
+        // First try native scrollIntoView with a delay
+        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Then add an additional adjustment for iOS
+        if (isIOS) {
+          setTimeout(() => {
+            window.scrollTo(0, window.scrollY + 100);
+          }, 300);
+        }
+      }, 300);
+    }
   });
+  
+  document.addEventListener('focusout', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      // Only remove classes if we're not focusing another input
+      setTimeout(() => {
+        const newFocusIsInput = document.activeElement && 
+                               (document.activeElement.tagName === 'INPUT' || 
+                                document.activeElement.tagName === 'TEXTAREA');
+        
+        if (!newFocusIsInput) {
+          // No longer focusing any input, remove classes
+          document.body.classList.remove('ios-keyboard-open');
+          e.target.classList.remove('input-active');
+          
+          let parent = e.target.parentElement;
+          while (parent && parent !== document.body) {
+            parent.classList.remove('input-active');
+            parent = parent.parentElement;
+          }
+          
+          // Scroll to bottom of messages
+          setTimeout(() => {
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+          }, 300);
+        }
+      }, 100);
+    }
+  });
+  
+  // Add a test button for keyboard visibility on iOS
+  if (isIOS) {
+    const testButton = document.createElement('button');
+    testButton.textContent = '📱 Test Input';
+    testButton.style.position = 'fixed';
+    testButton.style.bottom = '10px';
+    testButton.style.left = '10px';
+    testButton.style.zIndex = '9999';
+    testButton.style.padding = '8px 12px';
+    testButton.style.background = 'rgba(0,0,0,0.7)';
+    testButton.style.color = 'white';
+    testButton.style.border = 'none';
+    testButton.style.borderRadius = '5px';
+    testButton.style.fontSize = '14px';
+    
+    testButton.addEventListener('click', () => {
+      // Focus on input field
+      const inputField = document.querySelector('#user-input, .input-field');
+      if (inputField) {
+        inputField.focus();
+      } else {
+        alert('No input field found!');
+      }
+    });
+    
+    document.body.appendChild(testButton);
+  }
 } 

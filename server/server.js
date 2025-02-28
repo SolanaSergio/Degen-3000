@@ -72,7 +72,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use((req, res, next) => {
   res.setHeader('X-App-Version', '2.0.0');
   res.setHeader('X-Roast-Level', 'Maximum Savagery');
-    next();
+  next();
 });
 
 // Request logging middleware
@@ -90,21 +90,11 @@ app.use((req, res, next) => {
       console.log(`🟢 ${logMessage}`);
     }
   });
-    next();
+  next();
 });
 
 // API Routes
 app.use('/api', apiRoutes);
-
-// Clean up expired sessions every hour
-setInterval(() => {
-  try {
-    console.log('Running scheduled session cleanup...');
-    sessionManager.cleanupSessions(); 
-  } catch (error) {
-    console.error('Error cleaning up sessions:', error);
-  }
-}, 60 * 60 * 1000);
 
 // Server status endpoint
 app.get('/health', (req, res) => {
@@ -162,43 +152,66 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Start the server
-const server = app.listen(PORT, () => {
-  const startTime = new Date().toLocaleTimeString();
-  console.log('\n---------------------------------------------');
-  console.log(`🔥 DEGEN ROAST 3000 - SAVAGE EDITION v2.0.0 🔥`);
-  console.log('---------------------------------------------');
-  console.log(`🚀 Server started at ${startTime}`);
-  console.log(`🌐 URL: http://localhost:${PORT}`);
-  console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('---------------------------------------------\n');
-  console.log(`📊 API available at http://localhost:${PORT}/api`);
-  console.log(`�� Frontend available at http://localhost:${PORT}`);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
+// Only start the server if we're running directly (not being imported as a module)
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    const startTime = new Date().toLocaleTimeString();
+    console.log('\n---------------------------------------------');
+    console.log(`🔥 DEGEN ROAST 3000 - SAVAGE EDITION v2.0.0 🔥`);
+    console.log('---------------------------------------------');
+    console.log(`🚀 Server started at ${startTime}`);
+    console.log(`🌐 URL: http://localhost:${PORT}`);
+    console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log('---------------------------------------------\n');
+    console.log(`📊 API available at http://localhost:${PORT}/api`);
+    console.log(`📱 Frontend available at http://localhost:${PORT}`);
+    
+    // In a regular server, we could clean up expired sessions periodically
+    // But this won't work in a serverless environment
+    if (process.env.NODE_ENV !== 'production') {
+      // Only run session cleanup in development, not in serverless
+      setInterval(() => {
+        try {
+          console.log('Running scheduled session cleanup...');
+          sessionManager.cleanupSessions(); 
+        } catch (error) {
+          console.error('Error cleaning up sessions:', error);
+        }
+      }, 60 * 60 * 1000);
+    }
   });
-  
-  // Force close after 10 seconds
-  setTimeout(() => {
-    console.error('Could not close connections in time, forcefully shutting down');
-    process.exit(1);
-  }, 10000);
-});
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+    
+    // Force close after 10 seconds
+    setTimeout(() => {
+      console.error('Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000);
+  });
+}
 
 // Handle uncaught exceptions and unhandled rejections
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
   // Log to monitoring service or file here if needed
-  process.exit(1);
+  if (process.env.NODE_ENV === 'production') {
+    // In production, we probably want to exit and let the process manager restart
+    // But in serverless, this would just terminate the function
+    if (require.main === module) process.exit(1);
+  }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled promise rejection:', reason);
   // Log to monitoring service or file here if needed
-}); 
+});
+
+// Export the app for serverless environments like Vercel
+module.exports = app; 

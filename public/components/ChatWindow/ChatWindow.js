@@ -179,32 +179,61 @@ class ChatWindow extends ComponentBase {
   }
   
   /**
-   * Add a new message to the chat
+   * Add a message to the chat
    * @param {Object} message - Message object
-   * @param {boolean} animate - Whether to use typing animation for bot messages
+   * @param {boolean} animate - Whether to animate the message
    */
   addMessage(message, animate = false) {
-    // Clone current messages
-    const updatedMessages = [...this.state.messages];
+    // Add timestamp if not provided
+    if (!message.timestamp) {
+      message.timestamp = Date.now();
+    }
     
-    // Add new message
-    updatedMessages.push(message);
+    // Add the message to state
+    const messages = [...this.state.messages, message];
     
     // Trim messages if over limit
-    if (updatedMessages.length > this.state.options.maxMessages) {
-      updatedMessages.shift();
+    if (messages.length > this.state.options.maxMessages) {
+      messages.shift();
     }
     
     // Update state
-    this.setState({ messages: updatedMessages });
+    this.setState({ messages, isTyping: animate });
     
-    // If bot message and animation enabled, show typing animation
-    if (message.sender === 'bot' && animate) {
-      this.showTypingAnimation(message.text);
+    // Scroll to bottom immediately for user messages
+    if (message.sender === 'user') {
+      this.scrollToBottom(true);
     }
     
-    // Emit event
-    this.emit('messageAdded', { message });
+    // If not animating, render immediately and scroll
+    if (!animate) {
+      this.renderMessages();
+      this.scrollToBottom(true);
+      return;
+    }
+    
+    // Start typing animation
+    this.startTypingAnimation(message);
+    
+    // After the animation completes or on mobile devices, ensure input field is accessible
+    setTimeout(() => {
+      // Get the message input field
+      const inputField = document.querySelector('#user-input, .input-field, textarea.chat-input');
+      
+      // Check if we're on a mobile device
+      const isMobile = window.innerWidth <= 1024 || 
+                       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                       ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 0);
+      
+      // Only do this on mobile, as it can interrupt desktop typing
+      if (isMobile && inputField) {
+        // Ensure the input field is visible and focused
+        inputField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          inputField.focus();
+        }, 300);
+      }
+    }, message.text.length * (this.state.options.typingSpeed || 30) + 500);
   }
   
   /**
@@ -255,10 +284,65 @@ class ChatWindow extends ComponentBase {
   
   /**
    * Scroll to bottom of messages
+   * @param {boolean} smooth - Whether to use smooth scrolling
    */
-  scrollToBottom() {
+  scrollToBottom(smooth = true) {
     if (this.messagesContainer) {
-      this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+      // Check if already at bottom (within 100px)
+      const isNearBottom = this.messagesContainer.scrollHeight - this.messagesContainer.scrollTop - this.messagesContainer.clientHeight < 100;
+      
+      // For iOS, we need extra reliability
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      if (isIOS) {
+        // iOS needs multiple attempts at scrolling to be reliable
+        // First try with requestAnimationFrame for timing with render cycle
+        requestAnimationFrame(() => {
+          this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+          
+          // Then try again after a delay
+          setTimeout(() => {
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            
+            // And once more for good measure on iOS
+            setTimeout(() => {
+              this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }, 100);
+          }, 50);
+        });
+      } else {
+        // Non-iOS devices can use smooth scrolling when appropriate
+        if (smooth && !isNearBottom) {
+          try {
+            // Try modern scrollTo with smooth behavior
+            this.messagesContainer.scrollTo({
+              top: this.messagesContainer.scrollHeight,
+              behavior: 'smooth'
+            });
+          } catch (e) {
+            // Fallback for browsers that don't support smooth scrolling
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+          }
+        } else {
+          // Instant scroll for cases where we're already close to the bottom
+          this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        }
+      }
+      
+      // For mobile devices in general, add an additional check
+      // to make sure scroll happened correctly
+      if (window.innerWidth <= 1024) {
+        setTimeout(() => {
+          // Calculate if we're actually at the bottom
+          const scrollBottom = this.messagesContainer.scrollTop + this.messagesContainer.clientHeight;
+          const atBottom = Math.abs(scrollBottom - this.messagesContainer.scrollHeight) < 10;
+          
+          // If not, force it again
+          if (!atBottom) {
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+          }
+        }, 300);
+      }
     }
   }
   
