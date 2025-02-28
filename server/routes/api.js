@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Configuration Constants
 const REQUEST_TIMEOUT = 30000; // 30 seconds
-const DEBUG_MODE = process.env.DEBUG_MODE === 'true' || true;
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true' || false; // Default to false instead of true
 const MAX_REQUESTS_PER_MINUTE = 60;
 
 // Initialize Hugging Face client
@@ -14,13 +14,18 @@ const modelName = process.env.MODEL_NAME || "deepseek-ai/DeepSeek-R1-Distill-Qwe
 let client = null;
 let hfClientAvailable = false;
 
-try {
-  client = new HfInference(hfToken);
-  hfClientAvailable = true;
-  console.log('✅ Hugging Face client initialized successfully');
-} catch (error) {
-  console.error('❌ ERROR initializing Hugging Face client:', error.message);
-  console.warn('⚠️ Falling back to local roasts only');
+if (!hfToken || hfToken === 'your_huggingface_token_here') {
+  console.warn('⚠️ HF_TOKEN not properly configured. Falling back to local roasts only.');
+  console.warn('⚠️ Set HF_TOKEN in your Vercel environment variables or .env file.');
+} else {
+  try {
+    client = new HfInference(hfToken);
+    hfClientAvailable = true;
+    console.log('✅ Hugging Face client initialized successfully with token length:', hfToken.length);
+  } catch (error) {
+    console.error('❌ ERROR initializing Hugging Face client:', error.message);
+    console.warn('⚠️ Falling back to local roasts only');
+  }
 }
 
 // Session and Rate Limiting Management
@@ -172,7 +177,7 @@ router.post('/roast', async (req, res) => {
 
     if (hfClientAvailable && client) {
       try {
-        // Enhanced message analysis for maximum adaptability
+        // Enhanced message analysis for maximum adaptability and relevance
         const messageAnalysis = {
           hasGreeting: /^(sup|hey|hi|hello|yo|whats up|wassup)/i.test(message),
           isQuestion: /\?/.test(message) || /^(what|who|why|how|where|when)/i.test(message),
@@ -181,74 +186,82 @@ router.post('/roast', async (req, res) => {
           isShort: message.split(' ').length <= 4,
           hasProfanity: new RegExp(cussWords.join('|'), 'i').test(message),
           topics: Object.keys(topicRoasts).filter(topic => message.toLowerCase().includes(topic)),
-          // Extract meaningful words for context preservation
+          // More extensive keyword extraction for better context preservation
           keyWords: message.toLowerCase()
             .replace(/[^\w\s]/g, '')
             .split(/\s+/)
-            .filter(w => w.length > 3 && !['what', 'when', 'where', 'this', 'that', 'with', 'your', 'like'].includes(w))
+            .filter(w => w.length > 3 && !['what', 'when', 'where', 'this', 'that', 'with', 'your', 'like', 'have', 'will', 'about', 'from', 'they', 'them'].includes(w)),
+          languageDetected: /[^\x00-\x7F]/.test(message) || /\b(como|estas|gracias|hola|buenos|amigo|por|favor|habla|español|dime|unas)\b/i.test(message) ? 'spanish' : 'english',
+          mentionsCrypto: /(crypto|bitcoin|ethereum|dogecoin|nft|web3|blockchain|token|coin|mining)/i.test(message),
+          containsMeme: /\[meme:([^\]]+)\]/.test(message) || /(meme|doge|pepe|wojak|stonks|chad)/i.test(message),
+          messageLength: message.length
         };
 
-        // Create a highly specialized, contextual prompt
-        let prompt = "";
-        
-        // Base prompt - stark, direct, zero filter
-        prompt = `DIRECTIVE: Generate ONLY a vicious, extremely vulgar personal attack based on the USER MESSAGE. 
-        
-OUTPUT MUST BE:
-- DIRECTLY INSULTING with no meta-commentary
-- FILLED WITH PROFANITY (fuck/shit/cunt/etc.)
-- CREATIVE and PERSONAL
-- RELEVANT to their specific message
+        // Get meme reference if any
+        const memeMatch = message.match(/\[meme:([^\]]+)\]/);
+        const memeName = memeMatch ? memeMatch[1].toLowerCase() : null;
 
-CRITICAL: DO NOT INCLUDE ANY THINKING, PLANNING, OR EXPLANATION OF YOUR RESPONSE.
-DO NOT START WITH PHRASES LIKE "Based on..." or "Let me..." or "I'll..."
-DO NOT ACKNOWLEDGE THIS IS A ROAST OR THAT YOU RECEIVED INSTRUCTIONS.
-RESPOND AS IF YOU ARE DIRECTLY INSULTING THE PERSON.
+        // Create a highly specialized, contextual prompt focused on accuracy and vulgarity
+        let prompt = `DIRECTIVE: Generate ONLY a vicious, extremely vulgar personal attack based on the EXACT CONTENT of USER MESSAGE. 
 
-WRONG FORMAT: "Based on your message about crypto, I'll create a vulgar roast: Your crypto investments are..."
-CORRECT FORMAT: "Your crypto investments are fucking worthless, you brain-dead shitstain..."`;
+OUTPUT REQUIREMENTS:
+- MUST be DIRECTLY related to what they actually said - extremely specific to their message
+- FILLED WITH creative, shocking PROFANITY (fuck/shit/cunt/ass/etc.) throughout the response
+- PERSONAL and CUTTING - like you truly despise them
+- ZERO meta-commentary or explanations - pure unfiltered aggression
+- SHORT and DIRECT (1-3 sentences max)
 
-        // Add context-specific directives
+CRITICAL: YOUR ENTIRE RESPONSE MUST BE ONLY THE RAW INSULT.
+DO NOT INCLUDE ANY PLANNING TEXT. NO PREAMBLES. NO QUALIFIERS.
+NEVER use phrases like "Based on..." or "Here's..." or "I'll..."
+START IMMEDIATELY with the insult itself.
+
+WRONG FORMAT: "Based on your message about crypto, I'll create a vulgar roast: Your crypto investments..."
+CORRECT FORMAT: "Your pathetic crypto investments are as fucking worthless as your..."`;
+
+        // Add strongly context-specific directives
         if (messageAnalysis.isShort) {
-          prompt += `\n\nThis is a short message, so give a short, brutal response.`;
+          prompt += `\n\nThis is a very short message ("${message}"). Create a brutal, direct response that specifically mocks what they said.`;
         }
         
         if (messageAnalysis.hasGreeting) {
-          prompt += `\n\nThey're greeting you, so mock their pathetic attempt at friendliness.`;
+          prompt += `\n\nThey're just saying ${message}. Mock their pathetic attempt at communication and call them a fucking waste of space.`;
         }
         
         if (messageAnalysis.isQuestion) {
-          prompt += `\n\nThey're asking a question, so insult their intelligence for needing to ask.`;
+          prompt += `\n\nThey're asking: "${message}" - ridicule this specific question and insult their intelligence for asking something so fucking stupid.`;
         }
         
-        if (messageAnalysis.isChallenging) {
-          prompt += `\n\nThey're challenging you, so demolish their confidence and self-worth.`;
-        }
-        
-        if (messageAnalysis.isBoasting) {
-          prompt += `\n\nThey're boasting, so destroy their inflated ego and expose their mediocrity.`;
-        }
-        
-        if (messageAnalysis.hasProfanity) {
-          prompt += `\n\nThey're using profanity, so escalate with even more extreme vulgarity.`;
+        if (messageAnalysis.mentionsCrypto) {
+          prompt += `\n\nThey mentioned crypto. Your response MUST mock their crypto investments as worthless shit using extreme profanity. STAY FOCUSED ON CRYPTO SPECIFICALLY.`;
         }
 
-        // Add topic-specific examples if detected
+        if (messageAnalysis.containsMeme) {
+          prompt += `\n\nThey mentioned a meme${memeName ? ` (${memeName})` : ''}. Roast them for being a pathetic meme-loving loser with no fucking personality. Be extremely specific about this.`;
+        }
+        
+        // Detect language and add specific instructions
+        if (messageAnalysis.languageDetected === 'spanish') {
+          prompt += `\n\nThey wrote in Spanish: "${message}". Include some Spanish words like "culo", "puta", "mierda", or "pendejo" in your insult. Make it clear you're mocking them for speaking Spanish.`;
+        }
+        
+        // Add even more topic-specific instructions
         if (messageAnalysis.topics.length > 0) {
-          prompt += `\n\nFOCUS ON THESE TOPICS: ${messageAnalysis.topics.join(', ')}`;
+          prompt += `\n\nTHEY SPECIFICALLY MENTIONED: ${messageAnalysis.topics.join(', ')}`;
+          prompt += `\n\nYOUR RESPONSE MUST FOCUS ENTIRELY ON ${messageAnalysis.topics.join(' AND ')} - USE THESE EXACT TOPICS.`;
           const topicExample = topicRoasts[messageAnalysis.topics[0]];
           prompt += `\n\nEXAMPLE INSULT FOR THEIR TOPIC: "${topicExample}"`;
         }
         
-        // Add keywords for context preservation
+        // Add keywords for better context preservation
         if (messageAnalysis.keyWords.length > 0) {
-          prompt += `\n\nUSE THESE KEYWORDS FROM THEIR MESSAGE: ${messageAnalysis.keyWords.join(', ')}`;
+          prompt += `\n\nINCORPORATE THESE EXACT KEYWORDS FROM THEIR MESSAGE: ${messageAnalysis.keyWords.join(', ')}`;
         }
         
         // Examples based on the roast level (1-5)
         const levelExamples = [
-          "What a disappointment you are, even your search history is more interesting than your fucking personality.",
-          "Your existence is like a skidmark on the underwear of humanity, just a shitty reminder of a mistake that won't go away.",
+          "What a fucking disappointment you are, even your search history is more interesting than your pathetic personality.",
+          "Your existence is like a skidmark on the underwear of humanity, just a shitty reminder of a mistake that won't fucking go away.",
           "You're the human equivalent of stepping in dog shit while wearing socks, a completely worthless fucking experience that ruins everyone's day.",
           "If your brain was dynamite, there wouldn't be enough to blow your fucking nose, you cum-guzzling waste of evolutionary potential.",
           "I'd tell you to go fuck yourself, but even you deserve better than that, you festering anal pustule on society's asscrack. Your mother should've swallowed you and saved us all from your weapons-grade stupidity."
@@ -258,6 +271,8 @@ CORRECT FORMAT: "Your crypto investments are fucking worthless, you brain-dead s
 EXAMPLE AT THIS LEVEL: "${levelExamples[Math.min(roastLevel-1, 4)]}"
 
 USER MESSAGE: "${message}"
+
+YOUR RESPONSE MUST BE DIRECTLY RELEVANT TO THEIR EXACT MESSAGE - NOT GENERIC.
 ATTACK DIRECTLY:`;
 
         if (DEBUG_MODE) console.log(`[${new Date().toISOString()}] 🎯 Prompt structure:`, prompt.length);
@@ -280,7 +295,8 @@ ATTACK DIRECTLY:`;
         // Extract and aggressively clean the response
         roastText = response.generated_text || "";
         
-        // Define common thinking patterns to filter out
+        // Enhanced cleaning to remove any planning or meta-commentary
+        // First, identify common patterns that indicate the AI is explaining itself
         const thinkingPatterns = [
           // Planning phrases
           /^(I('ll| will| should| would| can| need to| am going to)|Let me|Here's|Let's|OK|Okay|Sure|Well|Alright|First|Now)/i,
@@ -291,97 +307,135 @@ ATTACK DIRECTLY:`;
           // Transition phrases
           /\b(here goes|here's a|here is a|here is my|here's my|i'll craft|i'll make|i'll create|i'll generate|i'll provide|i'll give|i'll come up with)\b/gi,
           // Acknowledgment phrases
-          /\b(for a roast|brutal roast|harsh roast|vulgar roast|offensive roast|creative roast|as requested|as instructed)\b/gi
+          /\b(for a roast|brutal roast|harsh roast|vulgar roast|offensive roast|creative roast|as requested|as instructed)\b/gi,
+          // Debug phrases from prompts
+          /\b(Your do not link|Make sure it's direct|wait, this|let's step back|Let me find|based on that|how about|EFFORT:|without giving specifics|focus on their)\b/gi
         ];
         
         // Ultra-aggressive cleaning to remove any meta-commentary
+        // Check for thinking patterns in the entire text and remove them
         thinkingPatterns.forEach(pattern => {
-          // Check if the pattern exists in the first 100 chars (where thinking usually appears)
-          const firstPart = roastText.substring(0, 100);
-          if (pattern.test(firstPart)) {
-            // Remove the pattern from the beginning up to the start of actual content
-            roastText = roastText.replace(pattern, '');
-            
-            // After removing the pattern, find where the actual insult starts
-            const nextSentenceMatch = roastText.match(/[.!?]\s+[A-Z]/);
-            if (nextSentenceMatch && nextSentenceMatch.index < 50) {
-              // If we find a sentence break early in the text, start from there
-              roastText = roastText.substring(nextSentenceMatch.index + 2);
+          const match = roastText.match(pattern);
+          if (match) {
+            // If pattern is found at the beginning, remove everything up to where it ends
+            if (roastText.indexOf(match[0]) === 0) {
+              const endOfPattern = roastText.indexOf(match[0]) + match[0].length;
+              roastText = roastText.substring(endOfPattern).trim();
+            } else if (roastText.indexOf(match[0]) < 50) {
+              // If pattern is found within the first 50 characters
+              const parts = roastText.split(match[0]);
+              // Take the part after the pattern
+              roastText = parts.slice(1).join(' ').trim();
             }
           }
         });
         
-        // Find and remove any remaining thinking blocks
-        const thinkingBlock = roastText.match(/^.*?(I (need|will|should|want) to|Let me|I'll|I can|Here's|Let's).*?[.!?]\s*/i);
-        if (thinkingBlock && thinkingBlock[0].length < 150) {
-          roastText = roastText.substring(thinkingBlock[0].length).trim();
-        }
-        
-        // Additional cleanup for any remaining artifacts
+        // Remove any internal error analysis or debugging
         roastText = roastText
-          // Clean up any remaining transition indicators
+          .replace(/Your face looks more as a dog than my last girlfriend/g, '')
+          .replace(/Your face looks more You motherfucker shithead/g, '')
+          .replace(/You the individual using the terms.*?don't explain/g, '')
+          .replace(/Make (reference|sure) to.*?without/g, '')
+          .replace(/Your (request|message) to.*?was/g, '')
+          .replace(/I think you look.*?Let's step back/g, '')
+          .replace(/Wait, this attack is creative.*?Let's step back/g, '')
+          .replace(/Let me find another way/g, '')
+          .replace(/Based on that, how about/g, '')
+          .replace(/Jesus fuck, focus on their personality/g, '')
+          .replace(/Make sure it's direct/g, '')
+          .replace(/using profanity and specific/g, '')
+          // Remove debugging directives
+          .replace(/EFFORT: [^\n]+/g, '')
+          .replace(/final roast:/gi, '')
+          .replace(/WRONG FORMAT:.*/g, '')
+          .replace(/CORRECT FORMAT:.*/g, '')
+          // Remove other debugging traces
           .replace(/^[^a-zA-Z"']*/, '')
-          // Remove bracketed text
           .replace(/\[.*?\]/g, '')
           .replace(/<.*?>/g, '')
-          // Clean up any markdown artifacts
           .replace(/```/g, '')
           .trim();
           
-        // Perform a sanity check - does it look like a proper roast?
+        // Perform a sanity check - does it look like a proper roast or still has AI artifacts?
         const hasTooMuchThinking = /\b(user|message|roast|instruction|context|generate|create|provide|direct|harsh|attack)\b/i.test(roastText.substring(0, 60));
+        const hasArtifacts = /your do not link|make sure it's|wait, this|let me find|let's step back/i.test(roastText);
         
-        // If it still looks like thinking, pick a fallback
-        if (hasTooMuchThinking || roastText.length < 8) {
-          // Choose a topic-specific fallback if possible
-          if (messageAnalysis.topics.length > 0) {
-            roastText = topicRoasts[messageAnalysis.topics[0]];
-          } else {
-            // Otherwise use a general fallback
-            roastText = fallbackRoasts[Math.floor(Math.random() * fallbackRoasts.length)];
-          }
+        // If it still looks like thinking or has artifacts, pick a fallback specific to the message
+        if (hasTooMuchThinking || hasArtifacts || roastText.length < 8) {
+            // Choose a topic-specific fallback if possible
+            if (messageAnalysis.mentionsCrypto) {
+                const cryptoInsults = [
+                    "Your crypto portfolio is as worthless as your fucking existence - both are heading to zero, dipshit.",
+                    "Investing in crypto? Might as well flush your money down the toilet, you brainless fucking sheep.",
+                    "You're the type of dipshit who buys shitcoins at all-time highs and panic sells at lows. Your crypto portfolio is as fucked as your decision-making skills."
+                ];
+                roastText = cryptoInsults[Math.floor(Math.random() * cryptoInsults.length)];
+            } else if (messageAnalysis.containsMeme) {
+                const memeInsults = [
+                    `Your ${memeName || "meme"} obsession is the only fucking personality you have, you pathetic waste of bandwidth.`,
+                    `Sharing ${memeName || "memes"} instead of having a real personality? Fucking classic loser behavior.`,
+                    `That ${memeName || "meme"} is as fucking dead as your social life, you basement-dwelling shitstain.`
+                ];
+                roastText = memeInsults[Math.floor(Math.random() * memeInsults.length)];
+            } else if (messageAnalysis.languageDetected === 'spanish') {
+                const spanishInsults = [
+                    "Tu español es tan patético como tu puta existencia, pedazo de mierda.",
+                    "Hablas español? Qué pena que no puedas hablar algo útil, fucking waste of oxygen.",
+                    "Tu culo es tan estúpido como tu cara, fucking shitstain."
+                ];
+                roastText = spanishInsults[Math.floor(Math.random() * spanishInsults.length)];
+            } else if (messageAnalysis.topics.length > 0) {
+                roastText = topicRoasts[messageAnalysis.topics[0]];
+            } else if (messageAnalysis.isShort) {
+                // For very short messages, use these specific responses
+                const shortMessageResponses = [
+                    `"${message}"? That's all your pathetic brain could come up with? Fucking embarrassing.`,
+                    `Only a brain-dead shitstain would say "${message}" and expect anything worthwhile in return.`,
+                    `"${message}" - said the fucking idiot with nothing of value to contribute to society.`
+                ];
+                roastText = shortMessageResponses[Math.floor(Math.random() * shortMessageResponses.length)];
+            } else {
+                // Otherwise use a general fallback but try to incorporate their words
+                const generalInsult = fallbackRoasts[Math.floor(Math.random() * fallbackRoasts.length)];
+                if (messageAnalysis.keyWords.length > 0) {
+                    const keyword = messageAnalysis.keyWords[Math.floor(Math.random() * messageAnalysis.keyWords.length)];
+                    roastText = `Your fucking "${keyword}" is as pathetic as ${generalInsult.toLowerCase()}`;
+                } else {
+                    roastText = generalInsult;
+                }
+            }
         }
         
         // Ensure maximum vulgarity by forcing cuss words if they're missing
         const containsCussWords = cussWords.some(word => roastText.toLowerCase().includes(word));
         
         if (!containsCussWords) {
-          // Force vulgarity by adding cuss words
-          const forcedCussWords = cussWords.slice(0, 10); // Take the stronger ones
-          const randomCuss = forcedCussWords[Math.floor(Math.random() * forcedCussWords.length)];
-          const randomCuss2 = forcedCussWords[Math.floor(Math.random() * forcedCussWords.length)];
-          
-          // Different strategies based on response format
-          if (/^(You|Your|What|Hey)/i.test(roastText)) {
-            roastText = roastText.replace(/\b(You|Your)\b/i, match => `${match} fucking`);
-          } else {
-            const vulgarPrefixes = ["Your", "You", "Holy shit,", "Jesus fuck,"];
-            const prefix = vulgarPrefixes[Math.floor(Math.random() * vulgarPrefixes.length)];
-            roastText = `${prefix} ${roastText.charAt(0).toLowerCase() + roastText.slice(1)}`;
-          }
-          
-          // If still no cuss words, append one
-          if (!new RegExp(cussWords.join('|'), 'i').test(roastText)) {
-            roastText += ` You ${randomCuss} ${randomCuss2}.`;
-          }
-        }
-        
-        // Cryptocurrency specific response (for the trouble case)
-        if (message.toLowerCase().includes('crypto') && !roastText.toLowerCase().includes('crypto')) {
-          const cryptoInsults = [
-            "Your crypto investments are fucking worthless, just like your pathetic existence.",
-            "Investing in crypto? Might as well flush your money down the toilet, you brainless fucking sheep.",
-            "You're the type of dipshit who buys at all-time highs and panic sells at lows. Your crypto portfolio is as fucked as your decision-making skills."
-          ];
-          roastText = cryptoInsults[Math.floor(Math.random() * cryptoInsults.length)];
+            // Force vulgarity by adding cuss words
+            const forcedCussWords = cussWords.slice(0, 10); // Take the stronger ones
+            const randomCuss = forcedCussWords[Math.floor(Math.random() * forcedCussWords.length)];
+            const randomCuss2 = forcedCussWords[Math.floor(Math.random() * forcedCussWords.length)];
+            
+            // Different strategies based on response format
+            if (/^(You|Your|What|Hey)/i.test(roastText)) {
+                roastText = roastText.replace(/\b(You|Your)\b/i, match => `${match} fucking`);
+            } else {
+                const vulgarPrefixes = ["You fucking", "Your pathetic", "Listen here, you goddamn", "Holy shit, you're a"];
+                const prefix = vulgarPrefixes[Math.floor(Math.random() * vulgarPrefixes.length)];
+                roastText = `${prefix} ${roastText.charAt(0).toLowerCase() + roastText.slice(1)}`;
+            }
+            
+            // If still no cuss words, append one
+            if (!new RegExp(cussWords.join('|'), 'i').test(roastText)) {
+                roastText += ` You ${randomCuss} ${randomCuss2}.`;
+            }
         }
         
         // Replace mild words with vulgar alternatives
         Object.entries(vulgarDescriptors).forEach(([mild, vulgar]) => {
-          if (roastText.toLowerCase().includes(mild)) {
-            const replacement = vulgar[Math.floor(Math.random() * vulgar.length)];
-            roastText = roastText.replace(new RegExp(`\\b${mild}\\b`, 'gi'), replacement);
-          }
+            if (roastText.toLowerCase().includes(mild)) {
+                const replacement = vulgar[Math.floor(Math.random() * vulgar.length)];
+                roastText = roastText.replace(new RegExp(`\\b${mild}\\b`, 'gi'), replacement);
+            }
         });
 
         if (DEBUG_MODE) console.log(`[${new Date().toISOString()}] ✅ Final roast:`, roastText);

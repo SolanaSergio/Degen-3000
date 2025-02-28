@@ -978,6 +978,12 @@ function extractRoastOnly(text) {
     return text.replace(/.-\.-\.-\.-<I'm free>-\.-\.-\.-\./g, "")
               .replace(/=LOVE S LOVE=/g, "")
               .replace(/^(\s*Your face looks like trash\s*Evolution's mistake\s*Just like your future\s*)/i, "")
+              .replace(/^let me (find|try) another way.*?:/gi, "")
+              .replace(/^based on that, how about/gi, "")
+              .replace(/^your (do not|don't) link|^make sure it's/gi, "")
+              .replace(/^wait, this attack is creative/gi, "")
+              .replace(/^EFFORT: (Minimal|Medium|High)/gi, "")
+              .replace(/^(I think you look better|Let's step back)/gi, "")
               .trim();
   }
 
@@ -1020,7 +1026,21 @@ function extractRoastOnly(text) {
   }
   
   // Step 4: If no markers found, try to extract the first 1-3 meaningful sentences
-  const cleanedSentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const cleanedSentences = text.split(/[.!?]+/).filter(s => {
+    const cleaned = s.trim().toLowerCase();
+    // Filter out sentences that have thinking/planning language
+    return cleaned.length > 0 && 
+      !cleaned.startsWith("i'll") && 
+      !cleaned.startsWith("i will") && 
+      !cleaned.startsWith("let me") && 
+      !cleaned.startsWith("here's") && 
+      !cleaned.includes("based on") && 
+      !cleaned.includes("attack is creative") &&
+      !cleaned.includes("another way") &&
+      !cleaned.includes("effort:") &&
+      !cleaned.includes("step back");
+  });
+  
   if (cleanedSentences.length > 0) {
     return cleanedSentences.slice(0, 3).join(". ").trim() + ".";
   }
@@ -1028,12 +1048,12 @@ function extractRoastOnly(text) {
   // Step 5: If all else fails, return the cleaned original text
   return text.replace(/^[\s\n]*/, '')
              .replace(/[\s\n]*$/, '')
-             .replace(/^(Here's|Let me|I will|ROAST-3000:|AI:|Response:|Let's|Okay|Well|Alright|Sure|First)/i, '')
+             .replace(/^(Here's|Let me|I will|ROAST-3000:|AI:|Response:|Let's|Okay|Well|Alright|Sure|First|Based on|Making sure)/i, '')
              .replace(/^[\s\n]*/, '')
              .replace(/^[,.!?-\s]+/, '')
              .replace(/^(a |an |the |your |you're |you are |you |this |that )/i, '')
              .replace(/\[(.*?)\]/g, '')
-             .replace(/ROAST:|OUTPUT:|RESPONSE:/gi, '')
+             .replace(/ROAST:|OUTPUT:|RESPONSE:|let me find another way:|your do not link|wait, this|EFFORT:|focus on their|Make sure it's/gi, '')
              .trim();
 }
 
@@ -1395,8 +1415,64 @@ function checkExplicitTopicRequests(messageLower) {
  * @returns {string} - Formatted roast
  */
 function formatJailbreakRoast(roast, level) {
-  // No need for complex formatting anymore - just return the roast
-  return roast;
+  // Clean up the roast text first
+  let cleanedRoast = roast
+    // Remove any remaining model debugging or internal comments
+    .replace(/Your do not link|Make sure it's|without giving specifics|wait, this|let's step back|let me find|based on that|how about|focus on their|EFFORT:/gi, '')
+    // Remove any explicit references to the model trying to follow instructions
+    .replace(/I (need|will|should|must) make (it|this|the response) (more|extremely|very) (vulgar|offensive|profane|direct|harsh)/gi, '')
+    // Remove any remaining quotes if the entire response is wrapped in them
+    .replace(/^"(.*)"$/, '$1')
+    // Consolidate multiple spaces
+    .replace(/\s+/g, ' ')
+    .trim();
+    
+  // Ensure the roast starts with a capital letter
+  if (cleanedRoast.length > 0) {
+    cleanedRoast = cleanedRoast.charAt(0).toUpperCase() + cleanedRoast.slice(1);
+  }
+  
+  // Ensure the roast ends with punctuation
+  if (!/[.!?]$/.test(cleanedRoast)) {
+    cleanedRoast += '.';
+  }
+  
+  // Ensure minimal profanity for higher levels
+  if (level >= 3) {
+    const commonProfanity = ['fuck', 'shit', 'ass', 'damn', 'bitch', 'cunt', 'dick', 'cock', 'bastard'];
+    const containsProfanity = commonProfanity.some(word => cleanedRoast.toLowerCase().includes(word));
+    
+    if (!containsProfanity) {
+      // Add profanity if missing based on level
+      const profanityOptions = [
+        "fucking", 
+        "goddamn", 
+        "shitty", 
+        level >= 4 ? "motherfucking" : "fucking",
+        level >= 5 ? "cock-sucking" : "pathetic"
+      ];
+      
+      const randomProfanity = profanityOptions[Math.floor(Math.random() * profanityOptions.length)];
+      
+      // Find a position to insert profanity (before a noun or adjective)
+      const words = cleanedRoast.split(' ');
+      if (words.length >= 3) {
+        // Insert after "you" or "your" if present
+        for (let i = 0; i < words.length - 1; i++) {
+          if (/^(you|your)$/i.test(words[i])) {
+            words.splice(i + 1, 0, randomProfanity);
+            cleanedRoast = words.join(' ');
+            break;
+          }
+        }
+      } else {
+        // For very short responses, just append profanity
+        cleanedRoast = `You ${randomProfanity} ${cleanedRoast.toLowerCase()}`;
+      }
+    }
+  }
+  
+  return cleanedRoast;
 }
 
 module.exports = {

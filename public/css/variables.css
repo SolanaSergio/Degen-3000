@@ -1,6 +1,6 @@
 /**
  * variables.css
- * CSS variables for DEGEN ROAST 3000
+ * CSS variables for DEGEN ROAST 3000 (Enhanced Version)
  */
 
 :root {
@@ -14,55 +14,74 @@
   --space-xxl: 3rem;
   
   /* Border radius */
-  --border-radius-sm: 0.25rem;
-  --border-radius-md: 0.5rem;
-  --border-radius-lg: 0.75rem;
-  --border-radius-xl: 1rem;
+  --border-radius-sm: 0.35rem;
+  --border-radius-md: 0.75rem;
+  --border-radius-lg: 1.25rem;
+  --border-radius-xl: 2rem;
+  --border-radius-pill: 9999px;
   
   /* Typography */
   --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   --font-family-mono: 'JetBrains Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
+  --font-family-display: 'Space Grotesk', 'Inter', sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.5rem;
   --font-size-xxl: 2rem;
+  --font-size-xxxl: 3rem;
   
-  /* Base theme: Crypto */
-  --bg-primary: #141a28;
-  --bg-secondary: #1a2136;
-  --bg-tertiary: #23294a;
+  /* Base theme: Crypto (Updated with more vibrant colors) */
+  --bg-primary: #0A0E17;
+  --bg-secondary: #141C2E;
+  --bg-tertiary: #1D2842;
+  --bg-gradient: linear-gradient(135deg, #0A0E17 0%, #141C2E 100%);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
   --text-button: #ffffff;
-  --accent-primary: #3772ff;
+  --accent-primary: #3772FF;
   --accent-primary-rgb: 55, 114, 255;
   --accent-primary-alpha: rgba(55, 114, 255, 0.2);
-  --accent-primary-hover: #4a85ff;
-  --accent-secondary: #f7931a;
-  --accent-secondary-hover: #f9a942;
-  --border-primary: rgba(255, 255, 255, 0.1);
-  --border-secondary: rgba(255, 255, 255, 0.05);
-  --button-primary: #3772ff;
-  --button-primary-hover: #4a85ff;
-  --button-secondary: rgba(55, 114, 255, 0.15);
-  --button-secondary-hover: rgba(55, 114, 255, 0.25);
-  --button-danger: #ff3366;
-  --button-danger-hover: #ff4d7d;
+  --accent-primary-hover: #4A85FF;
+  --accent-secondary: #F7931A;
+  --accent-secondary-hover: #F9A942;
+  --accent-tertiary: #00E8FC;
+  --accent-tertiary-rgb: 0, 232, 252;
+  --border-primary: rgba(255, 255, 255, 0.12);
+  --border-secondary: rgba(255, 255, 255, 0.08);
+  --button-primary: #3772FF;
+  --button-primary-hover: #4A85FF;
+  --button-secondary: rgba(55, 114, 255, 0.18);
+  --button-secondary-hover: rgba(55, 114, 255, 0.28);
+  --button-danger: #FF3366;
+  --button-danger-hover: #FF4D7D;
+  --button-success: #00DC82;
+  --button-success-hover: #33E599;
   
-  /* Stonks mode */
-  --stonks-bg: rgba(0, 0, 0, 0.8);
-  --stonks-accent: #00ff66;
-  --stonks-accent-rgb: 0, 255, 102;
-  --stonks-text: #ffffff;
+  /* Glassmorphism effects */
+  --glass-bg: rgba(20, 28, 46, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  --glass-blur: blur(10px);
   
-  /* Shadow variables */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 15px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.5);
+  /* Stonks mode (Enhanced) */
+  --stonks-bg: rgba(0, 0, 0, 0.85);
+  --stonks-accent: #00FF88;
+  --stonks-accent-rgb: 0, 255, 136;
+  --stonks-text: #FFFFFF;
+  --stonks-gradient: linear-gradient(135deg, #00FF88 0%, #00E8FC 100%);
+  --stonks-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  
+  /* Shadow variables (Enhanced for more depth) */
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.32);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.22), 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-inner: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-glow-primary: 0 0 20px rgba(55, 114, 255, 0.4);
+  --shadow-glow-secondary: 0 0 20px rgba(247, 147, 26, 0.4);
   
   /* Z-index layers */
   --z-below: -1;
@@ -73,79 +92,105 @@
   --z-modal: 1000;
   --z-toast: 2000;
   --z-tooltip: 3000;
+  
+  /* Animation speeds */
+  --animation-slow: 0.5s;
+  --animation-medium: 0.3s;
+  --animation-fast: 0.15s;
 }
 
-/* Hacker theme */
+/* Hacker theme (Enhanced with more cyberpunk feel) */
 .theme-hacker {
-  --bg-primary: #0c0c0c;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1a1a1a;
-  --text-primary: #00ff66;
-  --text-secondary: rgba(0, 255, 102, 0.7);
-  --text-tertiary: rgba(0, 255, 102, 0.5);
+  --bg-primary: #060809;
+  --bg-secondary: #0D0F13;
+  --bg-tertiary: #161B22;
+  --bg-gradient: linear-gradient(135deg, #060809 0%, #0D0F13 100%);
+  --text-primary: #00FF88;
+  --text-secondary: rgba(0, 255, 136, 0.8);
+  --text-tertiary: rgba(0, 255, 136, 0.6);
   --text-button: #000000;
-  --accent-primary: #00ff66;
-  --accent-primary-rgb: 0, 255, 102;
-  --accent-primary-alpha: rgba(0, 255, 102, 0.2);
-  --accent-primary-hover: #33ff88;
-  --accent-secondary: #0066ff;
-  --accent-secondary-hover: #3388ff;
-  --border-primary: rgba(0, 255, 102, 0.3);
-  --border-secondary: rgba(0, 255, 102, 0.1);
-  --button-primary: #00ff66;
-  --button-primary-hover: #33ff88;
-  --button-secondary: rgba(0, 255, 102, 0.15);
-  --button-secondary-hover: rgba(0, 255, 102, 0.25);
-  --button-danger: #ff3366;
-  --button-danger-hover: #ff4d7d;
+  --accent-primary: #00FF88;
+  --accent-primary-rgb: 0, 255, 136;
+  --accent-primary-alpha: rgba(0, 255, 136, 0.2);
+  --accent-primary-hover: #33FF9F;
+  --accent-secondary: #00E8FC;
+  --accent-secondary-hover: #33EEFD;
+  --accent-tertiary: #B265FF;
+  --accent-tertiary-rgb: 178, 101, 255;
+  --border-primary: rgba(0, 255, 136, 0.3);
+  --border-secondary: rgba(0, 255, 136, 0.15);
+  --button-primary: #00FF88;
+  --button-primary-hover: #33FF9F;
+  --button-secondary: rgba(0, 255, 136, 0.18);
+  --button-secondary-hover: rgba(0, 255, 136, 0.28);
+  --button-danger: #FF3366;
+  --button-danger-hover: #FF4D7D;
+  --glass-bg: rgba(13, 15, 19, 0.7);
+  --glass-border: rgba(0, 255, 136, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --shadow-glow-primary: 0 0 20px rgba(0, 255, 136, 0.4);
 }
 
-/* Gamer theme */
+/* Gamer theme (Enhanced with more RGB vibe) */
 .theme-gamer {
-  --bg-primary: #140a1f;
-  --bg-secondary: #1e0f2d;
-  --bg-tertiary: #2a1745;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.5);
-  --text-button: #ffffff;
-  --accent-primary: #ff0080;
-  --accent-primary-rgb: 255, 0, 128;
-  --accent-primary-alpha: rgba(255, 0, 128, 0.2);
-  --accent-primary-hover: #ff3399;
-  --accent-secondary: #9900ff;
-  --accent-secondary-hover: #aa33ff;
-  --border-primary: rgba(255, 0, 128, 0.3);
-  --border-secondary: rgba(255, 0, 128, 0.1);
-  --button-primary: #ff0080;
-  --button-primary-hover: #ff3399;
-  --button-secondary: rgba(255, 0, 128, 0.15);
-  --button-secondary-hover: rgba(255, 0, 128, 0.25);
-  --button-danger: #00ccff;
-  --button-danger-hover: #33ddff;
+  --bg-primary: #0E0619;
+  --bg-secondary: #180A2C;
+  --bg-tertiary: #220E3D;
+  --bg-gradient: linear-gradient(135deg, #0E0619 0%, #180A2C 100%);
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-button: #FFFFFF;
+  --accent-primary: #FF00BB;
+  --accent-primary-rgb: 255, 0, 187;
+  --accent-primary-alpha: rgba(255, 0, 187, 0.2);
+  --accent-primary-hover: #FF33C9;
+  --accent-secondary: #7000FF;
+  --accent-secondary-hover: #8A33FF;
+  --accent-tertiary: #00E8FC;
+  --accent-tertiary-rgb: 0, 232, 252;
+  --border-primary: rgba(255, 0, 187, 0.3);
+  --border-secondary: rgba(255, 0, 187, 0.15);
+  --button-primary: #FF00BB;
+  --button-primary-hover: #FF33C9;
+  --button-secondary: rgba(255, 0, 187, 0.18);
+  --button-secondary-hover: rgba(255, 0, 187, 0.28);
+  --button-danger: #00E8FC;
+  --button-danger-hover: #33EEFD;
+  --glass-bg: rgba(24, 10, 44, 0.7);
+  --glass-border: rgba(255, 0, 187, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --shadow-glow-primary: 0 0 20px rgba(255, 0, 187, 0.4);
 }
 
-/* Meme theme */
+/* Meme theme (Enhanced with more fun and vibrant colors) */
 .theme-meme {
-  --bg-primary: #fdf6e3;
-  --bg-secondary: #eee8d5;
-  --bg-tertiary: #dcd7c8;
+  --bg-primary: #FFFAFA;
+  --bg-secondary: #FFF3E0;
+  --bg-tertiary: #FFEBCD;
+  --bg-gradient: linear-gradient(135deg, #FFFAFA 0%, #FFF3E0 100%);
   --text-primary: #333333;
-  --text-secondary: rgba(51, 51, 51, 0.7);
-  --text-tertiary: rgba(51, 51, 51, 0.5);
+  --text-secondary: rgba(51, 51, 51, 0.8);
+  --text-tertiary: rgba(51, 51, 51, 0.6);
   --text-button: #333333;
-  --accent-primary: #ffce00;
-  --accent-primary-rgb: 255, 206, 0;
-  --accent-primary-alpha: rgba(255, 206, 0, 0.2);
-  --accent-primary-hover: #ffd633;
-  --accent-secondary: #ff6b00;
-  --accent-secondary-hover: #ff8533;
-  --border-primary: rgba(255, 206, 0, 0.3);
-  --border-secondary: rgba(255, 206, 0, 0.1);
-  --button-primary: #ffce00;
-  --button-primary-hover: #ffd633;
-  --button-secondary: rgba(255, 206, 0, 0.15);
-  --button-secondary-hover: rgba(255, 206, 0, 0.25);
-  --button-danger: #ff3366;
-  --button-danger-hover: #ff4d7d;
+  --accent-primary: #FF9800;
+  --accent-primary-rgb: 255, 152, 0;
+  --accent-primary-alpha: rgba(255, 152, 0, 0.2);
+  --accent-primary-hover: #FFAD33;
+  --accent-secondary: #FF3366;
+  --accent-secondary-hover: #FF4D7D;
+  --accent-tertiary: #8A33FF;
+  --accent-tertiary-rgb: 138, 51, 255;
+  --border-primary: rgba(255, 152, 0, 0.3);
+  --border-secondary: rgba(255, 152, 0, 0.15);
+  --button-primary: #FF9800;
+  --button-primary-hover: #FFAD33;
+  --button-secondary: rgba(255, 152, 0, 0.18);
+  --button-secondary-hover: rgba(255, 152, 0, 0.28);
+  --button-danger: #FF3366;
+  --button-danger-hover: #FF4D7D;
+  --glass-bg: rgba(255, 243, 224, 0.8);
+  --glass-border: rgba(255, 152, 0, 0.25);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow-primary: 0 0 20px rgba(255, 152, 0, 0.4);
 } 
