@@ -9,6 +9,9 @@
     <meta property="og:image" content="https://tenor.com/view/stonks-up-stongs-meme-stocks-gif-15715298">
     <meta property="og:type" content="website">
     
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- CRITICAL iPad Mini Fix - Must be loaded first -->
     <style id="critical-ipad-mini-fix">
         /* The most aggressive possible CSS for iPad Mini */
@@ -38,7 +41,7 @@
                 order: 2 !important;
             }
             
-            html body .container.enhanced-ui .content-grid .control-panel-component,
+            html body .container.enhanced-ui .control-panel-component,
             html body .container.enhanced-ui #control-panel-container .control-panel-component {
                 width: 100% !important;
                 max-width: none !important;
@@ -199,34 +202,119 @@
             
             /* Control panel styling */
             html body #control-panel-container {
-                border-radius: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
                 overflow: hidden !important;
                 transition: all 0.3s ease !important;
                 flex: 0 0 auto !important;
+                margin-bottom: 20px !important;
                 display: block !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-                max-height: none !important;
-                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
-                backdrop-filter: blur(10px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                background: linear-gradient(135deg, rgba(25, 35, 55, 0.9), rgba(15, 20, 30, 0.95)) !important;
+                backdrop-filter: blur(15px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                z-index: 10 !important;
             }
             
             /* Soundboard styling */
             html body #soundboard-container {
-                border-radius: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
                 overflow: hidden !important;
                 transition: all 0.3s ease !important;
                 flex: 1 1 auto !important;
-                min-height: 200px !important;
-                display: block !important;
+                min-height: 350px !important;
+                max-height: 600px !important;
+                display: flex !important;
+                flex-direction: column !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-                background: linear-gradient(135deg, rgba(20, 30, 50, 0.8), rgba(10, 15, 25, 0.9)) !important;
-                backdrop-filter: blur(10px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                background: linear-gradient(135deg, rgba(25, 35, 55, 0.9), rgba(15, 20, 30, 0.95)) !important;
+                backdrop-filter: blur(15px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                z-index: 10 !important;
+            }
+            
+            /* Fix for soundboard sound buttons */
+            html body #soundboard-container .sound-buttons {
+                display: grid !important;
+                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)) !important;
+                gap: 8px !important;
+                padding: 12px !important;
+                overflow-y: auto !important;
+                min-height: 200px !important;
+                max-height: calc(100% - 105px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important; 
+                border-radius: 8px !important;
+                background-color: rgba(0, 0, 0, 0.25) !important;
+                margin: 0 6px 6px 6px !important;
+            }
+            
+            /* Fix for sound buttons */
+            html body #soundboard-container .sound-button {
+                min-height: 80px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background-color: rgba(30, 40, 60, 0.8) !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                border-radius: 8px !important;
+                padding: 8px !important;
+                transition: all 0.2s ease !important;
+                cursor: pointer !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            }
+            
+            html body #soundboard-container .sound-button-icon {
+                font-size: 20px !important;
+                margin-bottom: 6px !important;
+                width: 36px !important;
+                height: 36px !important;
+                background-color: rgba(0, 0, 0, 0.2) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border-radius: 50% !important;
+            }
+            
+            html body #soundboard-container .sound-button-label {
+                font-size: 12px !important;
+                font-weight: 500 !important;
+                text-align: center !important;
+                line-height: 1.2 !important;
+                width: 100% !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            
+            /* Sound categories fix */
+            html body #soundboard-container .sound-categories {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+                margin: 0 6px 8px 6px !important;
+                padding: 8px !important;
+                background-color: rgba(0, 0, 0, 0.2) !important;
+                border-radius: 8px !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                max-height: 55px !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+            }
+            
+            html body #soundboard-container .category-button {
+                background-color: rgba(55, 114, 255, 0.15) !important;
+                color: #ffffff !important;
+                padding: 6px 12px !important;
+                min-height: 36px !important;
+                min-width: 90px !important;
+                border-radius: 6px !important;
+                border: none !important;
+                font-size: 0.9rem !important;
+                font-weight: 600 !important;
             }
             
             /* Chat section styling */
@@ -528,6 +616,7 @@
     <!-- 3. Core Layout - Desktop First Approach -->
     <link rel="stylesheet" href="css/app-layout.css">
     <link rel="stylesheet" href="css/enhanced-ui.css">
+    <link rel="stylesheet" href="css/component-enhancements.css">
     <link rel="stylesheet" href="css/animations.css">
     
     <!-- 4. Components Styles -->
@@ -540,7 +629,10 @@
     <link rel="stylesheet" href="components/MemeGallery/MemeGallery.css">
     <link rel="stylesheet" href="components/Disclaimer/Disclaimer.css">
     
-    <!-- 5. Responsive and Mobile Overrides - These come LAST to override desktop styles -->
+    <!-- 5. Theme-specific styles -->
+    <link rel="stylesheet" href="css/theme.css">
+    
+    <!-- 6. Responsive and Mobile Overrides - These come LAST to override desktop styles -->
     <link rel="stylesheet" href="css/mobile-enhanced.css">
     
     <!-- Emergency fix for iPad Air layout in DevTools -->
@@ -594,17 +686,17 @@
     <!-- Debug Helper Script - Load before everything else -->
     <script src="js/debug-helper.js"></script>
     
-    <!-- Core Scripts - Load these first with defer to ensure they're initialized before other components -->
-    <script defer src="components/common/EventBus.js"></script>
-    <script defer src="components/common/ComponentBase.js"></script>
-    <script defer src="components/common/ThemeManager.js"></script>
-    <script defer src="js/utils.js"></script>
+    <!-- Core Scripts - These must be loaded IMMEDIATELY (without defer) -->
+    <script src="components/common/EventBus.js"></script>
+    <script src="components/common/ComponentBase.js"></script>
+    <script src="components/common/ThemeManager.js"></script>
+    <script src="js/utils.js"></script>
     
     <!-- API Service - Load before main.js -->
-    <script defer src="js/api-service.js"></script>
+    <script src="js/api-service.js"></script>
     
     <!-- API Debugger - Load after API Service -->
-    <script defer src="js/api-debug.js"></script>
+    <script src="js/api-debug.js"></script>
 </head>
 <body class="theme-crypto">
     <!-- iPad Mini Emergency Fix -->
@@ -693,8 +785,11 @@
     <!-- Mobile enhancements -->
     <script defer src="js/mobile-enhancements.js"></script>
     
-    <!-- Main application initialization -->
-    <script defer src="js/main.js"></script>
+    <!-- Component healing utility -->
+    <script src="js/component-healing.js"></script>
+    
+    <!-- Initialize app -->
+    <script src="js/main.js"></script>
     
     <!-- Show fallback content if components don't load after timeout -->
     <script>

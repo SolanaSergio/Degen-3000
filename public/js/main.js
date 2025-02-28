@@ -248,6 +248,48 @@ function applyDesktopLayout() {
     }
   }
   
+  // Ensure soundboard is correctly displayed
+  const soundboardContainer = document.getElementById('soundboard-container');
+  if (soundboardContainer) {
+    soundboardContainer.style.display = 'flex';
+    soundboardContainer.style.flexDirection = 'column';
+    soundboardContainer.style.maxHeight = '300px';
+    soundboardContainer.style.minHeight = '200px';
+    soundboardContainer.style.flex = '1 1 auto';
+    soundboardContainer.style.overflow = 'hidden';
+    
+    // Style soundboard component if it exists
+    const soundboardComponent = soundboardContainer.querySelector('.soundboard-component');
+    if (soundboardComponent) {
+      soundboardComponent.style.display = 'flex';
+      soundboardComponent.style.flexDirection = 'column';
+      soundboardComponent.style.height = '100%';
+      soundboardComponent.style.width = '100%';
+      soundboardComponent.style.overflow = 'hidden';
+      
+      // Style sound categories
+      const soundCategories = soundboardComponent.querySelector('.sound-categories');
+      if (soundCategories) {
+        soundCategories.style.display = 'flex';
+        soundCategories.style.flexWrap = 'wrap';
+        soundCategories.style.gap = '8px';
+        soundCategories.style.marginBottom = '12px';
+        soundCategories.style.flexShrink = '0';
+      }
+      
+      // Style sound buttons container
+      const soundButtons = soundboardComponent.querySelector('.sound-buttons');
+      if (soundButtons) {
+        soundButtons.style.display = 'grid';
+        soundButtons.style.gridTemplateColumns = 'repeat(auto-fill, minmax(80px, 1fr))';
+        soundButtons.style.gap = '8px';
+        soundButtons.style.overflowY = 'auto';
+        soundButtons.style.flex = '1';
+        soundButtons.style.minHeight = '0';
+      }
+    }
+  }
+  
   // Hide fallback content if container has UI
   if (fallbackContent) {
     fallbackContent.style.display = 'none';
@@ -391,11 +433,89 @@ function initializeComponents() {
   // 4. Initialize Soundboard component
   if (typeof window.Soundboard !== 'undefined' && document.getElementById('soundboard-container')) {
     console.log('Initializing Soundboard component...');
-    window.soundboardComponent = new window.Soundboard('soundboard-container', {
-      initialVolume: 0.7,
-      initialMuted: false,
-      showControls: true
-    });
+    try {
+      window.soundboardComponent = new window.Soundboard('soundboard-container', {
+        defaultVolume: 0.7,
+        initialMuted: false,
+        showCategories: true,
+        showControls: true
+      });
+      
+      // Verify the soundboard component initialized correctly
+      if (!window.soundboardComponent || 
+          !window.soundboardComponent.options || 
+          typeof window.soundboardComponent.options.defaultVolume === 'undefined') {
+        
+        console.warn('Soundboard component initialized but has missing options, attempting recovery...');
+        
+        // Get the container
+        const container = document.getElementById('soundboard-container');
+        
+        // Clear it
+        if (container) {
+          container.innerHTML = '';
+          
+          // Explicitly set the options object on the existing component
+          if (window.soundboardComponent) {
+            window.soundboardComponent.options = {
+              defaultVolume: 0.7,
+              initialMuted: false,
+              showCategories: true,
+              showControls: true
+            };
+            
+            // Try to re-initialize
+            if (typeof window.soundboardComponent.init === 'function') {
+              window.soundboardComponent.init();
+            }
+          } else {
+            // Try creating a new instance
+            window.soundboardComponent = new window.Soundboard('soundboard-container', {
+              defaultVolume: 0.7,
+              initialMuted: false,
+              showCategories: true,
+              showControls: true
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to initialize Soundboard component:', error);
+      
+      // Try to recover by rendering a simple error UI
+      const container = document.getElementById('soundboard-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="padding: 20px; text-align: center; height: 300px; display: flex; flex-direction: column; 
+                     justify-content: center; align-items: center; background: rgba(0,0,0,0.3); border-radius: 12px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+            <h3 style="margin-bottom: 12px; color: #ff3366;">Soundboard Error</h3>
+            <p style="margin-bottom: 20px; color: #f9f9f9;">${error.message || 'Initialization failed'}</p>
+            <button id="retry-soundboard" style="padding: 10px 20px; background: #3772ff; color: white; 
+                   border: none; border-radius: 8px; cursor: pointer;">Retry</button>
+          </div>
+        `;
+        
+        // Add retry button handler
+        setTimeout(() => {
+          const retryBtn = document.getElementById('retry-soundboard');
+          if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+              // Clear container
+              container.innerHTML = '';
+              
+              // Try initializing again
+              window.soundboardComponent = new window.Soundboard('soundboard-container', {
+                defaultVolume: 0.7,
+                initialMuted: false,
+                showCategories: true,
+                showControls: true
+              });
+            });
+          }
+        }, 100);
+      }
+    }
   } else {
     console.warn('Soundboard component or container not found');
   }

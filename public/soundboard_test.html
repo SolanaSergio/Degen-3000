@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard Test Page</title>
+
+    <!-- CSS files -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/app-layout.css">
+    <link rel="stylesheet" href="css/enhanced-ui.css">
+    <link rel="stylesheet" href="css/component-enhancements.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="components/Soundboard/Soundboard.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background: #121420;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .test-soundboard {
+            min-height: 500px;
+            border: 2px solid #3772ff;
+            border-radius: 16px;
+            padding: 20px;
+            background: rgba(20, 30, 50, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 2rem;
+        }
+        .debug-panel {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(20, 35, 60, 0.5);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .debug-log {
+            margin-top: 0.5rem;
+            background: #0a0a10;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            background: #3772ff;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        button:hover {
+            background: #275ce4;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>Soundboard Component Test</h1>
+            <div class="subtitle">This is a standalone test for the Soundboard component</div>
+        </div>
+
+        <div id="soundboard-container" class="test-soundboard">
+            <!-- Soundboard will be rendered here -->
+        </div>
+
+        <div class="debug-panel">
+            <h3>Debug Controls:</h3>
+            <div>
+                <button id="reload-btn">Reload Soundboard</button>
+                <button id="toggle-display-btn">Toggle Display</button>
+                <button id="play-sound-btn">Play Random Sound</button>
+            </div>
+            <h3>Debug Log:</h3>
+            <div id="debug-log" class="debug-log"></div>
+        </div>
+    </div>
+
+    <!-- Core dependencies -->
+    <script src="js/lib/EventBus.js"></script>
+    <script src="js/lib/ComponentBase.js"></script>
+
+    <!-- Component scripts -->
+    <script src="components/Soundboard/Soundboard.js"></script>
+
+    <!-- Test script -->
+    <script>
+        // Debug log function
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        // Initialize soundboard when page is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded, initializing soundboard...');
+            
+            // Check if dependencies are loaded
+            if (typeof EventBus === 'undefined') {
+                log('ERROR: EventBus is not defined. Make sure EventBus.js is loaded.');
+                return;
+            }
+            
+            if (typeof ComponentBase === 'undefined') {
+                log('ERROR: ComponentBase is not defined. Make sure ComponentBase.js is loaded.');
+                return;
+            }
+            
+            if (typeof Soundboard === 'undefined') {
+                log('ERROR: Soundboard is not defined. Make sure Soundboard.js is loaded.');
+                return;
+            }
+            
+            // Initialize the soundboard
+            try {
+                log('Creating Soundboard instance...');
+                window.soundboardComponent = new Soundboard('soundboard-container', {
+                    defaultVolume: 0.7,
+                    initialMuted: false,
+                    showCategories: true
+                });
+                
+                log('Soundboard initialization completed!');
+                
+                // Force visible styling
+                const container = document.getElementById('soundboard-container');
+                container.style.display = 'block';
+                container.style.visibility = 'visible';
+                container.style.opacity = '1';
+                
+                // Add debug button handlers
+                document.getElementById('reload-btn').addEventListener('click', () => {
+                    log('Reloading soundboard...');
+                    if (window.soundboardComponent) {
+                        // Destroy old instance if it exists
+                        if (typeof window.soundboardComponent.destroy === 'function') {
+                            window.soundboardComponent.destroy();
+                        }
+                    }
+                    
+                    // Clear container
+                    document.getElementById('soundboard-container').innerHTML = '';
+                    
+                    // Create new instance
+                    window.soundboardComponent = new Soundboard('soundboard-container', {
+                        defaultVolume: 0.7,
+                        initialMuted: false,
+                        showCategories: true
+                    });
+                    
+                    log('Soundboard reloaded!');
+                });
+                
+                document.getElementById('toggle-display-btn').addEventListener('click', () => {
+                    const container = document.getElementById('soundboard-container');
+                    if (container.style.display === 'none') {
+                        container.style.display = 'block';
+                        log('Soundboard display enabled');
+                    } else {
+                        container.style.display = 'none';
+                        log('Soundboard display disabled');
+                    }
+                });
+                
+                document.getElementById('play-sound-btn').addEventListener('click', () => {
+                    if (window.soundboardComponent) {
+                        log('Attempting to play a random sound...');
+                        
+                        // Get a list of categories
+                        const categories = Object.keys(window.soundboardComponent.state.sounds);
+                        if (categories.length === 0) {
+                            log('No sound categories found!');
+                            return;
+                        }
+                        
+                        // Pick a random category
+                        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+                        
+                        // Get sounds in that category
+                        const sounds = Object.keys(window.soundboardComponent.state.sounds[randomCategory]);
+                        if (sounds.length === 0) {
+                            log(`No sounds found in category: ${randomCategory}`);
+                            return;
+                        }
+                        
+                        // Pick a random sound
+                        const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                        
+                        // Play the sound
+                        log(`Playing sound: ${randomCategory}/${randomSound}`);
+                        window.soundboardComponent.playSound(randomCategory, randomSound);
+                    } else {
+                        log('Soundboard component not available');
+                    }
+                });
+                
+            } catch (error) {
+                log(`ERROR: Failed to initialize soundboard: ${error.message}`);
+                console.error('Soundboard initialization error:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

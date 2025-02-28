@@ -51,31 +51,282 @@
 
 /* Control panel enhanced styling */
 #control-panel-container {
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   flex: 0 0 auto;
+  margin-bottom: 25px;
+  background: linear-gradient(135deg, rgba(25, 35, 55, 0.95), rgba(15, 20, 30, 0.98));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  position: relative;
+  z-index: 15;
+}
+
+#control-panel-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary, var(--accent-color)));
+  z-index: 1;
+}
+
+#control-panel-container::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(var(--accent-primary-rgb), 0.3), transparent 70%);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: all 0.4s ease;
 }
 
 #control-panel-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--accent-primary-rgb), 0.2);
+}
+
+#control-panel-container:hover::after {
+  opacity: 1;
+  transform: scale(1.2);
 }
 
 /* Soundboard enhanced styling */
 #soundboard-container {
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   flex: 1 1 auto;
-  min-height: 200px;
+  min-height: 480px; /* Increased height for better button display */
+  max-height: 650px; /* Allow more space */
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, rgba(25, 35, 55, 0.95), rgba(15, 20, 30, 0.98));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  z-index: 10;
+  position: relative;
+}
+
+#soundboard-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent-secondary, var(--accent-color)), var(--accent-color));
+  z-index: 1;
+}
+
+#soundboard-container::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(var(--accent-secondary-rgb, var(--accent-primary-rgb)), 0.25), transparent 70%);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+#soundboard-container .soundboard-component {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 22px;
+}
+
+#soundboard-container .sound-categories {
+  flex-shrink: 0;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  min-height: 80px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#soundboard-container .category-button {
+  padding: 12px 20px;
+  background-color: rgba(30, 40, 60, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-height: 50px;
+  min-width: 120px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+#soundboard-container .category-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#soundboard-container .category-button:hover {
+  background-color: rgba(var(--accent-primary-rgb, 55, 114, 255), 0.25);
+  border-color: rgba(var(--accent-primary-rgb, 55, 114, 255), 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+#soundboard-container .category-button:hover::before {
+  opacity: 1;
+}
+
+#soundboard-container .category-button.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--text-on-accent, #ffffff);
+  box-shadow: 0 0 18px rgba(var(--accent-primary-rgb, 55, 114, 255), 0.5);
+  transform: scale(1.05);
+}
+
+#soundboard-container .sound-buttons {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 300px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: 0 6px 6px 6px;
+}
+
+#soundboard-container .sound-button {
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 40, 60, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+#soundboard-container .sound-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--accent-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+#soundboard-container .sound-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#soundboard-container .sound-button:hover {
+  transform: translateY(-6px) scale(1.03);
+  background-color: rgba(40, 50, 75, 0.9);
+  border-color: rgba(var(--accent-primary-rgb, 55, 114, 255), 0.5);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+#soundboard-container .sound-button:hover::before {
+  transform: scaleX(1);
+}
+
+#soundboard-container .sound-button:hover::after {
+  opacity: 1;
+}
+
+#soundboard-container .sound-button:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+#soundboard-container .sound-button-icon {
+  font-size: 2.75rem;
+  margin-bottom: 14px;
+  transition: all 0.3s ease;
+  background-color: rgba(0, 0, 0, 0.2);
+  width: 65px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#soundboard-container .sound-button:hover .sound-button-icon {
+  transform: scale(1.1) rotate(8deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(var(--accent-primary-rgb, 55, 114, 255), 0.4);
+}
+
+#soundboard-container .sound-button-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 #soundboard-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--accent-primary-rgb), 0.2);
+}
+
+#soundboard-container:hover::after {
+  opacity: 0.8;
+  transform: scale(1.2);
 }
 
 /* Chat section styling - the main focus */

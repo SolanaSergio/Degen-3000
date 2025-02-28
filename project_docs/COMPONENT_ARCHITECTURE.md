@@ -13,6 +13,8 @@ The component architecture is built around these key principles:
 3. **Consistent API**: All components share a common base class and lifecycle methods
 4. **Theme Support**: All components support theme switching with consistent styling
 5. **Responsive Design**: Components adapt gracefully to different screen sizes
+6. **Progressive Enhancement**: Core functionality works first, with additional features layered on top
+7. **Self-Healing**: Components can recover from initialization failures and DOM issues
 
 ## Component System Architecture
 
@@ -40,6 +42,7 @@ The `ComponentBase` class provides a foundation for all UI components, handling:
 - EventBus integration for component communication
 - Automatic CSS loading based on component name
 - Common utility methods
+- Self-healing capabilities for DOM issues
 
 ```javascript
 // Example component implementation
@@ -254,3 +257,132 @@ The component architecture enables several future enhancements:
 3. **Performance Optimization**: Optimize rendering and event handling
 4. **Accessibility Improvements**: Enhance keyboard navigation and screen reader support
 5. **Advanced Theming**: Add more sophisticated theme options 
+
+## Component Styling Approach
+
+Components in DEGEN ROAST 3000 use a multi-layered styling approach:
+
+### 1. CSS Layering
+
+The application's CSS follows a layered architecture:
+
+1. **Reset CSS** (`reset.css`): Normalizes browser defaults
+2. **CSS Variables** (`variables.css`): Defines design tokens including colors, spacing, and typography
+3. **Base Styles** (`base.css`): Sets basic element styling
+4. **Layout Styles** (`app-layout.css`): Defines overall application layout structure
+5. **Enhanced UI** (`enhanced-ui.css`): Provides enhanced UI elements and interactions
+6. **Component Enhancements** (`component-enhancements.css`): Adds specialized styling for specific components
+7. **Component-Specific CSS** (`[ComponentName].css`): Contains styles specific to each component
+8. **Responsive Overrides** (`mobile-enhanced.css`): Provides mobile-specific overrides
+
+### 2. Component-Specific CSS
+
+Each component has its own CSS file that follows these principles:
+
+- Uses the component name as a root class (e.g., `.soundboard-component`)
+- Leverages CSS variables for theming
+- Handles component-specific responsive behavior
+- Contains animations specific to that component
+
+Example from Soundboard.css:
+```css
+.soundboard-component {
+  width: 100%;
+  padding: var(--space-lg);
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--space-lg);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+```
+
+### 3. Cross-Component Enhancements
+
+The `component-enhancements.css` file provides specialized styling that:
+
+- Enhances visibility and user experience
+- Improves interactions like scrolling and focus states
+- Adds decorative elements
+- Ensures consistent appearance across components
+- Provides fixes for edge cases and visual issues
+
+These enhancements are applied without requiring changes to component code.
+
+## Component Showcase: Soundboard
+
+The Soundboard component serves as an excellent example of the component architecture in practice:
+
+### Implementation Overview
+
+The Soundboard component:
+- Manages playback of sound effects
+- Categorizes sounds for easy navigation
+- Controls volume and mute settings
+- Handles user interaction with sound buttons
+- Responds to system events
+
+### State Management
+
+The component maintains state for:
+```javascript
+this.state = {
+  volume: this.options.defaultVolume,
+  muted: this.options.initialMuted,
+  sounds: sounds,
+  activeCategory: 'meme', // Start with meme sounds by default
+  audioElements: {}
+};
+```
+
+### Event Integration
+
+The Soundboard component:
+1. Listens for system events:
+   - `themeChanged`: Updates styling based on theme
+   - `soundEnabledChanged`: Enables or disables sound playback
+2. Emits events:
+   - `soundPlayed`: When a sound effect is played
+   - `error`: When sound playback encounters issues
+
+### Self-Healing Features
+
+The component implements self-healing through:
+- Timeout-based rendering to ensure DOM elements are ready
+- Re-initialization mechanism if rendering fails
+- DOM verification before attempting operations
+- Fallbacks for missing audio files
+
+### Enhanced User Experience
+
+The Soundboard provides rich user interactions:
+- Visual feedback when sounds are playing
+- Hover and focus states for accessibility
+- Keyboard navigation support
+- Smooth animations for state changes
+
+## Technical Debt Management
+
+The component architecture helps manage technical debt through:
+
+1. **Isolation**: Issues in one component don't affect others
+2. **Testing**: Components can be tested in isolation
+3. **Documentation**: Each component has clear documentation
+4. **Gradual Enhancement**: Components can be improved individually
+5. **Error Boundaries**: Components can recover from failures
+6. **Event Tracking**: Problems can be traced through the event system
+
+When enhancing existing components, follow these guidelines:
+
+1. Understand the component's responsibilities and limitations
+2. Use CSS enhancements first before modifying component code
+3. Ensure backward compatibility with existing events
+4. Add self-healing mechanisms where appropriate
+5. Update documentation with changes 

@@ -1,0 +1,117 @@
+/**
+ * theme.css
+ * Contains theme-specific styles for DEGEN ROAST 3000
+ */
+
+/* Theme Definitions */
+:root {
+  /* Theme Variables */
+  --theme-transition: all 0.3s ease;
+}
+
+/* Crypto Theme (Default) */
+.theme-crypto {
+  --primary-color: #3772FF;
+  --secondary-color: #45B26B;
+  --tertiary-color: #EF466F;
+  --accent-glow: rgba(55, 114, 255, 0.15);
+  
+  --badge-gradient: linear-gradient(135deg, #3772FF 0%, #1A88FF 100%);
+  --button-gradient: linear-gradient(135deg, #3772FF 0%, #45B26B 100%);
+  
+  --chart-up-color: #45B26B;
+  --chart-down-color: #EF466F;
+}
+
+/* Hacker Theme */
+.theme-hacker {
+  --primary-color: #0FFF50;
+  --secondary-color: #00FFFF;
+  --tertiary-color: #FF00FF;
+  --accent-glow: rgba(15, 255, 80, 0.15);
+  
+  --badge-gradient: linear-gradient(135deg, #0FFF50 0%, #00FFFF 100%);
+  --button-gradient: linear-gradient(135deg, #0FFF50 0%, #00FFFF 100%);
+  
+  --chart-up-color: #0FFF50;
+  --chart-down-color: #FF00FF;
+  
+  /* Special styles for hacker theme */
+  background-color: #000000;
+  color: #0FFF50;
+  font-family: 'Courier New', monospace;
+}
+
+/* Gamer Theme */
+.theme-gamer {
+  --primary-color: #FF00FF;
+  --secondary-color: #00FFFF;
+  --tertiary-color: #FF0000;
+  --accent-glow: rgba(255, 0, 255, 0.15);
+  
+  --badge-gradient: linear-gradient(135deg, #FF00FF 0%, #00FFFF 100%);
+  --button-gradient: linear-gradient(135deg, #FF00FF 0%, #00FFFF 100%);
+  
+  --chart-up-color: #00FFFF;
+  --chart-down-color: #FF0000;
+  
+  /* Special styles for gamer theme */
+  background-color: #120024;
+}
+
+/* Meme Theme */
+.theme-meme {
+  --primary-color: #FF9900;
+  --secondary-color: #FF00FF;
+  --tertiary-color: #00FFFF;
+  --accent-glow: rgba(255, 153, 0, 0.15);
+  
+  --badge-gradient: linear-gradient(135deg, #FF9900 0%, #FF00FF 100%);
+  --button-gradient: linear-gradient(135deg, #FF9900 0%, #FF00FF 100%);
+  
+  --chart-up-color: #FF9900;
+  --chart-down-color: #00FFFF;
+}
+
+/* Theme-specific Component Styles */
+
+/* Soundboard Theme Variations */
+.theme-crypto .soundboard-component {
+  --soundboard-bg: var(--bg-secondary);
+  --soundboard-button-bg: rgba(55, 114, 255, 0.1);
+  --soundboard-button-hover: rgba(55, 114, 255, 0.2);
+  --soundboard-accent: var(--primary-color);
+}
+
+.theme-hacker .soundboard-component {
+  --soundboard-bg: rgba(0, 0, 0, 0.8);
+  --soundboard-button-bg: rgba(15, 255, 80, 0.1);
+  --soundboard-button-hover: rgba(15, 255, 80, 0.2);
+  --soundboard-accent: var(--primary-color);
+}
+
+.theme-gamer .soundboard-component {
+  --soundboard-bg: rgba(18, 0, 36, 0.8);
+  --soundboard-button-bg: rgba(255, 0, 255, 0.1);
+  --soundboard-button-hover: rgba(255, 0, 255, 0.2);
+  --soundboard-accent: var(--primary-color);
+}
+
+.theme-meme .soundboard-component {
+  --soundboard-bg: rgba(30, 30, 30, 0.8);
+  --soundboard-button-bg: rgba(255, 153, 0, 0.1);
+  --soundboard-button-hover: rgba(255, 153, 0, 0.2);
+  --soundboard-accent: var(--primary-color);
+}
+
+/* Theme Transition */
+body {
+  transition: var(--theme-transition);
+}
+
+.container.enhanced-ui *,
+.soundboard-component *,
+.control-panel-component *,
+.chat-window-component * {
+  transition: var(--theme-transition);
+} 
