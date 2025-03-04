@@ -98,10 +98,23 @@ body.ipad-mini-view {
     min-width: 44px;
   }
   
-  /* Better touch scrolling */
-  .scrollable {
+  /* Fix scrolling issues for touchscreen devices */
+  .scrollable, 
+  .messages-container,
+  .chat-section,
+  body,
+  html {
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+  
+  /* Ensure scrollable areas have proper height */
+  .messages-container {
+    max-height: 60vh;
+    height: auto;
+    overflow-y: scroll;
   }
 }
 
@@ -139,50 +152,44 @@ body.ipad-mini-view {
   
   /* Chat section takes priority */
   .chat-section {
-    width: 100%;
-    min-height: 75vh;
-    max-height: 80vh;
-    order: 1; /* Show chat first */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    height: auto !important;
+    min-height: 60vh !important;
+    max-height: 70vh !important;
+    overflow-y: scroll !important;
+    position: relative !important;
+    z-index: 100 !important;
+    margin-bottom: 16px !important;
   }
   
   /* Chat window component */
   .chat-window-component {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
   }
   
   /* Messages container */
   .messages-container {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
+    flex: 1 !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding-bottom: 60px !important; /* Ensure space for input field */
   }
   
   /* Message input */
   .message-input-component {
-    width: 100%;
-    position: sticky;
-    bottom: 0;
-    background-color: rgba(26, 32, 44, 0.95);
-    padding: 8px;
-    z-index: 15;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    border-radius: 8px 8px 0 0;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    position: sticky !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    background-color: var(--base-bg-color, #1a202c) !important;
+    padding: 8px !important;
+    z-index: 5 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    max-height: 120px !important; /* Limit height to prevent it taking too much space */
+    overflow-y: auto !important;
   }
   
   /* Better input handling for iOS keyboard issues */
@@ -224,10 +231,12 @@ body.ipad-mini-view {
   
   /* Improve input field visibility */
   .input-field {
+    height: auto !important;
+    min-height: 44px !important;
+    max-height: 100px !important;
+    overflow-y: auto !important;
+    padding: 10px !important;
     font-size: 16px !important; /* Prevent zoom on iOS */
-    padding: 12px !important; 
-    border-radius: 20px !important;
-    min-height: 44px !important; /* Minimum touch target size */
   }
   
   /* Ensure buttons are easy to tap */
@@ -288,43 +297,77 @@ body.ipad-mini-view {
   /* Control panel */
   .control-panel-component {
     width: 100%;
-    padding: 15px;
-    border-radius: 12px;
+    padding: 16px;
+    border-radius: 16px;
     background-color: rgba(26, 32, 44, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 10px 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: height 0.3s ease, transform 0.3s ease;
+    margin: 12px 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   
   /* Control panel toggle button */
   .control-panel-toggle {
     width: 100%;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.3);
+    padding: 12px 16px;
+    background: linear-gradient(145deg, rgba(50, 60, 90, 0.6), rgba(20, 30, 50, 0.8));
     color: #fff;
     text-align: center;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-bottom: 14px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 16px;
+  }
+  
+  .control-panel-toggle:active {
+    transform: scale(0.98);
+    background: linear-gradient(145deg, rgba(40, 50, 80, 0.6), rgba(20, 30, 50, 0.8));
+  }
+  
+  .control-panel-toggle .toggle-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+  }
+  
+  .control-panel-component.collapsed .control-panel-toggle .toggle-icon {
+    transform: rotate(180deg);
+  }
+  
+  /* Section headers */
+  .control-panel-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 14px 0 10px;
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
   }
   
   /* Layouts for control panel components */
   .theme-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 12px;
+    margin-bottom: 16px;
   }
   
   .level-controls {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin: 10px 0;
+    gap: 10px;
+    margin: 14px 0;
   }
   
   .theme-button {
@@ -333,17 +376,43 @@ body.ipad-mini-view {
     align-items: center;
     justify-content: center;
     height: 80px;
-    padding: 8px;
-    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 12px;
     border: 2px solid transparent;
-    border-radius: 8px;
+    background: rgba(40, 50, 70, 0.5);
     transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  
+  .theme-button:active {
+    transform: scale(0.95);
+  }
+  
+  .theme-button.active {
+    border-color: #00e676;
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.4);
+    background: rgba(40, 60, 80, 0.7);
   }
   
   .level-button {
     width: 100%;
-    padding: 10px 5px;
+    padding: 10px 6px;
     text-align: center;
+    border-radius: 8px;
+    background: rgba(40, 50, 70, 0.5);
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  
+  .level-button:active {
+    transform: scale(0.95);
+  }
+  
+  .level-button.active {
+    border-color: #00e676;
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.4);
+    background: rgba(40, 60, 80, 0.7);
   }
   
   /* Collapsible control panel */
@@ -408,10 +477,23 @@ body.ipad-mini-view {
   
   .theme-options {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
   
   .level-controls {
     grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .theme-button {
+    height: 70px;
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .level-button {
+    padding: 8px 4px;
+    font-size: 12px;
   }
   
   .control-panel-buttons {
@@ -420,12 +502,52 @@ body.ipad-mini-view {
   }
   
   .control-panel-component {
-    padding: 10px;
+    padding: 12px;
+  }
+  
+  .control-panel-toggle {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .control-panel-section-title {
+    font-size: 14px;
+    margin: 10px 0 8px;
   }
   
   body.keyboard-open .chat-section {
     min-height: 40vh;
     max-height: 45vh;
+  }
+  
+  /* Add scrollable tabs for control panel sections on very small screens */
+  .control-panel-tabs {
+    display: flex;
+    overflow-x: auto;
+    padding: 8px 0;
+    margin: 0 -4px 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .control-panel-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+  
+  .control-panel-tab {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    margin: 0 4px;
+    background: rgba(40, 50, 70, 0.5);
+    border-radius: 16px;
+    font-size: 13px;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .control-panel-tab.active {
+    background: rgba(0, 230, 118, 0.3);
+    border-color: #00e676;
   }
 }
 
@@ -716,5 +838,85 @@ body.ipad-mini-view {
       height: calc(100vh - 120px);
       overflow-y: auto;
     }
+  }
+}
+
+/* Mobile-specific scrolling fixes */
+html.mobile-view, body.mobile-view {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+}
+
+/* Fix iOS momentum scrolling issues */
+.ios-device .scrollable,
+.ios-device .messages-container,
+.ios-device .chat-section {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Ensure proper scrolling on all devices */
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Allow messages container to scroll properly */
+.messages-container {
+  flex: 1;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  height: auto;
+  min-height: 200px;
+  max-height: 60vh;
+  position: relative;
+  touch-action: pan-y;
+}
+
+/* Fix input behavior on mobile */
+.message-input-component {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--base-bg-color, #1a202c);
+  padding: 8px;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Prevent iOS auto-zoom on input focus */
+input[type="text"],
+textarea {
+  font-size: 16px;
+}
+
+/* Enhanced input styles */
+.input-field,
+textarea.input-field {
+  width: 100%;
+  height: auto;
+  min-height: 44px;
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 0;
+  line-height: 1.5;
+  font-size: 16px;
+  resize: none;
+}
+
+/* Improve scrolling with touch */
+@media (pointer: coarse) {
+  * {
+    touch-action: manipulation;
+  }
+  
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
   }
 }

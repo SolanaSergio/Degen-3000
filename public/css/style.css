@@ -1,0 +1,71 @@
+.roast-message {
+    position: relative;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    padding: 15px;
+    margin: 15px 0;
+    background-color: rgba(40, 44, 52, 0.85);
+    border-left: 4px solid #ff3e00;
+    border-radius: 4px;
+    overflow-wrap: break-word;
+    max-width: 90%;
+    transition: all 0.3s ease;
+}
+
+/* Enhanced styling for curse words and emphasis in roasts */
+.curse-word {
+    color: #ff3e00;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(255, 62, 0, 0.4);
+    position: relative;
+    display: inline-block;
+    padding: 0 2px;
+}
+
+.curse-word::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: rgba(255, 62, 0, 0.4);
+    transform: scaleX(0.8);
+    transition: transform 0.2s ease-in-out;
+}
+
+.curse-word:hover::after {
+    transform: scaleX(1);
+}
+
+.emphasis {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #ffcc00;
+    text-transform: uppercase;
+}
+
+/* Multi-paragraph roast styling */
+.roast-message p {
+    margin-bottom: 12px;
+}
+
+.roast-message br + br {
+    display: block;
+    content: "";
+    margin-top: 12px;
+}
+
+/* Style for level 5 roasts - extra intense */
+.level-5 .roast-message {
+    background-color: rgba(40, 30, 30, 0.9);
+    border-left: 4px solid #ff0000;
+    border-right: 2px solid #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+.level-5 .curse-word {
+    color: #ff0000;
+    text-shadow: 0 0 3px rgba(255, 0, 0, 0.5);
+    font-weight: 800;
+} 

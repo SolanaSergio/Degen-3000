@@ -10,11 +10,21 @@
                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
                   ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 0);
   
+  // Detect iOS specifically
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || 
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  
   if (isMobile) {
     console.log("🚨 IMMEDIATE MOBILE DETECTION - Adding basic mobile classes");
     // Add classes ASAP
     document.documentElement.classList.add('mobile-view');
     if (document.body) document.body.classList.add('mobile-view');
+    
+    // Add iOS specific class if needed
+    if (isIOS) {
+      document.documentElement.classList.add('ios-device');
+      if (document.body) document.body.classList.add('ios-device');
+    }
     
     // Add viewport meta immediately if not present
     if (!document.querySelector('meta[name="viewport"]')) {
@@ -36,10 +46,24 @@
       .mobile-view .chat-section, body.mobile-view .chat-section {
         width: 100% !important;
         order: 1 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .mobile-view .messages-container, body.mobile-view .messages-container {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-height: 60vh !important;
       }
       .mobile-view .left-sidebar-wrapper, body.mobile-view .left-sidebar-wrapper {
         width: 100% !important;
         order: 2 !important;
+      }
+      /* Fix iOS scroll issues */
+      .ios-device .scrollable,
+      .ios-device .messages-container,
+      .ios-device .chat-section {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
       }
     `;
     document.head.appendChild(style);
@@ -1462,7 +1486,7 @@ function setupMobileControlPanel() {
   if (!controlPanel.querySelector('.control-panel-toggle')) {
     const toggle = document.createElement('div');
     toggle.className = 'control-panel-toggle';
-    toggle.innerHTML = '<span>Control Panel</span><span class="toggle-icon">▼</span>';
+    toggle.innerHTML = '<span class="toggle-text">Control Panel</span><span class="toggle-icon">▼</span>';
     
     // Insert at the top of control panel
     if (controlPanel.firstChild) {
@@ -1485,8 +1509,8 @@ function setupMobileControlPanel() {
       localStorage.setItem('controlPanelCollapsed', controlPanel.classList.contains('collapsed'));
     });
     
-    // Apply saved preference
-    if (localStorage.getItem('controlPanelCollapsed') === 'true') {
+    // Apply saved preference - default to collapsed on mobile
+    if (localStorage.getItem('controlPanelCollapsed') !== 'false') {
       controlPanel.classList.add('collapsed');
       const icon = toggle.querySelector('.toggle-icon');
       if (icon) icon.textContent = '▼';
@@ -1494,7 +1518,7 @@ function setupMobileControlPanel() {
   }
   
   // Setup tabbed sections for smaller screens
-  const isSmallScreen = currentViewportWidth <= 480;
+  const isSmallScreen = currentViewportWidth <= 576;
   if (isSmallScreen) {
     setupTabbedSections(controlPanel);
   } else {
@@ -1556,6 +1580,16 @@ function setupTabbedSections(controlPanel) {
   
   // Get all sections and create tabs
   const sections = controlPanel.querySelectorAll('.control-panel-section, .theme-section, .level-section, .mode-section');
+  
+  // Hide all sections initially except the first one
+  sections.forEach((section, index) => {
+    if (index > 0) {
+      section.style.display = 'none';
+    } else {
+      section.style.display = 'block';
+    }
+  });
+  
   sections.forEach((section, index) => {
     // Skip if already processed
     if (section.classList.contains('tab-ready')) return;
@@ -1579,17 +1613,25 @@ function setupTabbedSections(controlPanel) {
     if (index === 0 && !controlPanel.querySelector('.control-panel-tab.active')) {
       tab.classList.add('active');
       section.classList.add('active');
+      section.style.display = 'block';
     }
     
     // Add click handler
     tab.addEventListener('click', function() {
       // Deactivate all tabs and sections
       controlPanel.querySelectorAll('.control-panel-tab').forEach(t => t.classList.remove('active'));
-      sections.forEach(s => s.classList.remove('active'));
+      sections.forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+      });
       
       // Activate current tab and section
       tab.classList.add('active');
       section.classList.add('active');
+      section.style.display = 'block';
+      
+      // Ensure section is visible (scroll to it)
+      section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       
       // Store preference
       localStorage.setItem('activeControlPanelTab', tab.dataset.sectionId);
@@ -1670,15 +1712,44 @@ function checkChatScroll() {
  * Functions to improve scrolling on mobile devices
  */
 function improveScrolling() {
+  console.log("📱 Improving scrolling behavior for mobile devices");
+  
   // Apply smooth scrolling to the whole page
   document.documentElement.style.scrollBehavior = 'smooth';
   
   // Fix momentum scrolling on iOS
-  const scrollableElements = document.querySelectorAll('.messages-container, .chat-section, .control-panel-component');
+  const scrollableElements = document.querySelectorAll('.messages-container, .chat-section, .control-panel-component, .scrollable');
   scrollableElements.forEach(el => {
     el.style.webkitOverflowScrolling = 'touch';
     el.style.overflowY = 'auto';
+    el.style.overscrollBehavior = 'contain';
+    el.style.touchAction = 'pan-y';
+    
+    // Add passive event listeners for better performance
+    el.addEventListener('touchstart', function() {}, { passive: true });
+    el.addEventListener('touchmove', function(e) {
+      // Only prevent default if scrolling isn't needed
+      if (el.scrollHeight <= el.clientHeight) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Ensure scrolling works properly
+    el.addEventListener('scroll', function() {
+      // Keep track of scroll position for restoration
+      el.dataset.lastScrollTop = el.scrollTop;
+    });
   });
+  
+  // Enable scrolling for the whole document
+  document.body.style.overflow = 'auto';
+  document.documentElement.style.overflow = 'auto';
+  
+  // Add special fix for iOS momentum scrolling
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    document.body.style.webkitOverflowScrolling = 'touch';
+    document.documentElement.style.webkitOverflowScrolling = 'touch';
+  }
 }
 
 /**
@@ -1918,6 +1989,12 @@ function setupMobileInputHandling() {
     // Is this an iOS device?
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     
+    // Make sure the input can expand with content but has a reasonable max height
+    chatInput.style.height = 'auto';
+    chatInput.style.minHeight = '44px';
+    chatInput.style.maxHeight = '100px';
+    chatInput.style.overflowY = 'auto';
+    
     // Enhanced focus behavior for better keyboard handling
     chatInput.addEventListener('focus', function() {
       console.log("📱 Input field focused");
@@ -1926,38 +2003,72 @@ function setupMobileInputHandling() {
       chatInput.classList.add('active-input');
       document.body.classList.add('input-focused');
       
+      // Remember scroll position before focus
+      const messagesContainer = document.querySelector('.messages-container');
+      if (messagesContainer) {
+        messagesContainer.dataset.lastScrollTop = messagesContainer.scrollTop;
+      }
+      
       // iOS-specific adjustments
       if (isIOS) {
         document.body.classList.add('ios-keyboard-open');
         
-        // Ensure the chat section is visible and sized correctly
+        // Ensure the messages container is sized correctly
         const chatSection = document.querySelector('.chat-section');
         if (chatSection) {
-          chatSection.style.maxHeight = '50vh';
-          chatSection.style.height = '50vh';
+          chatSection.style.maxHeight = '60vh';
+        }
+        
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+          messagesContainer.style.maxHeight = '50vh';
         }
         
         // Only after a delay to let keyboard appear
         setTimeout(() => {
           // Scroll the input into view
-          chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          chatInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
           
-          // Additional scroll adjustment for iOS
-          setTimeout(() => {
-            window.scrollTo(0, window.scrollY + 100);
-          }, 200);
+          // Make sure the page doesn't jump around
+          window.scrollTo(0, 0);
         }, 300);
       } else {
         // For Android/other devices
         setTimeout(() => {
           // Scroll the page to ensure the input is visible
-          const rect = chatInput.getBoundingClientRect();
-          const isInView = (rect.top >= 0 && rect.bottom <= window.innerHeight);
-          
-          if (!isInView) {
-            chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+          chatInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }, 300);
+      }
+    });
+    
+    // Auto-adjust textarea height as user types
+    chatInput.addEventListener('input', function() {
+      // Reset height to calculate actual content height
+      this.style.height = 'auto';
+      
+      // Calculate new height (capped by CSS max-height)
+      const newHeight = Math.min(this.scrollHeight, 100);
+      this.style.height = newHeight + 'px';
+      
+      // If we're near the max height, enable scrolling
+      if (newHeight >= 90) {
+        this.style.overflowY = 'auto';
+      } else {
+        this.style.overflowY = 'hidden';
+      }
+    });
+    
+    // Handle sending messages with soft keyboard
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        // Send message on Enter (but allow Shift+Enter for newlines)
+        e.preventDefault();
+        
+        // Find the send button and trigger it
+        const sendButton = document.querySelector('.send-button, #send-button, .action-button[data-action="send"]');
+        if (sendButton) {
+          sendButton.click();
+        }
       }
     });
     
@@ -1981,109 +2092,28 @@ function setupMobileInputHandling() {
           if (isIOS) {
             const chatSection = document.querySelector('.chat-section');
             if (chatSection) {
-              chatSection.style.maxHeight = '80vh';
-              chatSection.style.height = '75vh';
+              chatSection.style.maxHeight = '70vh';
+            }
+            
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+              messagesContainer.style.maxHeight = '60vh';
             }
           }
           
-          // Scroll back to chat area when input loses focus
+          // Restore scroll position to show newest messages
           const messagesContainer = document.querySelector('.messages-container');
           if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (messagesContainer.dataset.lastScrollTop) {
+              messagesContainer.scrollTop = messagesContainer.dataset.lastScrollTop;
+            } else {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
           }
         }
       }, 100);
     });
-    
-    // Enhanced input handler to adjust height as typing occurs
-    chatInput.addEventListener('input', function() {
-      // Auto-resize the textarea to fit content
-      if (chatInput.tagName === 'TEXTAREA') {
-        chatInput.style.height = 'auto';
-        
-        // Limit max height to avoid excessive growth
-        const newHeight = Math.min(chatInput.scrollHeight, 120);
-        chatInput.style.height = newHeight + 'px';
-      }
-      
-      // Ensure input remains visible as content grows
-      setTimeout(() => {
-        chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 0);
-    });
-    
-    // Override form submission to prevent keyboard issues
-    const messageForm = document.querySelector('.message-form, #message-form');
-    if (messageForm) {
-      // Add a special handler just before form submission
-      messageForm.addEventListener('submit', function(e) {
-        console.log("📱 Form submitted");
-        
-        // Store the input text
-        const inputText = chatInput.value.trim();
-        
-        // Only proceed if we have text
-        if (inputText) {
-          // Clear the input field immediately to prevent double-sends
-          chatInput.value = '';
-          
-          // Reset height if it's a textarea
-          if (chatInput.tagName === 'TEXTAREA') {
-            chatInput.style.height = 'auto';
-          }
-          
-          // If this is iOS, we use a special approach
-          if (isIOS) {
-            // Don't refocus immediately - let keyboard dismiss
-            setTimeout(() => {
-              // Only after keyboard is dismissed, refocus the input
-              chatInput.focus();
-              
-              // Scroll to ensure it's visible
-              chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-          } else {
-            // For non-iOS, refocus immediately
-            chatInput.focus();
-          }
-        }
-      });
-    }
-  } else {
-    console.warn("📱 Chat input field not found - can't set up mobile handling");
   }
-  
-  // Improve buttons for touch interaction
-  const buttons = document.querySelectorAll('button, .control-panel button, .send-button, .action-button');
-  buttons.forEach(button => {
-    if (!button.classList.contains('touch-enhanced')) {
-      // Increase tap target size for mobile
-      button.style.minHeight = '44px';
-      button.style.minWidth = '44px';
-      
-      // Add tactile feedback class
-      button.classList.add('touch-enhanced');
-      
-      // Prevent double-tap zoom on iOS
-      button.addEventListener('touchend', function(e) {
-        // Only prevent default if this is a simple tap, not a scroll or multi-touch
-        if (!this.touchMoved && e.touches.length <= 1) {
-          e.preventDefault();
-          // Trigger click after preventing default
-          setTimeout(() => button.click(), 0);
-        }
-      });
-      
-      // Track if touch moved (to avoid preventing scrolling)
-      button.addEventListener('touchstart', function() {
-        this.touchMoved = false;
-      });
-      
-      button.addEventListener('touchmove', function() {
-        this.touchMoved = true;
-      });
-    }
-  });
 }
 
 // Add keyboard detection and auto-adjustment for mobile devices

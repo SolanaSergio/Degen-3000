@@ -731,17 +731,41 @@ function typeMessage(element, text, callback, speed = 10) {
 function highlightIntensity(message, level) {
     if (level <= 2) return message;
     
-    // Add emphasis to curse words at higher levels
-    const emphasized = message.replace(/\b(fuck|shit|damn|ass|bitch|crap|hell)\b/gi, match => {
-        return `<span class="curse-word">${match}</span>`;
-    });
+    // Check if message contains paragraphs
+    const hasParagraphs = message.includes("\n");
     
-    // Add emphasis to ALL CAPS words
-    const withEmphasis = emphasized.replace(/\b[A-Z]{2,}\b/g, match => {
-        return `<span class="emphasis">${match}</span>`;
-    });
-    
-    return withEmphasis;
+    if (hasParagraphs) {
+        // Process each paragraph separately
+        const paragraphs = message.split("\n").filter(p => p.trim().length > 0);
+        const processedParagraphs = paragraphs.map(paragraph => {
+            // Add emphasis to curse words
+            let processed = paragraph.replace(/\b(fuck|shit|damn|ass|bitch|crap|hell|cunt|dick|cock|motherfuck|bastard)\w*\b/gi, match => {
+                return `<span class="curse-word">${match}</span>`;
+            });
+            
+            // Add emphasis to ALL CAPS words
+            processed = processed.replace(/\b[A-Z]{2,}\b/g, match => {
+                return `<span class="emphasis">${match}</span>`;
+            });
+            
+            return processed;
+        });
+        
+        // Join paragraphs with proper HTML line breaks
+        return processedParagraphs.join("<br><br>");
+    } else {
+        // Add emphasis to curse words at higher levels
+        const emphasized = message.replace(/\b(fuck|shit|damn|ass|bitch|crap|hell|cunt|dick|cock|motherfuck|bastard)\w*\b/gi, match => {
+            return `<span class="curse-word">${match}</span>`;
+        });
+        
+        // Add emphasis to ALL CAPS words
+        const withEmphasis = emphasized.replace(/\b[A-Z]{2,}\b/g, match => {
+            return `<span class="emphasis">${match}</span>`;
+        });
+        
+        return withEmphasis;
+    }
 }
 
 // Modified appendMessage function to include typing effect for bot messages
@@ -816,7 +840,7 @@ function appendMessage(sender, message, className = '') {
                 setTimeout(() => {
                     messageElement.classList.remove('shake');
                 }, 500);
-            }, 100);
+            }, Math.max(15 - (currentRoastLevel * 2), 5)); // Type faster at higher roast levels
             
             // Play sound effect when typing completes
             if (window.dashboardFunctions && window.dashboardFunctions.playSound) {

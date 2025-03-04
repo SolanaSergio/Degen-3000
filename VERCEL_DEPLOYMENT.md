@@ -1,49 +1,91 @@
-# Vercel Deployment Guide
+# Vercel Deployment Guide for Degen Roast 3000
 
-This document provides instructions for deploying the Degen Roast 3000 application to Vercel.
+This document provides instructions for deploying the Degen Roast 3000 application to Vercel, with special attention to the Hugging Face API connection.
 
-## Required Environment Variables
+## Environment Variables Setup
 
-Set the following environment variables in your Vercel project settings:
+Vercel requires environment variables to be explicitly set in the dashboard. Follow these steps to ensure your Hugging Face connection works properly:
 
-```
-# API Configuration
-HF_TOKEN=your_huggingface_token_here
-MODEL_NAME=deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+### Required Environment Variables
 
-# Server Configuration
-PORT=8000
-NODE_ENV=production
+1. **HF_TOKEN** - Your Hugging Face API token
+   - This is the MOST IMPORTANT variable for AI functionality
+   - Get your token from: https://huggingface.co/settings/tokens
+   - Make sure your token has READ permissions
 
-# Session
-SESSION_SECRET=your_session_secret_here
+### Optional Environment Variables
 
-# Debug mode (set to false in production)
-DEBUG_MODE=false
-```
+These provide additional configuration but are not strictly required:
 
-## Deployment Steps
+- **PORT** - Server port (Vercel may override this, but include it anyway)
+  - Recommended value: `8000`
 
-1. **Connect your repository to Vercel**
-   - Create a new project in Vercel
-   - Connect to your Git repository
-   
-2. **Configure build settings**
-   - Build Command: `npm run build`
+- **NODE_ENV** - Environment mode
+  - Recommended value: `production`
+
+- **DEBUG_MODE** - Set to `true` or `false`
+  - Default: `false`
+
+- **LOG_LEVEL** - Options: `error`, `warn`, `info`, `debug`
+  - Default: `info`
+
+- **SESSION_SECRET** - Secret for session encryption
+  - ✅ **Completely Optional** - Has a secure default value
+  - Only set this if you want to use a custom session secret
+
+## Step-by-Step Deployment Process
+
+1. **Prepare your repository**
+   - Make sure your code is in a GitHub, GitLab, or Bitbucket repository
+   - Ensure your repository includes the `vercel.json` configuration file
+
+2. **Connect to Vercel**
+   - Create an account on [Vercel](https://vercel.com) if you don't have one
+   - Create a new project and import your repository
+
+3. **Configure build settings**
+   - Framework Preset: `Other`
+   - Build Command: `npm install && npm run build`
    - Output Directory: `public`
    - Install Command: `npm install`
 
-3. **Add environment variables**
-   - Add all the environment variables listed above
-   
-4. **Deploy**
-   - Click "Deploy" and wait for the build to complete
+4. **Add environment variables**
+   - In your project settings, go to "Environment Variables"
+   - **Required**: Add `HF_TOKEN` with your actual Hugging Face token value
+   - Optional: Add any of the optional variables if you want to customize behavior
 
-## Troubleshooting
+5. **Deploy**
+   - Click "Deploy" to start the deployment process
+   - Vercel will build and deploy your application
 
-If you encounter any deployment issues:
+## Troubleshooting Hugging Face Connection Issues
 
-1. Check the Vercel build logs for specific error messages
-2. Ensure all required environment variables are set
-3. Verify that your `vercel.json` file is properly configured
-4. Confirm that your server.js is exporting the app for serverless deployment 
+If your application is not connecting to Hugging Face after deployment:
+
+1. **Check Environment Variables**
+   - Verify `HF_TOKEN` is correctly set in Vercel dashboard
+   - Make sure there are no typos in the variable name (it MUST be `HF_TOKEN`, not something like `HUGGINGFACE_TOKEN`)
+
+2. **Verify Token Permissions**
+   - Ensure your Hugging Face token has proper READ permissions
+   - Tokens with restricted access might not work with the DeepSeek model
+
+3. **Check Function Logs**
+   - In Vercel dashboard, go to "Functions" and check the logs for any errors
+   - Look for messages related to Hugging Face initialization
+
+4. **Test with local deployment first**
+   - Run `node verify-token.js` locally to verify your token works
+   - Confirm local deployment connects to Hugging Face before deploying to Vercel
+
+5. **Check for Rate Limiting**
+   - Hugging Face has rate limits that might affect your application
+   - Consider implementing local fallbacks for high-traffic scenarios
+
+## Making Changes After Deployment
+
+After deploying, if you need to update environment variables:
+
+1. Go to your project settings in Vercel dashboard
+2. Update the necessary environment variables
+3. Redeploy your application for changes to take effect 

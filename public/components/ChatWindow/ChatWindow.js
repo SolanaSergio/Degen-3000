@@ -213,7 +213,7 @@ class ChatWindow extends ComponentBase {
     }
     
     // Start typing animation
-    this.startTypingAnimation(message);
+    this.showTypingAnimation(message.text);
     
     // After the animation completes or on mobile devices, ensure input field is accessible
     setTimeout(() => {
