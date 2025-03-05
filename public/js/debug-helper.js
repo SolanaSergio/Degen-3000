@@ -9,48 +9,88 @@
         const container = document.createElement('div');
         container.id = 'debug-error-container';
         container.style.position = 'fixed';
-        container.style.top = '10px';
-        container.style.left = '10px';
-        container.style.right = '10px';
-        container.style.maxHeight = '50vh';
+        container.style.top = '70px'; // Moved down to avoid overlap with header
+        container.style.right = '20px'; // Aligned with DevTools
+        container.style.width = '80vw';
+        container.style.maxWidth = '1200px';
+        container.style.maxHeight = '80vh';
         container.style.overflow = 'auto';
-        container.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+        container.style.backgroundColor = 'rgba(26, 26, 26, 0.95)';
         container.style.color = 'white';
-        container.style.padding = '10px';
-        container.style.borderRadius = '5px';
-        container.style.fontFamily = 'monospace';
+        container.style.padding = '16px';
+        container.style.borderRadius = '12px';
+        container.style.fontFamily = 'system-ui, -apple-system, sans-serif';
         container.style.fontSize = '14px';
-        container.style.zIndex = '9999';
+        container.style.zIndex = '9997'; // Below DevTools
         container.style.display = 'none';
+        container.style.border = '1px solid #333';
+        container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
         
         const heading = document.createElement('h2');
-        heading.textContent = 'JavaScript Errors:';
-        heading.style.margin = '0 0 10px 0';
+        heading.textContent = '🔧 Debug Console';
+        heading.style.margin = '0 0 16px 0';
+        heading.style.fontSize = '16px';
+        heading.style.fontWeight = '600';
+        heading.style.display = 'flex';
+        heading.style.alignItems = 'center';
+        heading.style.gap = '8px';
         
         const closeButton = document.createElement('button');
-        closeButton.textContent = 'Close';
+        closeButton.textContent = '×';
         closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.backgroundColor = 'white';
-        closeButton.style.color = 'red';
-        closeButton.style.border = 'none';
-        closeButton.style.borderRadius = '3px';
+        closeButton.style.top = '16px';
+        closeButton.style.right = '16px';
+        closeButton.style.width = '24px';
+        closeButton.style.height = '24px';
+        closeButton.style.display = 'flex';
+        closeButton.style.alignItems = 'center';
+        closeButton.style.justifyContent = 'center';
+        closeButton.style.backgroundColor = '#2d2d2d';
+        closeButton.style.color = '#fff';
+        closeButton.style.border = '1px solid #333';
+        closeButton.style.borderRadius = '6px';
         closeButton.style.cursor = 'pointer';
+        closeButton.style.fontSize = '18px';
+        closeButton.style.transition = 'all 0.2s ease';
+        
+        closeButton.addEventListener('mouseover', function() {
+            closeButton.style.backgroundColor = '#3d3d3d';
+            closeButton.style.transform = 'translateY(-1px)';
+        });
+        
+        closeButton.addEventListener('mouseout', function() {
+            closeButton.style.backgroundColor = '#2d2d2d';
+            closeButton.style.transform = 'none';
+        });
         
         closeButton.addEventListener('click', function() {
             container.style.display = 'none';
+            // Update DevTools button state
+            const debugButton = document.querySelector('.tool-button[data-tool="debug"]');
+            if (debugButton) {
+                debugButton.classList.remove('active');
+            }
         });
         
         const errorList = document.createElement('div');
         errorList.id = 'error-list';
+        errorList.style.backgroundColor = '#1a1a1a';
+        errorList.style.padding = '12px';
+        errorList.style.borderRadius = '8px';
+        errorList.style.border = '1px solid #333';
         
         container.appendChild(heading);
         container.appendChild(closeButton);
         container.appendChild(errorList);
+        document.body.appendChild(container);
         
         return container;
+    }
+    
+    // Remove any existing debug components in header
+    const debugHeader = document.querySelector('.debug-component, .debug-button, #debug-button');
+    if (debugHeader) {
+        debugHeader.remove();
     }
     
     // Add error to the container

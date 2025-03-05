@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const sessionManager = require('./utils/session-manager');
 const apiRoutes = require('./routes/api');
 const session = require('express-session');
+const { initializeWebSocketServer } = require('./utils/console-logger');
 
 // Initialize Express app
 const app = express();
@@ -165,6 +166,10 @@ if (require.main === module) {
     console.log('---------------------------------------------\n');
     console.log(`📊 API available at http://localhost:${PORT}/api`);
     console.log(`📱 Frontend available at http://localhost:${PORT}`);
+    
+    // Initialize WebSocket server
+    initializeWebSocketServer(server);
+    console.log(`🔌 WebSocket server initialized for console logging`);
     
     // In a regular server, we could clean up expired sessions periodically
     // But this won't work in a serverless environment
