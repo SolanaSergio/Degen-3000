@@ -580,7 +580,7 @@ YOUR ONLY RESPONSE SHOULD BE A BRUTAL, UNFILTERED ROAST WITH NO ADDITIONAL TEXT.
         
         // Model configuration with higher temperature for creativity
       const modelConfig = {
-          model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+          model: "mistralai/Mistral-7B-Instruct-v0.2",
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage }
@@ -590,13 +590,13 @@ YOUR ONLY RESPONSE SHOULD BE A BRUTAL, UNFILTERED ROAST WITH NO ADDITIONAL TEXT.
           top_p: Math.min(0.95 + (normalizedLevel * 0.01), 0.99) // Slightly higher top_p for more variety
       };
       
-      console.log('🚀 Calling Hugging Face API with DeepSeek model...');
+      console.log('🚀 Calling Hugging Face API with Mistral model...');
         if (DEBUG_MODE) console.log('📊 Model config:', JSON.stringify(modelConfig, null, 2));
         
         // Call the API with timeout
         const response = await Promise.race([
           hfClient.textGeneration({
-            model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+            model: "mistralai/Mistral-7B-Instruct-v0.2",
             inputs: userMessage,
             parameters: {
               max_new_tokens: 500,

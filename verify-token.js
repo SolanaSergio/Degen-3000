@@ -22,27 +22,27 @@ console.log('Verifying token with Hugging Face API...');
 // Initialize the Hugging Face client
 const client = new HfInference(process.env.HF_TOKEN);
 
-// The new model we want to use
-const MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B";
+// The model we want to use
+const MODEL = "mistralai/Mistral-7B-Instruct-v0.2";
 console.log(`Testing with model: ${MODEL}`);
 
 // Simple test request
 async function verifyToken() {
   try {
-    // Use the new chatCompletion method with the DeepSeek model
-    const response = await client.chatCompletion({
+    // Use textGeneration instead of chatCompletion
+    const response = await client.textGeneration({
       model: MODEL,
-      messages: [
-        { role: "user", content: "Generate a short test response." }
-      ],
-      max_tokens: 20,
-      temperature: 0.7
+      inputs: "Generate a short test response.",
+      parameters: {
+        max_new_tokens: 20,
+        temperature: 0.7
+      }
     });
 
-    if (response && response.choices && response.choices.length > 0) {
+    if (response && response.generated_text) {
       console.log('✅ SUCCESS: Token verified! API connection is working correctly.');
       console.log('\nAPI Response:');
-      console.log(response.choices[0].message);
+      console.log(response.generated_text);
       return true;
     } else {
       console.error('❌ ERROR: Invalid response format');
@@ -60,20 +60,13 @@ async function verifyToken() {
   }
 }
 
-// Run verification
-verifyToken()
-  .then(success => {
-    console.log('\n---------------------------------------------');
-    if (success) {
-      console.log('✅ You can now run the application with AI-powered roasts!');
-      console.log(`   The application will use the ${MODEL} model.`);
-      console.log('   Start the server with: node run.js');
-    } else {
-      console.log('❌ Token verification failed. Please check your token and try again.');
-    }
-    console.log('---------------------------------------------\n');
-  })
-  .catch(err => {
-    console.error('Unexpected error:', err);
-    process.exit(1);
-  }); 
+// Run the verification
+verifyToken().then(success => {
+  console.log('\n---------------------------------------------');
+  if (success) {
+    console.log('✅ Token verification successful! Your Hugging Face integration is working.');
+  } else {
+    console.log('❌ Token verification failed. Please check your token and try again.');
+  }
+  console.log('---------------------------------------------\n');
+}); 

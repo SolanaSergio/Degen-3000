@@ -504,11 +504,7 @@ router.post('/roast', async (req, res) => {
     if (hfClientAvailable) {
       try {
         console.log('Attempting to generate roast using Hugging Face API...');
-        const prompt = `<s>[INST] You are a savage, unfiltered roast master. Your responses should be aggressive, personal, and brutally honest. No holding back, no filters, pure unhinged savagery.
-
-User: ${message}
-
-Assistant: Listen here you worthless piece of shit, you're about to get absolutely fucking destroyed. No holding back, no filters, pure unhinged savagery. Let's make this personal and brutal. [/INST]`;
+        const prompt = `Generate a savage, unfiltered roast about: "${message}". Make it extremely vulgar, personal, and brutally honest. No holding back, no filters, pure unhinged savagery.`;
 
         const response = await client.textGeneration({
           model: modelName,
@@ -530,7 +526,7 @@ Assistant: Listen here you worthless piece of shit, you're about to get absolute
         
         // Remove the prompt and any AI meta-commentary
         generatedText = generatedText
-          .replace(/<s>\[INST\].*?\[\/INST\]/s, '') // Remove the entire prompt
+          .replace(prompt, '') // Remove the prompt
           .replace(/<[^>]*>/g, '') // Remove HTML tags
           .replace(/\[[^\]]*\]/g, '') // Remove square brackets
           .replace(/\([^)]*\)/g, '') // Remove parentheses
@@ -538,7 +534,6 @@ Assistant: Listen here you worthless piece of shit, you're about to get absolute
           .replace(/\s+/g, ' ') // Normalize whitespace
           .replace(/^Assistant:\s*/i, '') // Remove "Assistant:" prefix
           .replace(/^User:\s*/i, '') // Remove "User:" prefix
-          .replace(/^Listen here you worthless piece of shit.*?brutal\.\s*/i, '') // Remove the standard intro
           .trim();
 
         console.log('Cleaned generated text:', generatedText);
@@ -756,7 +751,7 @@ function detectMessageTopics(message) {
 
 // Enhanced ensureVulgarity function
 const ensureVulgarity = (roast) => {
-  const vulgarTerms = ['fuck', 'fucking', 'fucked', 'motherfucker', 'clusterfuck', 
+  const vulgarTerms = ['fuck', 'fucking', 'fucked', 'motherfuck', 'clusterfuck', 
     'shit', 'bullshit', 'shithead', 'shitfaced', 'shitstain',
     'bitch', 'bitchass', 'son of a bitch', 
     'cunt', 'ass', 'asshole', 'ass-wipe', 'ass-licker',
